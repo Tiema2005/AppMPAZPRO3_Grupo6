@@ -1,0 +1,95 @@
+package com.example.appmpazpro3_grupo6.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+
+@Composable
+fun BienvenidaExpandida(
+    onComenzarClick: () -> Unit = {}
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(40.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(40.dp)
+    ) {
+
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(30.dp)
+        ) {
+            Text(
+                text = "MPAZ PRO 3.º",
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF0066CC),
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = "📖",
+                fontSize = 120.sp
+            )
+        }
+
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(28.dp)
+        ) {
+            Text(
+                text = "¡Bienvenido!",
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF003366)
+            )
+
+            Text(
+                text = "Escuela Escritora Marcela Paz",
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = "Tu plataforma de aprendizaje para Tercero Básico",
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center
+            )
+
+            Button(
+                onClick = onComenzarClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text("Comenzar →", fontSize = 20.sp)
+            }
+        }
+    }
+}
+
+@Preview(
+    name = "Vista expandida - Tablet",
+    showBackground = true,
+    widthDp = 1000,
+    heightDp = 650
+)
+@Composable
+fun PreviewBienvenidaExpandida() {
+    MaterialTheme {
+        BienvenidaExpandida()
+    }
+}
