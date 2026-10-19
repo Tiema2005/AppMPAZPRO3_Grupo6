@@ -5,12 +5,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
 fun PerfilScreen(
+    nombre: String = "Estudiante de prueba",
+    curso: String = "3° Básico",
     onContinuarClick: () -> Unit = {},
     onVolverClick: () -> Unit = {}
 ) {
@@ -23,14 +25,32 @@ fun PerfilScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text("Mi Perfil", fontSize = 30.sp)
-            Spacer(Modifier.height(24.dp))
-            Text("👤", fontSize = 70.sp)
-            Spacer(Modifier.height(16.dp))
-            Text("Nombre: Martín Soto", fontSize = 20.sp)
-            Text("Curso: 3° Básico", fontSize = 18.sp)
-            Text("Objetivo: Aprender y mejorar cada día")
 
+            Text(
+                text = "Mi Perfil",
+                fontSize = 30.sp
+            )
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                text = "👤",
+                fontSize = 70.sp
+            )
+            Spacer(Modifier.height(16.dp))
+
+            Text(
+                text = "Nombre: $nombre",
+                fontSize = 20.sp
+            )
+
+            Text(
+                text = "Curso: $curso",
+                fontSize = 18.sp
+            )
+
+            Text(
+                text = "Objetivo: Aprender y mejorar cada día"
+            )
             Spacer(Modifier.height(24.dp))
 
             LinearProgressIndicator(
@@ -39,10 +59,16 @@ fun PerfilScreen(
             )
             Text("Mi progreso: 60%")
             Spacer(Modifier.height(32.dp))
-            Button(onClick = onContinuarClick) {
+
+            Button(
+                onClick = onContinuarClick
+            ) {
                 Text("Continuar")
             }
-            TextButton(onClick = onVolverClick) {
+
+            TextButton(
+                onClick = onVolverClick
+            ) {
                 Text("Volver")
             }
         }
@@ -53,6 +79,9 @@ fun PerfilScreen(
 @Composable
 fun PerfilScreenPreview() {
     MaterialTheme {
-        PerfilScreen()
+        PerfilScreen(
+            nombre = "Camila González",
+            curso = "3° Básico"
+        )
     }
 }
