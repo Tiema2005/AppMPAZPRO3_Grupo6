@@ -10,6 +10,7 @@ import com.example.appmpazpro3_grupo6.ui.screens.LoginScreen
 import com.example.appmpazpro3_grupo6.ui.screens.RegistroScreen
 import com.example.appmpazpro3_grupo6.ui.screens.PerfilScreen
 import com.example.appmpazpro3_grupo6.ui.screens.AsignaturasScreen
+import com.example.appmpazpro3_grupo6.ui.screens.ModoEstudioScreen
 import com.example.appmpazpro3_grupo6.viewmodel.EstudianteViewModel
 
 @Composable
@@ -20,7 +21,6 @@ fun AppNavigation() {
         navController = navController,
         startDestination = Routes.BIENVENIDA
     ) {
-
         composable(Routes.BIENVENIDA) {
             BienvenidaScreen(
                 onComenzarClick = {
@@ -53,7 +53,6 @@ fun AppNavigation() {
                         nombre = nombre,
                         curso = curso
                     )
-
                     navController.navigate(Routes.PERFIL) {
                         popUpTo(Routes.REGISTRO) {
                             inclusive = true
@@ -66,13 +65,15 @@ fun AppNavigation() {
         composable(Routes.PERFIL) {
             val nombre = estudianteViewModel.nombreEstudiante
                 .ifBlank { "Estudiante de prueba" }
-            val curso = estudianteViewModel.cursoEstudiante
 
             PerfilScreen(
                 nombre = nombre,
-                curso = curso,
+                curso = estudianteViewModel.cursoEstudiante,
                 onContinuarClick = {
                     navController.navigate(Routes.ASIGNATURAS)
+                },
+                onModoEstudioClick = {
+                    navController.navigate(Routes.MODO_ESTUDIO)
                 },
                 onVolverClick = {
                     navController.popBackStack()
@@ -82,6 +83,14 @@ fun AppNavigation() {
 
         composable(Routes.ASIGNATURAS) {
             AsignaturasScreen(
+                onVolverClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Routes.MODO_ESTUDIO) {
+            ModoEstudioScreen(
                 onVolverClick = {
                     navController.popBackStack()
                 }

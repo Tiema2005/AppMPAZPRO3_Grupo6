@@ -14,6 +14,7 @@ fun PerfilScreen(
     nombre: String = "Estudiante de prueba",
     curso: String = "3° Básico",
     onContinuarClick: () -> Unit = {},
+    onModoEstudioClick: () -> Unit = {},
     onVolverClick: () -> Unit = {}
 ) {
     Scaffold { innerPadding ->
@@ -25,32 +26,16 @@ fun PerfilScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-
-            Text(
-                text = "Mi Perfil",
-                fontSize = 30.sp
-            )
+            Text("Mi Perfil", fontSize = 30.sp)
             Spacer(Modifier.height(24.dp))
 
-            Text(
-                text = "👤",
-                fontSize = 70.sp
-            )
+            Text("👤", fontSize = 70.sp)
             Spacer(Modifier.height(16.dp))
 
-            Text(
-                text = "Nombre: $nombre",
-                fontSize = 20.sp
-            )
+            Text("Nombre: $nombre", fontSize = 20.sp)
+            Text("Curso: $curso", fontSize = 18.sp)
 
-            Text(
-                text = "Curso: $curso",
-                fontSize = 18.sp
-            )
-
-            Text(
-                text = "Objetivo: Aprender y mejorar cada día"
-            )
+            Text("Objetivo: Aprender y mejorar cada día")
             Spacer(Modifier.height(24.dp))
 
             LinearProgressIndicator(
@@ -60,15 +45,19 @@ fun PerfilScreen(
             Text("Mi progreso: 60%")
             Spacer(Modifier.height(32.dp))
 
-            Button(
-                onClick = onContinuarClick
-            ) {
-                Text("Continuar")
+            Button(onClick = onContinuarClick) {
+                Text("Continuar a asignaturas")
             }
+            Spacer(Modifier.height(12.dp))
 
-            TextButton(
-                onClick = onVolverClick
+            Button(
+                onClick = onModoEstudioClick
             ) {
+                Text("Activar modo estudio")
+            }
+            Spacer(Modifier.height(12.dp))
+
+            TextButton(onClick = onVolverClick) {
                 Text("Volver")
             }
         }
