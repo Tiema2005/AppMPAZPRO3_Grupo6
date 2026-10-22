@@ -3,10 +3,14 @@ package com.example.appmpazpro3_grupo6.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,11 +21,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.appmpazpro3_grupo6.ui.theme.MPAZBlanco
-import com.example.appmpazpro3_grupo6.ui.theme.MPAZBorde
-import com.example.appmpazpro3_grupo6.ui.theme.MPAZCoral
-import com.example.appmpazpro3_grupo6.ui.theme.MPAZError
-import com.example.appmpazpro3_grupo6.ui.theme.MPAZTextoSecundario
+
+import com.example.appmpazpro3_grupo6.ui.theme.*
 
 @Composable
 fun MPAZTextField(
@@ -58,6 +59,7 @@ fun MPAZTextField(
         enabled = enabled,
         readOnly = readOnly,
         isError = !mensajeError.isNullOrBlank(),
+
         visualTransformation = if (
             esContrasena && !contrasenaVisible
         ) {
@@ -65,6 +67,7 @@ fun MPAZTextField(
         } else {
             VisualTransformation.None
         },
+
         keyboardOptions = KeyboardOptions(
             keyboardType = if (esContrasena) {
                 KeyboardType.Password
@@ -72,21 +75,33 @@ fun MPAZTextField(
                 tipoTeclado
             }
         ),
+
         trailingIcon = if (esContrasena) {
             {
-                TextButton(
+                IconButton(
                     onClick = {
                         contrasenaVisible = !contrasenaVisible
                     }
                 ) {
-                    Text(
-                        if (contrasenaVisible) "Ocultar" else "Ver"
+                    Icon(
+                        imageVector = if (contrasenaVisible) {
+                            Icons.Filled.VisibilityOff
+                        } else {
+                            Icons.Filled.Visibility
+                        },
+                        contentDescription = if (contrasenaVisible) {
+                            "Ocultar contraseña"
+                        } else {
+                            "Mostrar contraseña"
+                        },
+                        tint = MPAZCoral
                     )
                 }
             }
         } else {
             null
         },
+
         supportingText = if (!mensajeError.isNullOrBlank()) {
             {
                 Text(mensajeError)
@@ -94,7 +109,9 @@ fun MPAZTextField(
         } else {
             null
         },
+
         shape = RoundedCornerShape(18.dp),
+
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MPAZCoral,
             unfocusedBorderColor = MPAZBorde,

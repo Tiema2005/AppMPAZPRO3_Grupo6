@@ -64,7 +64,7 @@ fun BienvenidaCompacta(
             )
 
             MPAZButton(
-                texto = "Comenzar →",
+                texto = "Comenzar",
                 onClick = onComenzarClick
             )
 

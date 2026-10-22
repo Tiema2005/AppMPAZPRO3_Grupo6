@@ -19,7 +19,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import com.example.appmpazpro3_grupo6.ui.components.*
 import com.example.appmpazpro3_grupo6.ui.theme.*
 
@@ -29,6 +28,7 @@ fun LoginScreen(
     onCrearCuentaClick: () -> Unit = {},
     onIngresarClick: () -> Unit = {}
 ) {
+
     var correo by rememberSaveable {
         mutableStateOf("")
     }
@@ -46,146 +46,163 @@ fun LoginScreen(
     }
 
     MPAZBackground {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = 24.dp,
-                    vertical = 20.dp
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
         ) {
+            val alturaPantalla = maxHeight
 
-            MPAZScreenHeader(
-                titulo = "Iniciar sesión",
-                subtitulo = "¡Qué bueno verte de nuevo!",
-                onVolverClick = onVolverClick
-            )
-
-            MascotaMPAZ(
-                modifier = Modifier.size(145.dp)
-            )
-
-            MPAZLogo(
-                compacto = true
-            )
-
-            MPAZCard(
+            Column(
                 modifier = Modifier
-                    .widthIn(max = 480.dp)
-                    .fillMaxWidth()
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
             ) {
 
-                Text(
-                    text = "¡Bienvenido!",
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MPAZTexto
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = alturaPantalla)
+                        .padding(
+                            horizontal = 24.dp,
+                            vertical = 20.dp
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
 
-                Spacer(Modifier.height(8.dp))
+                    Column(
+                        modifier = Modifier
+                            .widthIn(max = 480.dp)
+                            .fillMaxWidth()
+                    ) {
 
-                Text(
-                    text = "Ingresa tus datos para continuar",
-                    fontSize = 15.sp,
-                    color = MPAZTextoSecundario
-                )
+                        MPAZScreenHeader(
+                            titulo = "Iniciar sesión",
+                            subtitulo = "¡Qué bueno verte de nuevo!",
+                            onVolverClick = onVolverClick
+                        )
 
-                Spacer(Modifier.height(24.dp))
+                        Spacer(
+                            modifier = Modifier.height(16.dp)
+                        )
 
-                MPAZTextField(
-                    valor = correo,
-                    onValorChange = {
-                        correo = it
-                        errorCorreo = null
-                    },
-                    etiqueta = "Correo electrónico",
-                    placeholder = "ejemplo@correo.com",
-                    tipoTeclado = KeyboardType.Email,
-                    mensajeError = errorCorreo
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                MPAZTextField(
-                    valor = contrasena,
-                    onValorChange = {
-                        contrasena = it
-                        errorContrasena = null
-                    },
-                    etiqueta = "Contraseña",
-                    esContrasena = true,
-                    mensajeError = errorContrasena
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                MPAZButton(
-                    texto = "Ingresar →",
-                    onClick = {
-
-                        val correoValido =
-                            Patterns.EMAIL_ADDRESS
-                                .matcher(correo.trim())
-                                .matches()
-
-                        val contrasenaValida =
-                            contrasena.length >= 6
-
-                        errorCorreo = when {
-                            correo.isBlank() ->
-                                "Ingresa tu correo"
-
-                            !correoValido ->
-                                "Ingresa un correo válido"
-
-                            else -> null
-                        }
-
-                        errorContrasena = when {
-                            contrasena.isBlank() ->
-                                "Ingresa tu contraseña"
-
-                            !contrasenaValida ->
-                                "Debe tener al menos 6 caracteres"
-
-                            else -> null
-                        }
-
-                        if (
-                            errorCorreo == null &&
-                            errorContrasena == null
+                        MPAZCard(
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            onIngresarClick()
+
+                            Text(
+                                text = "¡Bienvenido!",
+                                fontSize = 23.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MPAZTexto
+                            )
+
+                            Spacer(Modifier.height(8.dp))
+
+                            Text(
+                                text = "Ingresa tus datos para continuar",
+                                fontSize = 15.sp,
+                                color = MPAZTextoSecundario
+                            )
+
+                            Spacer(Modifier.height(24.dp))
+
+                            MPAZTextField(
+                                valor = correo,
+                                onValorChange = {
+                                    correo = it
+                                    errorCorreo = null
+                                },
+                                etiqueta = "Correo electrónico",
+                                placeholder = "ejemplo@correo.com",
+                                tipoTeclado = KeyboardType.Email,
+                                mensajeError = errorCorreo
+                            )
+
+                            Spacer(Modifier.height(16.dp))
+
+                            MPAZTextField(
+                                valor = contrasena,
+                                onValorChange = {
+                                    contrasena = it
+                                    errorContrasena = null
+                                },
+                                etiqueta = "Contraseña",
+                                esContrasena = true,
+                                mensajeError = errorContrasena
+                            )
+
+                            Spacer(Modifier.height(24.dp))
+
+                            MPAZButton(
+                                texto = "Ingresar →",
+                                onClick = {
+
+                                    val correoValido =
+                                        Patterns.EMAIL_ADDRESS
+                                            .matcher(correo.trim())
+                                            .matches()
+
+                                    val contrasenaValida =
+                                        contrasena.length >= 6
+
+                                    errorCorreo = when {
+
+                                        correo.isBlank() ->
+                                            "Ingresa tu correo"
+
+                                        !correoValido ->
+                                            "Ingresa un correo válido"
+
+                                        else -> null
+                                    }
+
+                                    errorContrasena = when {
+
+                                        contrasena.isBlank() ->
+                                            "Ingresa tu contraseña"
+
+                                        !contrasenaValida ->
+                                            "Debe tener al menos 6 caracteres"
+
+                                        else -> null
+                                    }
+
+                                    if (
+                                        errorCorreo == null &&
+                                        errorContrasena == null
+                                    ) {
+                                        onIngresarClick()
+                                    }
+                                }
+                            )
+
+                            Spacer(Modifier.height(12.dp))
+
+                            MPAZSecondaryButton(
+                                texto = "Crear cuenta",
+                                onClick = onCrearCuentaClick
+                            )
+
+                            Spacer(Modifier.height(16.dp))
+
+                            Text(
+                                text = "Inicio de sesión en modo de prueba",
+                                fontSize = 13.sp,
+                                color = MPAZTextoSecundario,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                MPAZSecondaryButton(
-                    texto = "Crear cuenta",
-                    onClick = onCrearCuentaClick
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "Inicio de sesión en modo de prueba",
-                    fontSize = 13.sp,
-                    color = MPAZTextoSecundario,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                }
             }
         }
     }
 }
 
 @Preview(
-    name = "MPAZ - Login",
+    name = "MPAZ - Login centrado",
     showBackground = true,
     widthDp = 360,
     heightDp = 800

@@ -100,7 +100,7 @@ fun BienvenidaExpandida(
                         )
 
                         MPAZButton(
-                            texto = "Comenzar →",
+                            texto = "Comenzar  ",
                             onClick = onComenzarClick,
                             modifier = Modifier.widthIn(max = 440.dp)
                         )

@@ -1,3 +1,4 @@
+
 package com.example.appmpazpro3_grupo6.ui.screens
 
 import android.util.Patterns
@@ -19,10 +20,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+
 import com.example.appmpazpro3_grupo6.ui.components.MPAZBackground
 import com.example.appmpazpro3_grupo6.ui.components.MPAZButton
 import com.example.appmpazpro3_grupo6.ui.components.MPAZCard
-import com.example.appmpazpro3_grupo6.ui.components.MPAZLogo
 import com.example.appmpazpro3_grupo6.ui.components.MPAZScreenHeader
 import com.example.appmpazpro3_grupo6.ui.components.MPAZTextField
 
@@ -33,6 +34,7 @@ fun RegistroScreen(
     onVolverClick: () -> Unit = {},
     onRegistroExitoso: (String, String) -> Unit = { _, _ -> }
 ) {
+
     var nombre by rememberSaveable {
         mutableStateOf("")
     }
@@ -68,6 +70,7 @@ fun RegistroScreen(
     }
 
     MPAZBackground {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -77,20 +80,17 @@ fun RegistroScreen(
                     vertical = 20.dp
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(18.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
+            // Encabezado de registro
             MPAZScreenHeader(
                 titulo = "Crear cuenta",
                 subtitulo = "¡Comienza tu aventura de aprendizaje!",
                 onVolverClick = onVolverClick
             )
 
-            // Logo sin imagen del búho
-            MPAZLogo(
-                compacto = true
-            )
-
+            // Tarjeta de datos justo debajo del encabezado
             MPAZCard(
                 modifier = Modifier
                     .widthIn(max = 480.dp)
@@ -114,6 +114,7 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(22.dp))
 
+                // Nombre completo
                 MPAZTextField(
                     valor = nombre,
                     onValorChange = {
@@ -127,6 +128,7 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
+                // Correo electrónico
                 MPAZTextField(
                     valor = correo,
                     onValorChange = {
@@ -141,6 +143,7 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
+                // Contraseña
                 MPAZTextField(
                     valor = contrasena,
                     onValorChange = {
@@ -154,6 +157,7 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
+                // Confirmación de contraseña
                 MPAZTextField(
                     valor = confirmarContrasena,
                     onValorChange = {
@@ -167,6 +171,7 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
+                // Curso fijo del estudiante
                 MPAZTextField(
                     valor = curso,
                     onValorChange = {},
@@ -176,8 +181,9 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(26.dp))
 
+                // Botón de registro con validaciones
                 MPAZButton(
-                    texto = "Crear mi cuenta →",
+                    texto = "Crear mi cuenta ",
                     onClick = {
 
                         val correoValido =
@@ -221,6 +227,7 @@ fun RegistroScreen(
                             else -> null
                         }
 
+                        // Continuar solamente si los datos son válidos
                         if (
                             errorNombre == null &&
                             errorCorreo == null &&
@@ -250,7 +257,7 @@ fun RegistroScreen(
 }
 
 @Preview(
-    name = "MPAZ - Registro sin búho",
+    name = "MPAZ - Registro sin logo",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
