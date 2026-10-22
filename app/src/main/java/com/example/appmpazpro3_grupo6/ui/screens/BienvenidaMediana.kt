@@ -1,88 +1,104 @@
 package com.example.appmpazpro3_grupo6.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.appmpazpro3_grupo6.ui.components.MPAZBackground
+import com.example.appmpazpro3_grupo6.ui.components.MPAZButton
+import com.example.appmpazpro3_grupo6.ui.components.MPAZLogo
+import com.example.appmpazpro3_grupo6.ui.components.MascotaMPAZ
+import com.example.appmpazpro3_grupo6.ui.theme.AppMPAZPRO3_Grupo6Theme
+import com.example.appmpazpro3_grupo6.ui.theme.MPAZTextoSecundario
 
 @Composable
 fun BienvenidaMediana(
     onComenzarClick: () -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceEvenly
-    ) {
-
-        Text(
-            text = "MPAZ PRO 3.º",
-            fontSize = 38.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF0066CC)
-        )
-
-        Text(
-            text = "📖",
-            fontSize = 105.sp
-        )
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+    MPAZBackground {
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = "¡Bienvenido!",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF003366)
-            )
+            val alturaDisponible = maxHeight
 
-            Text(
-                text = "Escuela Escritora Marcela Paz",
-                fontSize = 23.sp,
-                textAlign = TextAlign.Center
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = alturaDisponible)
+                        .padding(
+                            horizontal = 36.dp,
+                            vertical = 28.dp
+                        ),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
 
-            Text(
-                text = "Tu plataforma de aprendizaje para Tercero Básico",
-                fontSize = 19.sp,
-                textAlign = TextAlign.Center
-            )
-        }
+                    MascotaMPAZ(
+                        modifier = Modifier.size(280.dp)
+                    )
 
-        Button(
-            onClick = onComenzarClick,
-            modifier = Modifier
-                .widthIn(max = 400.dp)
-                .fillMaxWidth()
-                .height(60.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Text("Comenzar →", fontSize = 20.sp)
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
+
+                    MPAZLogo(
+                        mostrarLema = true
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(18.dp)
+                    )
+
+                    Text(
+                        text = "Escuela Escritora Marcela Paz\nTercero Básico",
+                        fontSize = 18.sp,
+                        color = MPAZTextoSecundario,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 28.sp
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(36.dp)
+                    )
+
+                    MPAZButton(
+                        texto = "Comenzar →",
+                        onClick = onComenzarClick,
+                        modifier = Modifier.widthIn(max = 440.dp)
+                    )
+
+                    Spacer(
+                        modifier = Modifier.height(24.dp)
+                    )
+
+                    IndicadoresBienvenida()
+                }
+            }
         }
     }
 }
 
 @Preview(
-    name = "Vista mediana",
+    name = "MPAZ - Bienvenida mediana",
     showBackground = true,
     widthDp = 700,
     heightDp = 900
 )
 @Composable
 fun PreviewBienvenidaMediana() {
-    MaterialTheme {
+    AppMPAZPRO3_Grupo6Theme {
         BienvenidaMediana()
     }
 }
