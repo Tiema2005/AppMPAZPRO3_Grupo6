@@ -1,32 +1,25 @@
 package com.example.appmpazpro3_grupo6.ui.screens
 
-import android.graphics.ImageDecoder
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appmpazpro3_grupo6.ui.components.*
 import com.example.appmpazpro3_grupo6.ui.theme.*
-import java.io.File
+import com.example.appmpazpro3_grupo6.viewmodel.PerfilImagenViewModel
 
 @Composable
 fun PerfilScreen(
@@ -35,88 +28,85 @@ fun PerfilScreen(
     progreso: Float = 0.6f,
     onContinuarClick: () -> Unit = {},
     onModoEstudioClick: () -> Unit = {},
-    onVolverClick: () -> Unit = {}
+    onVolverClick: () -> Unit = {},
+    perfilImagenViewModel: PerfilImagenViewModel = viewModel()
 ) {
-    val context = LocalContext.current
+    // Estado de la imagen desde el ViewModel
+    val imagenUri by perfilImagenViewModel
+        .imagenUri.collectAsState()
 
-    val carpetaPerfil = remember(context) {
-        File(context.filesDir, "perfil").apply {
-            mkdirs()
+    // Conservar la URI pendiente al recrearse la pantalla
+    var uriCamaraPendiente by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    var errorCamara by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    // GALERÍA: seleccionar una fotografía existente
+    val galeriaLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uriSeleccionada ->
+
+        if (uriSeleccionada != null) {
+            perfilImagenViewModel.actualizarDesdeGaleria(
+                uriSeleccionada
+            )
         }
+        // Si cancela la selección, no cambia la foto.
     }
 
-    val archivoFoto = remember(carpetaPerfil) {
-        File(carpetaPerfil, "foto_perfil.jpg")
-    }
-
-    val archivoTemporal = remember(carpetaPerfil) {
-        File(carpetaPerfil, "captura_temporal.jpg")
-    }
-
-    var versionFoto by remember {
-        mutableIntStateOf(0)
-    }
-
-    val fotoPerfil = remember(versionFoto, archivoFoto) {
-        if (archivoFoto.exists() && archivoFoto.length() > 0L) {
-            runCatching {
-                val source = ImageDecoder.createSource(archivoFoto)
-
-                ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
-                    val dimensionMayor = maxOf(
-                        info.size.width,
-                        info.size.height
-                    )
-
-                    val muestra = (dimensionMayor / 640)
-                        .coerceAtLeast(1)
-
-                    decoder.setTargetSampleSize(muestra)
-                }.asImageBitmap()
-            }.getOrNull()
-        } else {
-            null
-        }
-    }
-
+    // CÁMARA: capturar una nueva fotografía
     val camaraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
-    ) { fotoTomada ->
+    ) { fotografiaTomada ->
 
-        if (
-            fotoTomada &&
-            archivoTemporal.exists() &&
-            archivoTemporal.length() > 0L
-        ) {
-            val guardada = runCatching {
-                archivoTemporal.copyTo(
-                    target = archivoFoto,
-                    overwrite = true
-                )
-            }.isSuccess
-
-            if (guardada) {
-                versionFoto++
-            }
+        val uri = uriCamaraPendiente?.let {
+            Uri.parse(it)
         }
 
-        archivoTemporal.delete()
+        if (fotografiaTomada && uri != null) {
+            perfilImagenViewModel.actualizarDesdeCamara(uri)
+            errorCamara = null
+        } else {
+            perfilImagenViewModel.cancelarCamara()
+        }
+
+        uriCamaraPendiente = null
     }
 
     ContenidoPerfil(
         nombre = nombre,
         curso = curso,
         progreso = progreso,
-        fotoPerfil = fotoPerfil,
-        onTomarFoto = {
-            val uriFoto = FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                archivoTemporal
-            )
+        imagenUri = imagenUri,
 
-            camaraLauncher.launch(uriFoto)
+        onAbrirGaleria = {
+            galeriaLauncher.launch("image/*")
         },
+
+        onAbrirCamara = {
+            try {
+                errorCamara = null
+
+                val uri = perfilImagenViewModel.crearUriCamara()
+
+                uriCamaraPendiente = uri.toString()
+
+                camaraLauncher.launch(uri)
+
+            } catch (e: Exception) {
+                uriCamaraPendiente = null
+                perfilImagenViewModel.cancelarCamara()
+
+                errorCamara =
+                    "No se pudo abrir la cámara. " +
+                            "Revisa la configuración de FileProvider."
+            }
+        },
+
+        errorCamara = errorCamara,
         onContinuarClick = onContinuarClick,
         onModoEstudioClick = onModoEstudioClick,
         onVolverClick = onVolverClick
@@ -128,12 +118,15 @@ private fun ContenidoPerfil(
     nombre: String,
     curso: String,
     progreso: Float,
-    fotoPerfil: ImageBitmap?,
-    onTomarFoto: () -> Unit,
+    imagenUri: Uri?,
+    onAbrirGaleria: () -> Unit,
+    onAbrirCamara: () -> Unit,
+    errorCamara: String?,
     onContinuarClick: () -> Unit,
     onModoEstudioClick: () -> Unit,
     onVolverClick: () -> Unit
 ) {
+
     val progresoSeguro = progreso.coerceIn(0f, 1f)
 
     MPAZBackground {
@@ -162,69 +155,70 @@ private fun ContenidoPerfil(
                     .fillMaxWidth()
             ) {
 
-                Row(
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    Box(
-                        modifier = Modifier
-                            .size(110.dp)
-                            .clip(CircleShape)
-                            .background(MPAZAzulSuave),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (fotoPerfil != null) {
-                            Image(
-                                bitmap = fotoPerfil,
-                                contentDescription = "Foto del estudiante",
-                                modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
-                            )
-                        } else {
-                            Text(
-                                text = "👤",
-                                fontSize = 52.sp
-                            )
-                        }
-                    }
+                    ImagenInteligente(
+                        imagenUri = imagenUri,
+                        modifier = Modifier.size(125.dp)
+                    )
 
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
+                    Spacer(Modifier.height(14.dp))
+
+                    Text(
+                        text = nombre,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MPAZTexto,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(Modifier.height(5.dp))
+
+                    Text(
+                        text = curso,
+                        fontSize = 16.sp,
+                        color = MPAZTextoSecundario
+                    )
+
+                    Spacer(Modifier.height(5.dp))
+
+                    Text(
+                        text = "Estudiante MPAZ",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MPAZAzul
+                    )
+
+                    Spacer(Modifier.height(22.dp))
+
+                    MPAZSecondaryButton(
+                        texto = "Elegir de galería",
+                        onClick = onAbrirGaleria
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    MPAZButton(
+                        texto = "Tomar foto",
+                        onClick = onAbrirCamara
+                    )
+
+                    if (errorCamara != null) {
+                        Spacer(Modifier.height(12.dp))
 
                         Text(
-                            text = nombre,
-                            fontSize = 21.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MPAZTexto
-                        )
-
-                        Text(
-                            text = curso,
-                            fontSize = 16.sp,
-                            color = MPAZTextoSecundario
-                        )
-
-                        Text(
-                            text = "Estudiante MPAZ",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MPAZAzul
+                            text = errorCamara,
+                            fontSize = 13.sp,
+                            color = MPAZCoral,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
 
-                Spacer(Modifier.height(16.dp))
-
-                MPAZButton(
-                    texto = "📷 Tomar foto",
-                    onClick = onTomarFoto
-                )
-
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(22.dp))
 
                 Text(
                     text = "🎯 Mi objetivo",
@@ -272,8 +266,6 @@ private fun ContenidoPerfil(
                 )
             }
 
-            Spacer(Modifier.height(4.dp))
-
             MPAZButton(
                 texto = "Continuar a asignaturas →",
                 onClick = onContinuarClick,
@@ -292,20 +284,24 @@ private fun ContenidoPerfil(
 }
 
 @Preview(
-    name = "MPAZ - Perfil con fotografía",
+    name = "MPAZ - Perfil cámara y galería",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
 )
 @Composable
 fun PerfilScreenPreview() {
+
     AppMPAZPRO3_Grupo6Theme {
+
         ContenidoPerfil(
             nombre = "Camila González",
             curso = "3° Básico",
             progreso = 0.6f,
-            fotoPerfil = null,
-            onTomarFoto = {},
+            imagenUri = null,
+            onAbrirGaleria = {},
+            onAbrirCamara = {},
+            errorCamara = null,
             onContinuarClick = {},
             onModoEstudioClick = {},
             onVolverClick = {}

@@ -7,4 +7,10 @@ object Routes {
     const val PERFIL = "perfil"
     const val ASIGNATURAS = "asignaturas"
     const val MODO_ESTUDIO = "modo_estudio"
+
+    const val DETALLE_ASIGNATURA = "detalle_asignatura"
+
+    fun detalleAsignatura(id: String): String {
+        return "$DETALLE_ASIGNATURA/$id"
+    }
 }

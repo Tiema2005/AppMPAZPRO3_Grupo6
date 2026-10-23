@@ -1,7 +1,5 @@
-
 package com.example.appmpazpro3_grupo6.ui.screens
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,14 +18,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
 import com.example.appmpazpro3_grupo6.ui.components.MPAZBackground
 import com.example.appmpazpro3_grupo6.ui.components.MPAZButton
 import com.example.appmpazpro3_grupo6.ui.components.MPAZCard
 import com.example.appmpazpro3_grupo6.ui.components.MPAZScreenHeader
 import com.example.appmpazpro3_grupo6.ui.components.MPAZTextField
-
 import com.example.appmpazpro3_grupo6.ui.theme.*
+import com.example.appmpazpro3_grupo6.validation.ValidadorFormulario
 
 @Composable
 fun RegistroScreen(
@@ -83,14 +80,12 @@ fun RegistroScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            // Encabezado de registro
             MPAZScreenHeader(
                 titulo = "Crear cuenta",
                 subtitulo = "¡Comienza tu aventura de aprendizaje!",
                 onVolverClick = onVolverClick
             )
 
-            // Tarjeta de datos justo debajo del encabezado
             MPAZCard(
                 modifier = Modifier
                     .widthIn(max = 480.dp)
@@ -114,7 +109,6 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(22.dp))
 
-                // Nombre completo
                 MPAZTextField(
                     valor = nombre,
                     onValorChange = {
@@ -128,7 +122,6 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Correo electrónico
                 MPAZTextField(
                     valor = correo,
                     onValorChange = {
@@ -143,7 +136,6 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Contraseña
                 MPAZTextField(
                     valor = contrasena,
                     onValorChange = {
@@ -157,7 +149,6 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Confirmación de contraseña
                 MPAZTextField(
                     valor = confirmarContrasena,
                     onValorChange = {
@@ -171,7 +162,6 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Curso fijo del estudiante
                 MPAZTextField(
                     valor = curso,
                     onValorChange = {},
@@ -181,59 +171,26 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(26.dp))
 
-                // Botón de registro con validaciones
                 MPAZButton(
-                    texto = "Crear mi cuenta ",
+                    texto = "Crear mi cuenta",
                     onClick = {
 
-                        val correoValido =
-                            Patterns.EMAIL_ADDRESS
-                                .matcher(correo.trim())
-                                .matches()
+                        val resultado =
+                            ValidadorFormulario.validarRegistro(
+                                nombre = nombre,
+                                correo = correo,
+                                contrasena = contrasena,
+                                confirmarContrasena =
+                                    confirmarContrasena
+                            )
 
-                        errorNombre = if (nombre.isBlank()) {
-                            "Ingresa tu nombre"
-                        } else {
-                            null
-                        }
+                        errorNombre = resultado.nombre
+                        errorCorreo = resultado.correo
+                        errorContrasena = resultado.contrasena
+                        errorConfirmacion =
+                            resultado.confirmacion
 
-                        errorCorreo = when {
-                            correo.isBlank() ->
-                                "Ingresa tu correo"
-
-                            !correoValido ->
-                                "Ingresa un correo válido"
-
-                            else -> null
-                        }
-
-                        errorContrasena = when {
-                            contrasena.isBlank() ->
-                                "Ingresa una contraseña"
-
-                            contrasena.length < 6 ->
-                                "Debe tener al menos 6 caracteres"
-
-                            else -> null
-                        }
-
-                        errorConfirmacion = when {
-                            confirmarContrasena.isBlank() ->
-                                "Confirma tu contraseña"
-
-                            confirmarContrasena != contrasena ->
-                                "Las contraseñas no coinciden"
-
-                            else -> null
-                        }
-
-                        // Continuar solamente si los datos son válidos
-                        if (
-                            errorNombre == null &&
-                            errorCorreo == null &&
-                            errorContrasena == null &&
-                            errorConfirmacion == null
-                        ) {
+                        if (resultado.esValido) {
                             onRegistroExitoso(
                                 nombre.trim(),
                                 curso
@@ -257,13 +214,14 @@ fun RegistroScreen(
 }
 
 @Preview(
-    name = "MPAZ - Registro sin logo",
+    name = "MPAZ - Registro con validación centralizada",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
 )
 @Composable
 fun PreviewRegistroScreen() {
+
     AppMPAZPRO3_Grupo6Theme {
         RegistroScreen()
     }

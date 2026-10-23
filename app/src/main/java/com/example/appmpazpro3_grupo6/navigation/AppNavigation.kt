@@ -5,12 +5,15 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+
 import com.example.appmpazpro3_grupo6.ui.screens.BienvenidaScreen
 import com.example.appmpazpro3_grupo6.ui.screens.LoginScreen
 import com.example.appmpazpro3_grupo6.ui.screens.RegistroScreen
 import com.example.appmpazpro3_grupo6.ui.screens.PerfilScreen
 import com.example.appmpazpro3_grupo6.ui.screens.AsignaturasScreen
+import com.example.appmpazpro3_grupo6.ui.screens.AsignaturaDetalleScreen
 import com.example.appmpazpro3_grupo6.ui.screens.ModoEstudioScreen
+
 import com.example.appmpazpro3_grupo6.viewmodel.EstudianteViewModel
 
 @Composable
@@ -21,7 +24,9 @@ fun AppNavigation() {
         navController = navController,
         startDestination = Routes.BIENVENIDA
     ) {
+
         composable(Routes.BIENVENIDA) {
+
             BienvenidaScreen(
                 onComenzarClick = {
                     navController.navigate(Routes.LOGIN)
@@ -30,6 +35,7 @@ fun AppNavigation() {
         }
 
         composable(Routes.LOGIN) {
+
             LoginScreen(
                 onVolverClick = {
                     navController.popBackStack()
@@ -44,15 +50,18 @@ fun AppNavigation() {
         }
 
         composable(Routes.REGISTRO) {
+
             RegistroScreen(
                 onVolverClick = {
                     navController.popBackStack()
                 },
                 onRegistroExitoso = { nombre, curso ->
+
                     estudianteViewModel.registrarEstudiante(
                         nombre = nombre,
                         curso = curso
                     )
+
                     navController.navigate(Routes.PERFIL) {
                         popUpTo(Routes.REGISTRO) {
                             inclusive = true
@@ -63,8 +72,10 @@ fun AppNavigation() {
         }
 
         composable(Routes.PERFIL) {
-            val nombre = estudianteViewModel.nombreEstudiante
-                .ifBlank { "Estudiante de prueba" }
+
+            val nombre =
+                estudianteViewModel.nombreEstudiante
+                    .ifBlank { "Estudiante de prueba" }
 
             PerfilScreen(
                 nombre = nombre,
@@ -82,7 +93,49 @@ fun AppNavigation() {
         }
 
         composable(Routes.ASIGNATURAS) {
+
             AsignaturasScreen(
+                onVolverClick = {
+                    navController.popBackStack()
+                },
+                onAsignaturaClick = { nombreAsignatura ->
+
+                    val id = when (nombreAsignatura) {
+                        "📖 Lenguaje y Comunicación" ->
+                            "lenguaje"
+
+                        "🔢 Matemática" ->
+                            "matematica"
+
+                        "🧪 Ciencias Naturales" ->
+                            "ciencias"
+
+                        "🌎 Historia, Geografía y Ciencias Sociales" ->
+                            "historia"
+
+                        else -> null
+                    }
+
+                    if (id != null) {
+                        navController.navigate(
+                            Routes.detalleAsignatura(id)
+                        )
+                    }
+                }
+            )
+        }
+
+        composable(
+            route = "${Routes.DETALLE_ASIGNATURA}/{asignaturaId}"
+        ) { backStackEntry ->
+
+            val asignaturaId =
+                backStackEntry.arguments
+                    ?.getString("asignaturaId")
+                    .orEmpty()
+
+            AsignaturaDetalleScreen(
+                asignaturaId = asignaturaId,
                 onVolverClick = {
                     navController.popBackStack()
                 }
@@ -90,6 +143,7 @@ fun AppNavigation() {
         }
 
         composable(Routes.MODO_ESTUDIO) {
+
             ModoEstudioScreen(
                 onVolverClick = {
                     navController.popBackStack()

@@ -1,6 +1,5 @@
 package com.example.appmpazpro3_grupo6.ui.screens
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmpazpro3_grupo6.ui.components.*
 import com.example.appmpazpro3_grupo6.ui.theme.*
+import com.example.appmpazpro3_grupo6.validation.ValidadorFormulario
 
 @Composable
 fun LoginScreen(
@@ -50,6 +50,7 @@ fun LoginScreen(
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
+
             val alturaPantalla = maxHeight
 
             Column(
@@ -82,9 +83,7 @@ fun LoginScreen(
                             onVolverClick = onVolverClick
                         )
 
-                        Spacer(
-                            modifier = Modifier.height(16.dp)
-                        )
+                        Spacer(Modifier.height(16.dp))
 
                         MPAZCard(
                             modifier = Modifier.fillMaxWidth()
@@ -138,40 +137,17 @@ fun LoginScreen(
                                 texto = "Ingresar →",
                                 onClick = {
 
-                                    val correoValido =
-                                        Patterns.EMAIL_ADDRESS
-                                            .matcher(correo.trim())
-                                            .matches()
+                                    val resultado =
+                                        ValidadorFormulario.validarLogin(
+                                            correo = correo,
+                                            contrasena = contrasena
+                                        )
 
-                                    val contrasenaValida =
-                                        contrasena.length >= 6
+                                    errorCorreo = resultado.correo
+                                    errorContrasena =
+                                        resultado.contrasena
 
-                                    errorCorreo = when {
-
-                                        correo.isBlank() ->
-                                            "Ingresa tu correo"
-
-                                        !correoValido ->
-                                            "Ingresa un correo válido"
-
-                                        else -> null
-                                    }
-
-                                    errorContrasena = when {
-
-                                        contrasena.isBlank() ->
-                                            "Ingresa tu contraseña"
-
-                                        !contrasenaValida ->
-                                            "Debe tener al menos 6 caracteres"
-
-                                        else -> null
-                                    }
-
-                                    if (
-                                        errorCorreo == null &&
-                                        errorContrasena == null
-                                    ) {
+                                    if (resultado.esValido) {
                                         onIngresarClick()
                                     }
                                 }
@@ -202,13 +178,14 @@ fun LoginScreen(
 }
 
 @Preview(
-    name = "MPAZ - Login centrado",
+    name = "MPAZ - Login con validación centralizada",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
 )
 @Composable
 fun PreviewLoginScreen() {
+
     AppMPAZPRO3_Grupo6Theme {
         LoginScreen()
     }
