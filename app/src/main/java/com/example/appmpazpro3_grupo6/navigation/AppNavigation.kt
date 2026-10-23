@@ -43,8 +43,18 @@ fun AppNavigation() {
                 onCrearCuentaClick = {
                     navController.navigate(Routes.REGISTRO)
                 },
-                onIngresarClick = {
-                    navController.navigate(Routes.PERFIL)
+                onIngresarClick = { nombre, curso ->
+
+                    estudianteViewModel.registrarEstudiante(
+                        nombre = nombre,
+                        curso = curso
+                    )
+
+                    navController.navigate(Routes.PERFIL) {
+                        popUpTo(Routes.LOGIN) {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
