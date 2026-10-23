@@ -1,16 +1,12 @@
 package com.example.appmpazpro3_grupo6.ui.screens
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -19,14 +15,56 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.appmpazpro3_grupo6.ui.components.*
 import com.example.appmpazpro3_grupo6.ui.theme.*
+import com.example.appmpazpro3_grupo6.validation.ValidadorFormulario
+import com.example.appmpazpro3_grupo6.viewmodel.CuentaViewModel
 
 @Composable
 fun LoginScreen(
     onVolverClick: () -> Unit = {},
     onCrearCuentaClick: () -> Unit = {},
-    onIngresarClick: () -> Unit = {}
+    onIngresarClick: (String, String) -> Unit = { _, _ -> },
+    cuentaViewModel: CuentaViewModel = viewModel()
+) {
+
+    val procesando by cuentaViewModel.procesando.collectAsState()
+    val mensajeError by cuentaViewModel.mensajeError.collectAsState()
+
+    FormularioLogin(
+        procesando = procesando,
+        mensajeError = mensajeError,
+        onVolverClick = onVolverClick,
+        onCrearCuentaClick = onCrearCuentaClick,
+        onEditar = {
+            cuentaViewModel.limpiarError()
+        },
+        onIniciarSesion = { correo, contrasena ->
+
+            cuentaViewModel.iniciarSesion(
+                correo = correo,
+                contrasena = contrasena,
+                onExito = { estudiante ->
+
+                    onIngresarClick(
+                        estudiante.nombre,
+                        estudiante.curso
+                    )
+                }
+            )
+        }
+    )
+}
+
+@Composable
+private fun FormularioLogin(
+    procesando: Boolean,
+    mensajeError: String?,
+    onVolverClick: () -> Unit,
+    onCrearCuentaClick: () -> Unit,
+    onEditar: () -> Unit,
+    onIniciarSesion: (String, String) -> Unit
 ) {
 
     var correo by rememberSaveable {
@@ -50,6 +88,7 @@ fun LoginScreen(
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
+
             val alturaPantalla = maxHeight
 
             Column(
@@ -82,9 +121,7 @@ fun LoginScreen(
                             onVolverClick = onVolverClick
                         )
 
-                        Spacer(
-                            modifier = Modifier.height(16.dp)
-                        )
+                        Spacer(Modifier.height(16.dp))
 
                         MPAZCard(
                             modifier = Modifier.fillMaxWidth()
@@ -112,6 +149,7 @@ fun LoginScreen(
                                 onValorChange = {
                                     correo = it
                                     errorCorreo = null
+                                    onEditar()
                                 },
                                 etiqueta = "Correo electrónico",
                                 placeholder = "ejemplo@correo.com",
@@ -126,6 +164,7 @@ fun LoginScreen(
                                 onValorChange = {
                                     contrasena = it
                                     errorContrasena = null
+                                    onEditar()
                                 },
                                 etiqueta = "Contraseña",
                                 esContrasena = true,
@@ -134,45 +173,73 @@ fun LoginScreen(
 
                             Spacer(Modifier.height(24.dp))
 
+                            if (mensajeError != null) {
+
+                                Text(
+                                    text = mensajeError,
+                                    fontSize = 14.sp,
+                                    color = MPAZCoral,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                Spacer(Modifier.height(14.dp))
+                            }
+                            if (procesando) {
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement =
+                                        Arrangement.Center,
+                                    verticalAlignment =
+                                        Alignment.CenterVertically
+                                ) {
+
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(22.dp),
+                                        color = MPAZCoral,
+                                        strokeWidth = 2.dp
+                                    )
+
+                                    Spacer(Modifier.width(12.dp))
+
+                                    Text(
+                                        text = "Verificando cuenta...",
+                                        color = MPAZTextoSecundario
+                                    )
+                                }
+
+                                Spacer(Modifier.height(16.dp))
+                            }
+
                             MPAZButton(
-                                texto = "Ingresar →",
+                                texto = if (procesando) {
+                                    "Ingresando..."
+                                } else {
+                                    "Ingresar →"
+                                },
                                 onClick = {
 
-                                    val correoValido =
-                                        Patterns.EMAIL_ADDRESS
-                                            .matcher(correo.trim())
-                                            .matches()
+                                    if (!procesando) {
 
-                                    val contrasenaValida =
-                                        contrasena.length >= 6
+                                        val resultado =
+                                            ValidadorFormulario.validarLogin(
+                                                correo = correo,
+                                                contrasena = contrasena
+                                            )
 
-                                    errorCorreo = when {
+                                        errorCorreo = resultado.correo
 
-                                        correo.isBlank() ->
-                                            "Ingresa tu correo"
+                                        errorContrasena =
+                                            resultado.contrasena
 
-                                        !correoValido ->
-                                            "Ingresa un correo válido"
+                                        if (resultado.esValido) {
 
-                                        else -> null
-                                    }
-
-                                    errorContrasena = when {
-
-                                        contrasena.isBlank() ->
-                                            "Ingresa tu contraseña"
-
-                                        !contrasenaValida ->
-                                            "Debe tener al menos 6 caracteres"
-
-                                        else -> null
-                                    }
-
-                                    if (
-                                        errorCorreo == null &&
-                                        errorContrasena == null
-                                    ) {
-                                        onIngresarClick()
+                                            onIniciarSesion(
+                                                correo.trim(),
+                                                contrasena
+                                            )
+                                        }
                                     }
                                 }
                             )
@@ -187,7 +254,7 @@ fun LoginScreen(
                             Spacer(Modifier.height(16.dp))
 
                             Text(
-                                text = "Inicio de sesión en modo de prueba",
+                                text = "Inicio de sesión con cuenta local",
                                 fontSize = 13.sp,
                                 color = MPAZTextoSecundario,
                                 textAlign = TextAlign.Center,
@@ -202,14 +269,23 @@ fun LoginScreen(
 }
 
 @Preview(
-    name = "MPAZ - Login centrado",
+    name = "MPAZ - Login con cuenta local",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
 )
 @Composable
 fun PreviewLoginScreen() {
+
     AppMPAZPRO3_Grupo6Theme {
-        LoginScreen()
+
+        FormularioLogin(
+            procesando = false,
+            mensajeError = null,
+            onVolverClick = {},
+            onCrearCuentaClick = {},
+            onEditar = {},
+            onIniciarSesion = { _, _ -> }
+        )
     }
 }

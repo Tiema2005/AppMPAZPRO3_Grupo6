@@ -1,17 +1,12 @@
-
 package com.example.appmpazpro3_grupo6.ui.screens
 
-import android.util.Patterns
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -20,19 +15,54 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
-import com.example.appmpazpro3_grupo6.ui.components.MPAZBackground
-import com.example.appmpazpro3_grupo6.ui.components.MPAZButton
-import com.example.appmpazpro3_grupo6.ui.components.MPAZCard
-import com.example.appmpazpro3_grupo6.ui.components.MPAZScreenHeader
-import com.example.appmpazpro3_grupo6.ui.components.MPAZTextField
-
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.appmpazpro3_grupo6.ui.components.*
 import com.example.appmpazpro3_grupo6.ui.theme.*
+import com.example.appmpazpro3_grupo6.validation.ValidadorFormulario
+import com.example.appmpazpro3_grupo6.viewmodel.CuentaViewModel
 
 @Composable
 fun RegistroScreen(
     onVolverClick: () -> Unit = {},
-    onRegistroExitoso: (String, String) -> Unit = { _, _ -> }
+    onRegistroExitoso: (String, String) -> Unit = { _, _ -> },
+    cuentaViewModel: CuentaViewModel = viewModel()
+) {
+    val procesando by cuentaViewModel.procesando.collectAsState()
+    val mensajeError by cuentaViewModel.mensajeError.collectAsState()
+
+    FormularioRegistro(
+        procesando = procesando,
+        mensajeError = mensajeError,
+        onVolverClick = onVolverClick,
+        onEditar = {
+            cuentaViewModel.limpiarError()
+        },
+        onRegistrar = { nombre, correo, contrasena, curso ->
+
+            cuentaViewModel.registrar(
+                nombre = nombre,
+                correo = correo,
+                contrasena = contrasena,
+                curso = curso,
+                onExito = { estudiante ->
+
+                    onRegistroExitoso(
+                        estudiante.nombre,
+                        estudiante.curso
+                    )
+                }
+            )
+        }
+    )
+}
+
+@Composable
+private fun FormularioRegistro(
+    procesando: Boolean,
+    mensajeError: String?,
+    onVolverClick: () -> Unit,
+    onEditar: () -> Unit,
+    onRegistrar: (String, String, String, String) -> Unit
 ) {
 
     var nombre by rememberSaveable {
@@ -83,14 +113,12 @@ fun RegistroScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
-            // Encabezado de registro
             MPAZScreenHeader(
                 titulo = "Crear cuenta",
                 subtitulo = "¡Comienza tu aventura de aprendizaje!",
                 onVolverClick = onVolverClick
             )
 
-            // Tarjeta de datos justo debajo del encabezado
             MPAZCard(
                 modifier = Modifier
                     .widthIn(max = 480.dp)
@@ -114,12 +142,12 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(22.dp))
 
-                // Nombre completo
                 MPAZTextField(
                     valor = nombre,
                     onValorChange = {
                         nombre = it
                         errorNombre = null
+                        onEditar()
                     },
                     etiqueta = "Nombre completo",
                     placeholder = "Escribe tu nombre",
@@ -128,12 +156,12 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Correo electrónico
                 MPAZTextField(
                     valor = correo,
                     onValorChange = {
                         correo = it
                         errorCorreo = null
+                        onEditar()
                     },
                     etiqueta = "Correo electrónico",
                     placeholder = "ejemplo@correo.com",
@@ -143,12 +171,12 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Contraseña
                 MPAZTextField(
                     valor = contrasena,
                     onValorChange = {
                         contrasena = it
                         errorContrasena = null
+                        onEditar()
                     },
                     etiqueta = "Contraseña",
                     esContrasena = true,
@@ -157,12 +185,12 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Confirmación de contraseña
                 MPAZTextField(
                     valor = confirmarContrasena,
                     onValorChange = {
                         confirmarContrasena = it
                         errorConfirmacion = null
+                        onEditar()
                     },
                     etiqueta = "Confirmar contraseña",
                     esContrasena = true,
@@ -171,7 +199,6 @@ fun RegistroScreen(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Curso fijo del estudiante
                 MPAZTextField(
                     valor = curso,
                     onValorChange = {},
@@ -179,65 +206,81 @@ fun RegistroScreen(
                     readOnly = true
                 )
 
-                Spacer(Modifier.height(26.dp))
+                Spacer(Modifier.height(24.dp))
 
-                // Botón de registro con validaciones
+                if (mensajeError != null) {
+
+                    Text(
+                        text = mensajeError,
+                        fontSize = 14.sp,
+                        color = MPAZCoral,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+                }
+
+                if (procesando) {
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            color = MPAZCoral,
+                            strokeWidth = 2.dp
+                        )
+
+                        Spacer(Modifier.width(12.dp))
+
+                        Text(
+                            text = "Guardando cuenta...",
+                            color = MPAZTextoSecundario
+                        )
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                }
+
                 MPAZButton(
-                    texto = "Crear mi cuenta ",
+                    texto = if (procesando) {
+                        "Guardando..."
+                    } else {
+                        "Crear mi cuenta"
+                    },
                     onClick = {
 
-                        val correoValido =
-                            Patterns.EMAIL_ADDRESS
-                                .matcher(correo.trim())
-                                .matches()
+                        if (!procesando) {
 
-                        errorNombre = if (nombre.isBlank()) {
-                            "Ingresa tu nombre"
-                        } else {
-                            null
-                        }
+                            val resultado =
+                                ValidadorFormulario.validarRegistro(
+                                    nombre = nombre,
+                                    correo = correo,
+                                    contrasena = contrasena,
+                                    confirmarContrasena =
+                                        confirmarContrasena
+                                )
 
-                        errorCorreo = when {
-                            correo.isBlank() ->
-                                "Ingresa tu correo"
+                            errorNombre = resultado.nombre
+                            errorCorreo = resultado.correo
+                            errorContrasena =
+                                resultado.contrasena
+                            errorConfirmacion =
+                                resultado.confirmacion
 
-                            !correoValido ->
-                                "Ingresa un correo válido"
+                            if (resultado.esValido) {
 
-                            else -> null
-                        }
-
-                        errorContrasena = when {
-                            contrasena.isBlank() ->
-                                "Ingresa una contraseña"
-
-                            contrasena.length < 6 ->
-                                "Debe tener al menos 6 caracteres"
-
-                            else -> null
-                        }
-
-                        errorConfirmacion = when {
-                            confirmarContrasena.isBlank() ->
-                                "Confirma tu contraseña"
-
-                            confirmarContrasena != contrasena ->
-                                "Las contraseñas no coinciden"
-
-                            else -> null
-                        }
-
-                        // Continuar solamente si los datos son válidos
-                        if (
-                            errorNombre == null &&
-                            errorCorreo == null &&
-                            errorContrasena == null &&
-                            errorConfirmacion == null
-                        ) {
-                            onRegistroExitoso(
-                                nombre.trim(),
-                                curso
-                            )
+                                onRegistrar(
+                                    nombre.trim(),
+                                    correo.trim(),
+                                    contrasena,
+                                    curso
+                                )
+                            }
                         }
                     }
                 )
@@ -245,7 +288,7 @@ fun RegistroScreen(
                 Spacer(Modifier.height(16.dp))
 
                 Text(
-                    text = "Registro en modo de prueba",
+                    text = "Cuenta guardada en este dispositivo",
                     fontSize = 13.sp,
                     color = MPAZTextoSecundario,
                     textAlign = TextAlign.Center,
@@ -257,14 +300,22 @@ fun RegistroScreen(
 }
 
 @Preview(
-    name = "MPAZ - Registro sin logo",
+    name = "MPAZ - Registro con almacenamiento local",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
 )
 @Composable
 fun PreviewRegistroScreen() {
+
     AppMPAZPRO3_Grupo6Theme {
-        RegistroScreen()
+
+        FormularioRegistro(
+            procesando = false,
+            mensajeError = null,
+            onVolverClick = {},
+            onEditar = {},
+            onRegistrar = { _, _, _, _ -> }
+        )
     }
 }
