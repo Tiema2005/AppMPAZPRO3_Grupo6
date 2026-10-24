@@ -25,17 +25,17 @@ import com.example.appmpazpro3_grupo6.viewmodel.PerfilImagenViewModel
 fun PerfilScreen(
     nombre: String = "Estudiante de prueba",
     curso: String = "3° Básico",
-    progreso: Float = 0.6f,
+    progreso: Float = 0f,
+    totalEjerciciosRespondidos: Int = 0,
+    progresoAsignaturas: Map<String, Int> = emptyMap(),
     onContinuarClick: () -> Unit = {},
     onModoEstudioClick: () -> Unit = {},
     onVolverClick: () -> Unit = {},
     perfilImagenViewModel: PerfilImagenViewModel = viewModel()
 ) {
-    // Estado de la imagen desde el ViewModel
-    val imagenUri by perfilImagenViewModel
-        .imagenUri.collectAsState()
 
-    // Conservar la URI pendiente al recrearse la pantalla
+    val imagenUri by perfilImagenViewModel.imagenUri.collectAsState()
+
     var uriCamaraPendiente by rememberSaveable {
         mutableStateOf<String?>(null)
     }
@@ -44,7 +44,6 @@ fun PerfilScreen(
         mutableStateOf<String?>(null)
     }
 
-    // GALERÍA: seleccionar una fotografía existente
     val galeriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uriSeleccionada ->
@@ -54,10 +53,8 @@ fun PerfilScreen(
                 uriSeleccionada
             )
         }
-        // Si cancela la selección, no cambia la foto.
     }
 
-    // CÁMARA: capturar una nueva fotografía
     val camaraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { fotografiaTomada ->
@@ -80,6 +77,8 @@ fun PerfilScreen(
         nombre = nombre,
         curso = curso,
         progreso = progreso,
+        totalEjerciciosRespondidos = totalEjerciciosRespondidos,
+        progresoAsignaturas = progresoAsignaturas,
         imagenUri = imagenUri,
 
         onAbrirGaleria = {
@@ -100,9 +99,8 @@ fun PerfilScreen(
                 uriCamaraPendiente = null
                 perfilImagenViewModel.cancelarCamara()
 
-                errorCamara =
-                    "No se pudo abrir la cámara. " +
-                            "Revisa la configuración de FileProvider."
+                errorCamara = "No se pudo abrir la cámara. " +
+                        "Revisa la configuración de FileProvider."
             }
         },
 
@@ -118,6 +116,8 @@ private fun ContenidoPerfil(
     nombre: String,
     curso: String,
     progreso: Float,
+    totalEjerciciosRespondidos: Int,
+    progresoAsignaturas: Map<String, Int>,
     imagenUri: Uri?,
     onAbrirGaleria: () -> Unit,
     onAbrirCamara: () -> Unit,
@@ -253,17 +253,47 @@ private fun ContenidoPerfil(
 
                 MPAZProgress(
                     progreso = progresoSeguro,
-                    etiqueta = "Mi progreso"
+                    etiqueta = "Mi progreso general"
                 )
 
                 Spacer(Modifier.height(12.dp))
 
                 Text(
-                    text = "Progreso de ejemplo. " +
-                            "Pronto podrás ver tus avances reales.",
+                    text = "Ejercicios completados: " +
+                            "$totalEjerciciosRespondidos de 12",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MPAZTexto
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Text(
+                    text = "El porcentaje representa los ejercicios " +
+                            "respondidos, no las respuestas correctas.",
                     fontSize = 13.sp,
                     color = MPAZTextoSecundario
                 )
+
+                Spacer(Modifier.height(22.dp))
+
+                Text(
+                    text = "Avance por asignatura",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MPAZTexto
+                )
+
+                progresoAsignaturas.forEach {
+                        (nombreAsignatura, porcentaje) ->
+
+                    Spacer(Modifier.height(14.dp))
+
+                    MPAZProgress(
+                        progreso = porcentaje.coerceIn(0, 100) / 100f,
+                        etiqueta = nombreAsignatura
+                    )
+                }
             }
 
             MPAZButton(
@@ -284,7 +314,7 @@ private fun ContenidoPerfil(
 }
 
 @Preview(
-    name = "MPAZ - Perfil cámara y galería",
+    name = "MPAZ - Perfil con progreso real",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
@@ -297,7 +327,14 @@ fun PerfilScreenPreview() {
         ContenidoPerfil(
             nombre = "Camila González",
             curso = "3° Básico",
-            progreso = 0.6f,
+            progreso = 0.25f,
+            totalEjerciciosRespondidos = 3,
+            progresoAsignaturas = linkedMapOf(
+                "Lenguaje y Comunicación" to 100,
+                "Matemática" to 0,
+                "Ciencias Naturales" to 0,
+                "Historia y Geografía" to 0
+            ),
             imagenUri = null,
             onAbrirGaleria = {},
             onAbrirCamara = {},
