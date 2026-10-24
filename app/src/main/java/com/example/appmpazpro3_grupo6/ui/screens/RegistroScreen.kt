@@ -101,206 +101,217 @@ private fun FormularioRegistro(
 
     MPAZBackground {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = 24.dp,
-                    vertical = 20.dp
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
         ) {
 
-            MPAZScreenHeader(
-                titulo = "Crear cuenta",
-                subtitulo = "¡Comienza tu aventura de aprendizaje!",
-                onVolverClick = onVolverClick
-            )
+            val alturaDisponible = maxHeight
 
-            MPAZCard(
+            Column(
                 modifier = Modifier
-                    .widthIn(max = 480.dp)
                     .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .heightIn(min = alturaDisponible)
+                    .padding(
+                        horizontal = 24.dp,
+                        vertical = 20.dp
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(
+                    space = 12.dp,
+                    alignment = Alignment.CenterVertically
+                )
             ) {
 
-                Text(
-                    text = "Datos del estudiante",
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MPAZTexto
+                MPAZScreenHeader(
+                    titulo = "Crear cuenta",
+                    subtitulo = "¡Comienza tu aventura de aprendizaje!",
+                    onVolverClick = onVolverClick
                 )
 
-                Spacer(Modifier.height(8.dp))
-
-                Text(
-                    text = "Completa tus datos para continuar",
-                    fontSize = 15.sp,
-                    color = MPAZTextoSecundario
-                )
-
-                Spacer(Modifier.height(22.dp))
-
-                MPAZTextField(
-                    valor = nombre,
-                    onValorChange = {
-                        nombre = it
-                        errorNombre = null
-                        onEditar()
-                    },
-                    etiqueta = "Nombre completo",
-                    placeholder = "Escribe tu nombre",
-                    mensajeError = errorNombre
-                )
-
-                Spacer(Modifier.height(14.dp))
-
-                MPAZTextField(
-                    valor = correo,
-                    onValorChange = {
-                        correo = it
-                        errorCorreo = null
-                        onEditar()
-                    },
-                    etiqueta = "Correo electrónico",
-                    placeholder = "ejemplo@correo.com",
-                    tipoTeclado = KeyboardType.Email,
-                    mensajeError = errorCorreo
-                )
-
-                Spacer(Modifier.height(14.dp))
-
-                MPAZTextField(
-                    valor = contrasena,
-                    onValorChange = {
-                        contrasena = it
-                        errorContrasena = null
-                        onEditar()
-                    },
-                    etiqueta = "Contraseña",
-                    esContrasena = true,
-                    mensajeError = errorContrasena
-                )
-
-                Spacer(Modifier.height(14.dp))
-
-                MPAZTextField(
-                    valor = confirmarContrasena,
-                    onValorChange = {
-                        confirmarContrasena = it
-                        errorConfirmacion = null
-                        onEditar()
-                    },
-                    etiqueta = "Confirmar contraseña",
-                    esContrasena = true,
-                    mensajeError = errorConfirmacion
-                )
-
-                Spacer(Modifier.height(14.dp))
-
-                MPAZTextField(
-                    valor = curso,
-                    onValorChange = {},
-                    etiqueta = "Curso",
-                    readOnly = true
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                if (mensajeError != null) {
+                MPAZCard(
+                    modifier = Modifier
+                        .widthIn(max = 480.dp)
+                        .fillMaxWidth()
+                ) {
 
                     Text(
-                        text = mensajeError,
-                        fontSize = 14.sp,
-                        color = MPAZCoral,
+                        text = "Datos del estudiante",
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MPAZTexto
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Text(
+                        text = "Completa tus datos para continuar",
+                        fontSize = 15.sp,
+                        color = MPAZTextoSecundario
+                    )
+
+                    Spacer(Modifier.height(22.dp))
+
+                    MPAZTextField(
+                        valor = nombre,
+                        onValorChange = {
+                            nombre = it
+                            errorNombre = null
+                            onEditar()
+                        },
+                        etiqueta = "Nombre completo",
+                        placeholder = "Escribe tu nombre",
+                        mensajeError = errorNombre
+                    )
+
+                    Spacer(Modifier.height(14.dp))
+
+                    MPAZTextField(
+                        valor = correo,
+                        onValorChange = {
+                            correo = it
+                            errorCorreo = null
+                            onEditar()
+                        },
+                        etiqueta = "Correo electrónico",
+                        placeholder = "ejemplo@correo.com",
+                        tipoTeclado = KeyboardType.Email,
+                        mensajeError = errorCorreo
+                    )
+
+                    Spacer(Modifier.height(14.dp))
+
+                    MPAZTextField(
+                        valor = contrasena,
+                        onValorChange = {
+                            contrasena = it
+                            errorContrasena = null
+                            onEditar()
+                        },
+                        etiqueta = "Contraseña",
+                        esContrasena = true,
+                        mensajeError = errorContrasena
+                    )
+
+                    Spacer(Modifier.height(14.dp))
+
+                    MPAZTextField(
+                        valor = confirmarContrasena,
+                        onValorChange = {
+                            confirmarContrasena = it
+                            errorConfirmacion = null
+                            onEditar()
+                        },
+                        etiqueta = "Confirmar contraseña",
+                        esContrasena = true,
+                        mensajeError = errorConfirmacion
+                    )
+
+                    Spacer(Modifier.height(14.dp))
+
+                    MPAZTextField(
+                        valor = curso,
+                        onValorChange = {},
+                        etiqueta = "Curso",
+                        readOnly = true
+                    )
+
+                    Spacer(Modifier.height(24.dp))
+
+                    if (mensajeError != null) {
+
+                        Text(
+                            text = mensajeError,
+                            fontSize = 14.sp,
+                            color = MPAZCoral,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(Modifier.height(12.dp))
+                    }
+
+                    if (procesando) {
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(22.dp),
+                                color = MPAZCoral,
+                                strokeWidth = 2.dp
+                            )
+
+                            Spacer(Modifier.width(12.dp))
+
+                            Text(
+                                text = "Guardando cuenta...",
+                                color = MPAZTextoSecundario
+                            )
+                        }
+
+                        Spacer(Modifier.height(16.dp))
+                    }
+
+                    MPAZButton(
+                        texto = if (procesando) {
+                            "Guardando..."
+                        } else {
+                            "Crear mi cuenta"
+                        },
+                        onClick = {
+
+                            if (!procesando) {
+
+                                val resultado =
+                                    ValidadorFormulario.validarRegistro(
+                                        nombre = nombre,
+                                        correo = correo,
+                                        contrasena = contrasena,
+                                        confirmarContrasena =
+                                            confirmarContrasena
+                                    )
+
+                                errorNombre = resultado.nombre
+                                errorCorreo = resultado.correo
+                                errorContrasena =
+                                    resultado.contrasena
+                                errorConfirmacion =
+                                    resultado.confirmacion
+
+                                if (resultado.esValido) {
+
+                                    onRegistrar(
+                                        nombre.trim(),
+                                        correo.trim(),
+                                        contrasena,
+                                        curso
+                                    )
+                                }
+                            }
+                        }
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Text(
+                        text = "Cuenta local en este dispositivo",
+                        fontSize = 13.sp,
+                        color = MPAZTextoSecundario,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
-
-                    Spacer(Modifier.height(12.dp))
                 }
-
-                if (procesando) {
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(22.dp),
-                            color = MPAZCoral,
-                            strokeWidth = 2.dp
-                        )
-
-                        Spacer(Modifier.width(12.dp))
-
-                        Text(
-                            text = "Guardando cuenta...",
-                            color = MPAZTextoSecundario
-                        )
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-                }
-
-                MPAZButton(
-                    texto = if (procesando) {
-                        "Guardando..."
-                    } else {
-                        "Crear mi cuenta"
-                    },
-                    onClick = {
-
-                        if (!procesando) {
-
-                            val resultado =
-                                ValidadorFormulario.validarRegistro(
-                                    nombre = nombre,
-                                    correo = correo,
-                                    contrasena = contrasena,
-                                    confirmarContrasena =
-                                        confirmarContrasena
-                                )
-
-                            errorNombre = resultado.nombre
-                            errorCorreo = resultado.correo
-                            errorContrasena =
-                                resultado.contrasena
-                            errorConfirmacion =
-                                resultado.confirmacion
-
-                            if (resultado.esValido) {
-
-                                onRegistrar(
-                                    nombre.trim(),
-                                    correo.trim(),
-                                    contrasena,
-                                    curso
-                                )
-                            }
-                        }
-                    }
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                Text(
-                    text = "Cuenta guardada en este dispositivo",
-                    fontSize = 13.sp,
-                    color = MPAZTextoSecundario,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }
 }
 
 @Preview(
-    name = "MPAZ - Registro con almacenamiento local",
+    name = "MPAZ - Registro centrado",
     showBackground = true,
     widthDp = 360,
     heightDp = 800

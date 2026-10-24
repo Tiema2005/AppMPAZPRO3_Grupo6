@@ -45,7 +45,11 @@ fun AsignaturaDetalleScreen(
             descripcion = "Aprenderemos sobre lectura, " +
                     "escritura y comprensión de textos.",
             pregunta = "¿Cuál de estas palabras es un sustantivo?",
-            respuestas = listOf("Correr", "Mesa", "Rápido"),
+            respuestas = listOf(
+                "Correr",
+                "Mesa",
+                "Rápido"
+            ),
             correcta = "Mesa",
             fondo = MPAZRosaSuave
         )
@@ -56,7 +60,11 @@ fun AsignaturaDetalleScreen(
             descripcion = "Aprenderemos a trabajar con " +
                     "números y resolver problemas.",
             pregunta = "¿Cuánto es 7 + 5?",
-            respuestas = listOf("10", "12", "14"),
+            respuestas = listOf(
+                "10",
+                "12",
+                "14"
+            ),
             correcta = "12",
             fondo = MPAZAzulSuave
         )
@@ -100,152 +108,167 @@ fun AsignaturaDetalleScreen(
 
     MPAZBackground {
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    horizontal = 24.dp,
-                    vertical = 24.dp
-                ),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
         ) {
 
-            MPAZScreenHeader(
-                titulo = asignatura?.titulo ?: "Asignatura",
-                subtitulo = "¡Vamos a aprender!",
-                onVolverClick = onVolverClick
-            )
+            val alturaDisponible = maxHeight
 
-            if (asignatura == null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .heightIn(min = alturaDisponible)
+                    .padding(
+                        horizontal = 24.dp,
+                        vertical = 24.dp
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(
+                    space = 20.dp,
+                    alignment = Alignment.CenterVertically
+                )
+            ) {
 
-                MPAZCard(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        text = "Asignatura no encontrada",
-                        color = MPAZTexto
-                    )
-                }
+                MPAZScreenHeader(
+                    titulo = asignatura?.titulo ?: "Asignatura",
+                    subtitulo = "¡Vamos a aprender!",
+                    onVolverClick = onVolverClick
+                )
 
-            } else {
+                if (asignatura == null) {
 
-                MPAZCard(
-                    modifier = Modifier
-                        .widthIn(max = 480.dp)
-                        .fillMaxWidth()
-                ) {
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(14.dp)
+                    MPAZCard(
+                        modifier = Modifier
+                            .widthIn(max = 480.dp)
+                            .fillMaxWidth()
                     ) {
 
                         Text(
-                            text = asignatura.emoji,
-                            fontSize = 64.sp
-                        )
-
-                        Text(
-                            text = asignatura.titulo,
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MPAZTexto,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Text(
-                            text = asignatura.descripcion,
-                            fontSize = 16.sp,
-                            color = MPAZTextoSecundario,
-                            textAlign = TextAlign.Center
+                            text = "Asignatura no encontrada",
+                            color = MPAZTexto
                         )
                     }
-                }
 
-                MPAZCard(
-                    modifier = Modifier
-                        .widthIn(max = 480.dp)
-                        .fillMaxWidth()
-                ) {
+                } else {
 
-                    Text(
-                        text = "Actividad de ejemplo",
-                        fontSize = 21.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MPAZTexto
-                    )
+                    MPAZCard(
+                        modifier = Modifier
+                            .widthIn(max = 480.dp)
+                            .fillMaxWidth()
+                    ) {
 
-                    Spacer(Modifier.height(14.dp))
-
-                    Text(
-                        text = asignatura.pregunta,
-                        fontSize = 17.sp,
-                        color = MPAZTexto
-                    )
-
-                    Spacer(Modifier.height(16.dp))
-
-                    asignatura.respuestas.forEach { respuesta ->
-
-                        OutlinedButton(
-                            onClick = {
-                                respuestaSeleccionada = respuesta
-                            },
-                            modifier = Modifier.fillMaxWidth()
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment =
+                                Alignment.CenterHorizontally,
+                            verticalArrangement =
+                                Arrangement.spacedBy(14.dp)
                         ) {
 
                             Text(
-                                text = respuesta,
+                                text = asignatura.emoji,
+                                fontSize = 64.sp
+                            )
+
+                            Text(
+                                text = asignatura.titulo,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = MPAZTexto,
+                                textAlign = TextAlign.Center
+                            )
+
+                            Text(
+                                text = asignatura.descripcion,
                                 fontSize = 16.sp,
-                                color = MPAZTexto
+                                color = MPAZTextoSecundario,
+                                textAlign = TextAlign.Center
                             )
                         }
-
-                        Spacer(Modifier.height(6.dp))
                     }
 
-                    if (respuestaSeleccionada != null) {
-
-                        val esCorrecta =
-                            respuestaSeleccionada ==
-                                    asignatura.correcta
-
-                        Spacer(Modifier.height(12.dp))
+                    MPAZCard(
+                        modifier = Modifier
+                            .widthIn(max = 480.dp)
+                            .fillMaxWidth()
+                    ) {
 
                         Text(
-                            text = if (esCorrecta) {
-                                "¡Muy bien! Respuesta correcta."
-                            } else {
-                                "Inténtalo nuevamente."
-                            },
-                            color = if (esCorrecta) {
-                                MPAZVerde
-                            } else {
-                                MPAZError
-                            },
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "Actividad de ejemplo",
+                            fontSize = 21.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MPAZTexto
                         )
+
+                        Spacer(Modifier.height(14.dp))
+
+                        Text(
+                            text = asignatura.pregunta,
+                            fontSize = 17.sp,
+                            color = MPAZTexto
+                        )
+
+                        Spacer(Modifier.height(16.dp))
+
+                        asignatura.respuestas.forEach { respuesta ->
+
+                            OutlinedButton(
+                                onClick = {
+                                    respuestaSeleccionada = respuesta
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+
+                                Text(
+                                    text = respuesta,
+                                    fontSize = 16.sp,
+                                    color = MPAZTexto
+                                )
+                            }
+
+                            Spacer(Modifier.height(6.dp))
+                        }
+
+                        if (respuestaSeleccionada != null) {
+
+                            val esCorrecta =
+                                respuestaSeleccionada ==
+                                        asignatura.correcta
+
+                            Spacer(Modifier.height(12.dp))
+
+                            Text(
+                                text = if (esCorrecta) {
+                                    "¡Muy bien! Respuesta correcta."
+                                } else {
+                                    "Inténtalo nuevamente."
+                                },
+                                color = if (esCorrecta) {
+                                    MPAZVerde
+                                } else {
+                                    MPAZError
+                                },
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
+
+                MPAZButton(
+                    texto = "Volver a asignaturas",
+                    onClick = onVolverClick,
+                    modifier = Modifier
+                        .widthIn(max = 480.dp)
+                )
             }
-
-            MPAZButton(
-                texto = "Volver a asignaturas",
-                onClick = onVolverClick,
-                modifier = Modifier.widthIn(max = 480.dp)
-            )
-
-            Spacer(Modifier.height(12.dp))
         }
     }
 }
 
 @Preview(
-    name = "MPAZ - Detalle Matemática",
+    name = "MPAZ - Matemática centrada",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
@@ -254,6 +277,7 @@ fun AsignaturaDetalleScreen(
 fun AsignaturaDetalleScreenPreview() {
 
     AppMPAZPRO3_Grupo6Theme {
+
         AsignaturaDetalleScreen(
             asignaturaId = "matematica"
         )
