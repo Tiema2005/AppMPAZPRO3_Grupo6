@@ -7,7 +7,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-
 import com.example.appmpazpro3_grupo6.ui.screens.BienvenidaScreen
 import com.example.appmpazpro3_grupo6.ui.screens.LoginScreen
 import com.example.appmpazpro3_grupo6.ui.screens.RegistroScreen
@@ -17,6 +16,7 @@ import com.example.appmpazpro3_grupo6.ui.screens.AsignaturaDetalleScreen
 import com.example.appmpazpro3_grupo6.ui.screens.ModoEstudioScreen
 import com.example.appmpazpro3_grupo6.viewmodel.EstudianteViewModel
 import com.example.appmpazpro3_grupo6.viewmodel.ProgresoViewModel
+import com.example.appmpazpro3_grupo6.viewmodel.EstadoViewModel
 
 @Composable
 fun AppNavigation() {
@@ -27,9 +27,13 @@ fun AppNavigation() {
 
     val progresoViewModel: ProgresoViewModel = viewModel()
 
+    val estadoViewModel: EstadoViewModel = viewModel()
+
     val progresoActual by progresoViewModel.progreso.collectAsState()
 
     val errorProgreso by progresoViewModel.errorGuardado.collectAsState()
+
+    val modoEstudioActivo by estadoViewModel.activo.collectAsState()
 
     NavHost(
         navController = navController,
@@ -37,7 +41,6 @@ fun AppNavigation() {
     ) {
 
         composable(Routes.BIENVENIDA) {
-
             BienvenidaScreen(
                 onComenzarClick = {
                     navController.navigate(Routes.LOGIN)
@@ -46,16 +49,13 @@ fun AppNavigation() {
         }
 
         composable(Routes.LOGIN) {
-
             LoginScreen(
                 onVolverClick = {
                     navController.popBackStack()
                 },
-
                 onCrearCuentaClick = {
                     navController.navigate(Routes.REGISTRO)
                 },
-
                 onIngresarClick = { nombre, curso ->
 
                     estudianteViewModel.registrarEstudiante(
@@ -73,7 +73,6 @@ fun AppNavigation() {
         }
 
         composable(Routes.REGISTRO) {
-
             RegistroScreen(
                 onVolverClick = {
                     navController.popBackStack()
@@ -126,7 +125,6 @@ fun AppNavigation() {
         }
 
         composable(Routes.ASIGNATURAS) {
-
             AsignaturasScreen(
                 onVolverClick = {
                     navController.popBackStack()
@@ -134,19 +132,29 @@ fun AppNavigation() {
 
                 onAsignaturaClick = { nombreAsignatura ->
 
-                    val id = when (nombreAsignatura) {
+                    val id = when {
+                        nombreAsignatura.contains(
+                            "Lenguaje",
+                            ignoreCase = true
+                        ) -> "lenguaje"
 
-                        "📖 Lenguaje y Comunicación" ->
-                            "lenguaje"
+                        nombreAsignatura.contains(
+                            "Matemática",
+                            ignoreCase = true
+                        ) -> "matematica"
 
-                        "🔢 Matemática" ->
-                            "matematica"
+                        nombreAsignatura.contains(
+                            "Ciencias",
+                            ignoreCase = true
+                        ) && !nombreAsignatura.contains(
+                            "Historia",
+                            ignoreCase = true
+                        ) -> "ciencias"
 
-                        "🧪 Ciencias Naturales" ->
-                            "ciencias"
-
-                        "🌎 Historia, Geografía y Ciencias Sociales" ->
-                            "historia"
+                        nombreAsignatura.contains(
+                            "Historia",
+                            ignoreCase = true
+                        ) -> "historia"
 
                         else -> null
                     }
@@ -183,6 +191,8 @@ fun AppNavigation() {
                     )
                 },
 
+                modoEstudioActivo = modoEstudioActivo == true,
+
                 onVolverClick = {
                     navController.popBackStack()
                 }
@@ -190,11 +200,12 @@ fun AppNavigation() {
         }
 
         composable(Routes.MODO_ESTUDIO) {
-
             ModoEstudioScreen(
                 onVolverClick = {
                     navController.popBackStack()
-                }
+                },
+
+                estadoViewModel = estadoViewModel
             )
         }
     }

@@ -8,6 +8,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -26,7 +27,9 @@ private data class Ejercicio(
     val pregunta: String,
     val opciones: List<String>,
     val correcta: String,
-    val explicacion: String
+    val explicacion: String,
+    val pista: String,
+    val consejo: String
 )
 
 private data class ContenidoAsignatura(
@@ -49,9 +52,13 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                     pregunta = "¿Cuál de estas palabras es un sustantivo?",
                     opciones = listOf("Correr", "Mesa", "Rápido"),
                     correcta = "Mesa",
-                    explicacion = "Mesa es un sustantivo porque nombra un " +
-                            "objeto. Correr es un verbo y rápido puede " +
-                            "ser un adjetivo."
+                    explicacion = "Mesa es un sustantivo porque nombra " +
+                            "un objeto. Correr es un verbo y rápido " +
+                            "puede ser un adjetivo.",
+                    pista = "Piensa cuál de las palabras nombra un objeto.",
+                    consejo = "Para reconocer un sustantivo, pregunta: " +
+                            "¿es el nombre de una persona, animal, " +
+                            "lugar o cosa?"
                 ),
                 Ejercicio(
                     nivel = "Medio",
@@ -62,8 +69,11 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                         "El gato corre."
                     ),
                     correcta = "El gato negro duerme.",
-                    explicacion = "La palabra negro es un adjetivo porque " +
-                            "describe una característica del gato."
+                    explicacion = "La palabra negro es un adjetivo " +
+                            "porque describe una característica del gato.",
+                    pista = "Busca una palabra que describa cómo es el gato.",
+                    consejo = "Los adjetivos permiten describir " +
+                            "colores, tamaños y otras características."
                 ),
                 Ejercicio(
                     nivel = "Difícil",
@@ -75,9 +85,12 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                         "Es de noche."
                     ),
                     correcta = "Podría llover.",
-                    explicacion = "Inferir significa utilizar pistas. " +
-                            "El paraguas y las nubes oscuras indican " +
-                            "que probablemente va a llover."
+                    explicacion = "El paraguas y las nubes oscuras " +
+                            "son pistas que indican que podría llover.",
+                    pista = "Relaciona el paraguas con el estado del cielo.",
+                    consejo = "Inferir es descubrir una idea usando " +
+                            "las pistas del texto, aunque no " +
+                            "se diga directamente."
                 )
             )
         )
@@ -93,7 +106,10 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                     opciones = listOf("10", "12", "14"),
                     correcta = "12",
                     explicacion = "Partimos de 7 y sumamos 5: " +
-                            "8, 9, 10, 11 y 12. Por eso 7 + 5 = 12."
+                            "8, 9, 10, 11 y 12. Por eso 7 + 5 = 12.",
+                    pista = "Empieza en 7 y cuenta cinco números más.",
+                    consejo = "Puedes usar tus dedos o dibujar " +
+                            "elementos para practicar las sumas."
                 ),
                 Ejercicio(
                     nivel = "Medio",
@@ -102,8 +118,12 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                     correcta = "41",
                     explicacion = "Sumamos las unidades: 3 + 8 = 11. " +
                             "Escribimos 1 y llevamos 1 decena. " +
-                            "Luego sumamos las decenas: " +
-                            "2 + 1 + 1 = 4. Resultado: 41."
+                            "Después sumamos 2 + 1 + 1 = 4 decenas. " +
+                            "El resultado es 41.",
+                    pista = "Suma las unidades 3 + 8. " +
+                            "Recuerda llevar una decena.",
+                    consejo = "Ordena los números en columnas: " +
+                            "unidades con unidades y decenas con decenas."
                 ),
                 Ejercicio(
                     nivel = "Difícil",
@@ -114,7 +134,12 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                     correcta = "55",
                     explicacion = "Primero restamos los prestados: " +
                             "46 - 19 = 27. Después sumamos los nuevos: " +
-                            "27 + 28 = 55 libros."
+                            "27 + 28 = 55 libros.",
+                    pista = "Primero resta los libros prestados. " +
+                            "Después suma los libros recibidos.",
+                    consejo = "En problemas de varias operaciones, " +
+                            "separa los pasos. Identifica qué cantidad " +
+                            "disminuye y cuál aumenta."
                 )
             )
         )
@@ -134,8 +159,12 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                     ),
                     correcta = "Luz y agua",
                     explicacion = "Las plantas necesitan luz y agua " +
-                            "para crecer. También necesitan aire, " +
-                            "nutrientes y condiciones adecuadas."
+                            "para crecer. También requieren aire, " +
+                            "nutrientes y condiciones adecuadas.",
+                    pista = "Piensa qué necesita una planta " +
+                            "cuando la riegas y la dejas cerca del sol.",
+                    consejo = "Puedes observar una planta en casa " +
+                            "y registrar cómo cambia con los días."
                 ),
                 Ejercicio(
                     nivel = "Medio",
@@ -147,24 +176,32 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                         "Los frutos"
                     ),
                     correcta = "La raíz",
-                    explicacion = "La raíz absorbe el agua y los " +
-                            "minerales del suelo que necesita la planta."
+                    explicacion = "La raíz absorbe agua y minerales " +
+                            "del suelo que la planta necesita.",
+                    pista = "Busca la parte que normalmente " +
+                            "está debajo de la tierra.",
+                    consejo = "Dibuja una planta y escribe " +
+                            "el nombre de sus partes principales."
                 ),
                 Ejercicio(
                     nivel = "Difícil",
-                    pregunta = "Cuando el agua se calienta y " +
-                            "se transforma en vapor, ¿cómo se " +
-                            "llama ese proceso?",
+                    pregunta = "Cuando el agua se calienta y se " +
+                            "transforma en vapor, ¿cómo se llama " +
+                            "ese proceso?",
                     opciones = listOf(
                         "Congelación",
                         "Evaporación",
                         "Condensación"
                     ),
                     correcta = "Evaporación",
-                    explicacion = "La evaporación transforma el " +
-                            "agua líquida en vapor. La congelación " +
+                    explicacion = "La evaporación transforma " +
+                            "el agua líquida en vapor. La congelación " +
                             "forma hielo y la condensación transforma " +
-                            "vapor en gotas de agua."
+                            "vapor en gotas de agua.",
+                    pista = "Piensa qué ocurre con un charco " +
+                            "cuando recibe calor durante el día.",
+                    consejo = "Recuerda los cambios de estado: " +
+                            "sólido, líquido y gaseoso."
                 )
             )
         )
@@ -183,9 +220,12 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                         "Canciones"
                     ),
                     correcta = "Lugares y territorios",
-                    explicacion = "Un mapa representa lugares y " +
-                            "territorios mediante símbolos, colores " +
-                            "y ubicaciones."
+                    explicacion = "Un mapa representa lugares " +
+                            "y territorios mediante símbolos, " +
+                            "colores y ubicaciones.",
+                    pista = "Piensa qué utilizamos para encontrar lugares.",
+                    consejo = "Revisa el título, los símbolos y " +
+                            "la orientación cuando observes un mapa."
                 ),
                 Ejercicio(
                     nivel = "Medio",
@@ -197,14 +237,18 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                         "Abajo"
                     ),
                     correcta = "A la derecha",
-                    explicacion = "En un mapa con el norte arriba, " +
+                    explicacion = "Cuando el norte está arriba, " +
                             "el sur está abajo, el este a la derecha " +
-                            "y el oeste a la izquierda."
+                            "y el oeste a la izquierda.",
+                    pista = "Imagina una rosa de los vientos " +
+                            "con el norte apuntando hacia arriba.",
+                    consejo = "Practica con una rosa de los vientos: " +
+                            "Norte, Sur, Este y Oeste."
                 ),
                 Ejercicio(
                     nivel = "Difícil",
-                    pregunta = "Caminas dos cuadras al norte y " +
-                            "una al este. ¿En qué dirección general " +
+                    pregunta = "Caminas dos cuadras al norte " +
+                            "y una al este. ¿En qué dirección general " +
                             "quedas respecto del inicio?",
                     opciones = listOf(
                         "Suroeste",
@@ -214,7 +258,11 @@ private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
                     correcta = "Noreste",
                     explicacion = "Como avanzaste hacia el norte " +
                             "y hacia el este, quedas al noreste " +
-                            "de tu punto de partida."
+                            "de tu punto de partida.",
+                    pista = "Combina las dos direcciones " +
+                            "en las que caminaste.",
+                    consejo = "Dibuja una cruz con los puntos cardinales " +
+                            "y marca cada movimiento con una flecha."
                 )
             )
         )
@@ -229,7 +277,9 @@ fun AsignaturaDetalleScreen(
     onVolverClick: () -> Unit = {},
     porcentajeGuardado: Int = 0,
     errorGuardado: String? = null,
-    onEjercicioRespondido: (Int) -> Unit = {}
+    onEjercicioRespondido: (Int) -> Unit = {},
+
+    modoEstudioActivo: Boolean = false
 ) {
     val asignatura = remember(asignaturaId) {
         obtenerAsignatura(asignaturaId)
@@ -251,12 +301,15 @@ fun AsignaturaDetalleScreen(
         mutableStateOf(false)
     }
 
+    var mostrarPista by rememberSaveable(asignaturaId) {
+        mutableStateOf(false)
+    }
+
     val ejercicios = asignatura?.ejercicios.orEmpty()
     val ejercicio = ejercicios.getOrNull(numeroEjercicio)
     val total = ejercicios.size
 
     MPAZBackground {
-
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -267,7 +320,10 @@ fun AsignaturaDetalleScreen(
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
                     .heightIn(min = alturaDisponible)
-                    .padding(horizontal = 24.dp, vertical = 24.dp),
+                    .padding(
+                        horizontal = 24.dp,
+                        vertical = 24.dp
+                    ),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(
                     space = 20.dp,
@@ -279,6 +335,16 @@ fun AsignaturaDetalleScreen(
                     titulo = asignatura?.titulo ?: "Asignatura",
                     subtitulo = "¡Vamos a aprender!"
                 )
+
+                if (modoEstudioActivo) {
+                    Text(
+                        text = "📚 Modo estudio activado",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MPAZVerde,
+                        textAlign = TextAlign.Center
+                    )
+                }
 
                 if (asignatura == null || ejercicio == null) {
 
@@ -307,7 +373,10 @@ fun AsignaturaDetalleScreen(
                             verticalArrangement =
                                 Arrangement.spacedBy(14.dp)
                         ) {
-                            Text("🏆", fontSize = 55.sp)
+                            Text(
+                                text = "🏆",
+                                fontSize = 55.sp
+                            )
 
                             Text(
                                 text = "¡Terminaste los ejercicios!",
@@ -325,7 +394,8 @@ fun AsignaturaDetalleScreen(
                             )
 
                             Text(
-                                text = "Respuestas correctas: $aciertos de $total",
+                                text = "Respuestas correctas: " +
+                                        "$aciertos de $total",
                                 fontSize = 17.sp,
                                 color = MPAZTexto
                             )
@@ -345,6 +415,7 @@ fun AsignaturaDetalleScreen(
                             respuestaSeleccionada = null
                             aciertos = 0
                             terminado = false
+                            mostrarPista = false
                         },
                         modifier = Modifier.widthIn(max = 480.dp)
                     )
@@ -426,6 +497,46 @@ fun AsignaturaDetalleScreen(
                             color = MPAZTexto
                         )
 
+                        if (
+                            modoEstudioActivo &&
+                            respuestaSeleccionada == null
+                        ) {
+                            Spacer(Modifier.height(10.dp))
+
+                            TextButton(
+                                onClick = {
+                                    mostrarPista = !mostrarPista
+                                }
+                            ) {
+                                Text(
+                                    text = if (mostrarPista) {
+                                        "Ocultar pista ▲"
+                                    } else {
+                                        "💡 Ver una pista"
+                                    },
+                                    color = MPAZCoral,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            AnimatedVisibility(
+                                visible = mostrarPista
+                            ) {
+                                Column {
+                                    Spacer(Modifier.height(6.dp))
+
+                                    Text(
+                                        text = "💡 " + ejercicio.pista,
+                                        fontSize = 15.sp,
+                                        lineHeight = 22.sp,
+                                        color = MPAZTextoSecundario
+                                    )
+
+                                    Spacer(Modifier.height(8.dp))
+                                }
+                            }
+                        }
+
                         Spacer(Modifier.height(14.dp))
 
                         ejercicio.opciones.forEach { opcion ->
@@ -447,8 +558,9 @@ fun AsignaturaDetalleScreen(
 
                             OutlinedButton(
                                 onClick = {
-                                    if (respuestaSeleccionada == null) {
-
+                                    if (
+                                        respuestaSeleccionada == null
+                                    ) {
                                         respuestaSeleccionada = opcion
 
                                         onEjercicioRespondido(
@@ -465,7 +577,11 @@ fun AsignaturaDetalleScreen(
                                     width = if (
                                         hayRespuesta &&
                                         (correcta || elegida)
-                                    ) 2.dp else 1.dp,
+                                    ) {
+                                        2.dp
+                                    } else {
+                                        1.dp
+                                    },
                                     color = colorBorde
                                 ),
                                 modifier = Modifier.fillMaxWidth()
@@ -485,7 +601,6 @@ fun AsignaturaDetalleScreen(
                             visible = respuestaSeleccionada != null
                         ) {
                             Column {
-
                                 Spacer(Modifier.height(14.dp))
 
                                 val esCorrecta =
@@ -516,6 +631,26 @@ fun AsignaturaDetalleScreen(
                                     lineHeight = 23.sp,
                                     color = MPAZTexto
                                 )
+
+                                if (modoEstudioActivo) {
+                                    Spacer(Modifier.height(14.dp))
+
+                                    Text(
+                                        text = "📚 Consejo para aprender",
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MPAZVerde
+                                    )
+
+                                    Spacer(Modifier.height(6.dp))
+
+                                    Text(
+                                        text = ejercicio.consejo,
+                                        fontSize = 15.sp,
+                                        lineHeight = 23.sp,
+                                        color = MPAZTextoSecundario
+                                    )
+                                }
                             }
                         }
                     }
@@ -530,19 +665,23 @@ fun AsignaturaDetalleScreen(
                     }
 
                     if (respuestaSeleccionada != null) {
-
                         MPAZButton(
-                            texto = if (numeroEjercicio == total - 1) {
+                            texto = if (
+                                numeroEjercicio == total - 1
+                            ) {
                                 "Ver mis resultados →"
                             } else {
                                 "Siguiente ejercicio →"
                             },
                             onClick = {
-                                if (numeroEjercicio == total - 1) {
+                                if (
+                                    numeroEjercicio == total - 1
+                                ) {
                                     terminado = true
                                 } else {
                                     numeroEjercicio++
                                     respuestaSeleccionada = null
+                                    mostrarPista = false
                                 }
                             },
                             modifier = Modifier.widthIn(max = 480.dp)
@@ -561,7 +700,7 @@ fun AsignaturaDetalleScreen(
 }
 
 @Preview(
-    name = "MPAZ - Matemática con progreso real",
+    name = "MPAZ - Matemática modo normal",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
@@ -570,7 +709,24 @@ fun AsignaturaDetalleScreen(
 fun AsignaturaDetalleScreenPreview() {
     AppMPAZPRO3_Grupo6Theme {
         AsignaturaDetalleScreen(
-            asignaturaId = "matematica"
+            asignaturaId = "matematica",
+            modoEstudioActivo = false
+        )
+    }
+}
+
+@Preview(
+    name = "MPAZ - Matemática modo estudio",
+    showBackground = true,
+    widthDp = 360,
+    heightDp = 800
+)
+@Composable
+fun AsignaturaModoEstudioPreview() {
+    AppMPAZPRO3_Grupo6Theme {
+        AsignaturaDetalleScreen(
+            asignaturaId = "matematica",
+            modoEstudioActivo = true
         )
     }
 }
