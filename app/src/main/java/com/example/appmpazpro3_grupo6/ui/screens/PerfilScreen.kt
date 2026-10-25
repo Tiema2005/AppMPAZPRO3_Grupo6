@@ -6,6 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,12 +26,20 @@ import com.example.appmpazpro3_grupo6.viewmodel.PerfilImagenViewModel
 fun PerfilScreen(
     nombre: String = "Estudiante de prueba",
     curso: String = "3° Básico",
+
     progreso: Float = 0f,
     totalEjerciciosRespondidos: Int = 0,
     progresoAsignaturas: Map<String, Int> = emptyMap(),
+
+    rendimientoGeneral: Int? = null,
+    aciertosGeneral: Int = 0,
+    ejerciciosEvaluados: Int = 0,
+    rendimientoAsignaturas: Map<String, Int?> = emptyMap(),
+
     onContinuarClick: () -> Unit = {},
     onModoEstudioClick: () -> Unit = {},
     onVolverClick: () -> Unit = {},
+
     perfilImagenViewModel: PerfilImagenViewModel = viewModel()
 ) {
 
@@ -79,6 +88,12 @@ fun PerfilScreen(
         progreso = progreso,
         totalEjerciciosRespondidos = totalEjerciciosRespondidos,
         progresoAsignaturas = progresoAsignaturas,
+
+        rendimientoGeneral = rendimientoGeneral,
+        aciertosGeneral = aciertosGeneral,
+        ejerciciosEvaluados = ejerciciosEvaluados,
+        rendimientoAsignaturas = rendimientoAsignaturas,
+
         imagenUri = imagenUri,
 
         onAbrirGaleria = {
@@ -96,11 +111,14 @@ fun PerfilScreen(
                 camaraLauncher.launch(uri)
 
             } catch (e: Exception) {
+
                 uriCamaraPendiente = null
+
                 perfilImagenViewModel.cancelarCamara()
 
-                errorCamara = "No se pudo abrir la cámara. " +
-                        "Revisa la configuración de FileProvider."
+                errorCamara =
+                    "No se pudo abrir la cámara. " +
+                            "Revisa la configuración de FileProvider."
             }
         },
 
@@ -118,6 +136,12 @@ private fun ContenidoPerfil(
     progreso: Float,
     totalEjerciciosRespondidos: Int,
     progresoAsignaturas: Map<String, Int>,
+
+    rendimientoGeneral: Int?,
+    aciertosGeneral: Int,
+    ejerciciosEvaluados: Int,
+    rendimientoAsignaturas: Map<String, Int?>,
+
     imagenUri: Uri?,
     onAbrirGaleria: () -> Unit,
     onAbrirCamara: () -> Unit,
@@ -207,6 +231,7 @@ private fun ContenidoPerfil(
                     )
 
                     if (errorCamara != null) {
+
                         Spacer(Modifier.height(12.dp))
 
                         Text(
@@ -243,7 +268,7 @@ private fun ContenidoPerfil(
             ) {
 
                 Text(
-                    text = "Mi progreso de aprendizaje",
+                    text = "📊 Mi progreso de aprendizaje",
                     fontSize = 19.sp,
                     fontWeight = FontWeight.Bold,
                     color = MPAZTexto
@@ -269,8 +294,9 @@ private fun ContenidoPerfil(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "El porcentaje representa los ejercicios " +
-                            "respondidos, no las respuestas correctas.",
+                    text = "Este porcentaje muestra cuánto has " +
+                            "avanzado, aunque alguna respuesta " +
+                            "haya sido incorrecta.",
                     fontSize = 13.sp,
                     color = MPAZTextoSecundario
                 )
@@ -296,6 +322,136 @@ private fun ContenidoPerfil(
                 }
             }
 
+            MPAZCard(
+                modifier = Modifier
+                    .widthIn(max = 480.dp)
+                    .fillMaxWidth()
+            ) {
+
+                Text(
+                    text = "🏆 Mis resultados",
+                    fontSize = 19.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MPAZTexto
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    text = "Aquí puedes ver cuántas " +
+                            "respuestas has acertado.",
+                    fontSize = 14.sp,
+                    color = MPAZTextoSecundario
+                )
+
+                Spacer(Modifier.height(18.dp))
+
+                if (
+                    rendimientoGeneral == null ||
+                    ejerciciosEvaluados == 0
+                ) {
+
+                    Text(
+                        text = "Todavía no hay respuestas " +
+                                "calificadas guardadas.",
+                        fontSize = 15.sp,
+                        color = MPAZTextoSecundario
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Text(
+                        text = "Completa una actividad para " +
+                                "conocer tu rendimiento.",
+                        fontSize = 13.sp,
+                        color = MPAZTextoSecundario
+                    )
+
+                } else {
+
+                    MPAZProgress(
+                        progreso = rendimientoGeneral
+                            .coerceIn(0, 100) / 100f,
+                        etiqueta = "Mi rendimiento general"
+                    )
+
+                    Spacer(Modifier.height(12.dp))
+
+                    Text(
+                        text = "Respuestas correctas: " +
+                                "$aciertosGeneral de $ejerciciosEvaluados",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MPAZTexto
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Text(
+                        text = "Se considera la última respuesta " +
+                                "guardada de cada ejercicio.",
+                        fontSize = 13.sp,
+                        color = MPAZTextoSecundario
+                    )
+                }
+
+                Spacer(Modifier.height(22.dp))
+
+                HorizontalDivider()
+
+                Spacer(Modifier.height(18.dp))
+
+                Text(
+                    text = "Resultados por asignatura",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MPAZTexto
+                )
+
+                rendimientoAsignaturas.forEach {
+                        (nombreAsignatura, porcentaje) ->
+
+                    Spacer(Modifier.height(16.dp))
+
+                    if (porcentaje == null) {
+
+                        Text(
+                            text = nombreAsignatura,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MPAZTexto
+                        )
+
+                        Spacer(Modifier.height(4.dp))
+
+                        Text(
+                            text = "Sin respuestas calificadas",
+                            fontSize = 13.sp,
+                            color = MPAZTextoSecundario
+                        )
+
+                    } else {
+
+                        MPAZProgress(
+                            progreso = porcentaje
+                                .coerceIn(0, 100) / 100f,
+                            etiqueta = nombreAsignatura
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(18.dp))
+
+                Text(
+                    text = "💡 Recuerda: equivocarse también " +
+                            "es parte de aprender. Puedes volver " +
+                            "a practicar para mejorar tus resultados.",
+                    fontSize = 14.sp,
+                    color = MPAZTextoSecundario,
+                    lineHeight = 21.sp
+                )
+            }
+
             MPAZButton(
                 texto = "Continuar a asignaturas →",
                 onClick = onContinuarClick,
@@ -314,7 +470,7 @@ private fun ContenidoPerfil(
 }
 
 @Preview(
-    name = "MPAZ - Perfil con progreso real",
+    name = "MPAZ - Perfil y rendimiento real",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
@@ -327,18 +483,33 @@ fun PerfilScreenPreview() {
         ContenidoPerfil(
             nombre = "Camila González",
             curso = "3° Básico",
-            progreso = 0.25f,
-            totalEjerciciosRespondidos = 3,
+
+            progreso = 0.75f,
+            totalEjerciciosRespondidos = 9,
+
             progresoAsignaturas = linkedMapOf(
                 "Lenguaje y Comunicación" to 100,
-                "Matemática" to 0,
-                "Ciencias Naturales" to 0,
-                "Historia y Geografía" to 0
+                "Matemática" to 100,
+                "Ciencias Naturales" to 67,
+                "Historia y Geografía" to 33
             ),
+
+            rendimientoGeneral = 78,
+            aciertosGeneral = 7,
+            ejerciciosEvaluados = 9,
+
+            rendimientoAsignaturas = linkedMapOf(
+                "Lenguaje y Comunicación" to 100,
+                "Matemática" to 67,
+                "Ciencias Naturales" to 50,
+                "Historia y Geografía" to 100
+            ),
+
             imagenUri = null,
             onAbrirGaleria = {},
             onAbrirCamara = {},
             errorCamara = null,
+
             onContinuarClick = {},
             onModoEstudioClick = {},
             onVolverClick = {}

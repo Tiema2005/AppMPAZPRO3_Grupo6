@@ -24,15 +24,11 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     val estudianteViewModel: EstudianteViewModel = viewModel()
-
     val progresoViewModel: ProgresoViewModel = viewModel()
-
     val estadoViewModel: EstadoViewModel = viewModel()
 
     val progresoActual by progresoViewModel.progreso.collectAsState()
-
     val errorProgreso by progresoViewModel.errorGuardado.collectAsState()
-
     val modoEstudioActivo by estadoViewModel.activo.collectAsState()
 
     NavHost(
@@ -98,8 +94,26 @@ fun AppNavigation() {
             val nombre = estudianteViewModel.nombreEstudiante
                 .ifBlank { "Estudiante de prueba" }
 
+            val rendimientoGeneral =
+                progresoActual.rendimientoGeneral
+
+            val rendimientoPorAsignatura = linkedMapOf(
+                "Lenguaje y Comunicación" to
+                        progresoActual.porcentajeRendimiento("lenguaje"),
+
+                "Matemática" to
+                        progresoActual.porcentajeRendimiento("matematica"),
+
+                "Ciencias Naturales" to
+                        progresoActual.porcentajeRendimiento("ciencias"),
+
+                "Historia y Geografía" to
+                        progresoActual.porcentajeRendimiento("historia")
+            )
+
             PerfilScreen(
                 nombre = nombre,
+
                 curso = estudianteViewModel.cursoEstudiante,
 
                 progreso = progresoActual.progresoGeneral,
@@ -109,6 +123,18 @@ fun AppNavigation() {
 
                 progresoAsignaturas =
                     progresoActual.porcentajesPorAsignatura(),
+
+                rendimientoGeneral =
+                    progresoActual.porcentajeRendimientoGeneral,
+
+                aciertosGeneral =
+                    rendimientoGeneral.respuestasCorrectas,
+
+                ejerciciosEvaluados =
+                    rendimientoGeneral.ejerciciosEvaluados,
+
+                rendimientoAsignaturas =
+                    rendimientoPorAsignatura,
 
                 onContinuarClick = {
                     navController.navigate(Routes.ASIGNATURAS)
@@ -144,17 +170,14 @@ fun AppNavigation() {
                         ) -> "matematica"
 
                         nombreAsignatura.contains(
-                            "Ciencias",
-                            ignoreCase = true
-                        ) && !nombreAsignatura.contains(
-                            "Historia",
-                            ignoreCase = true
-                        ) -> "ciencias"
-
-                        nombreAsignatura.contains(
                             "Historia",
                             ignoreCase = true
                         ) -> "historia"
+
+                        nombreAsignatura.contains(
+                            "Ciencias",
+                            ignoreCase = true
+                        ) -> "ciencias"
 
                         else -> null
                     }
@@ -184,10 +207,14 @@ fun AppNavigation() {
 
                 errorGuardado = errorProgreso,
 
-                onEjercicioRespondido = { cantidad ->
-                    progresoViewModel.registrarEjercicio(
+
+                onRespuestaRegistrada = {
+                        numeroEjercicio, esCorrecta ->
+
+                    progresoViewModel.registrarRespuesta(
                         asignaturaId = asignaturaId,
-                        cantidadCompletada = cantidad
+                        numeroEjercicio = numeroEjercicio,
+                        esCorrecta = esCorrecta
                     )
                 },
 

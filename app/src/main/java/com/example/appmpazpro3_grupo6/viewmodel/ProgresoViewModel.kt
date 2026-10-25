@@ -49,4 +49,27 @@ class ProgresoViewModel(
             }
         }
     }
+
+    fun registrarRespuesta(
+        asignaturaId: String,
+        numeroEjercicio: Int,
+        esCorrecta: Boolean
+    ) {
+        _errorGuardado.value = null
+
+        viewModelScope.launch {
+            try {
+                repositorio.registrarRespuesta(
+                    asignaturaId = asignaturaId,
+                    numeroEjercicio = numeroEjercicio,
+                    esCorrecta = esCorrecta
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _errorGuardado.value =
+                    "No se pudo guardar la respuesta del ejercicio."
+            }
+        }
+    }
 }

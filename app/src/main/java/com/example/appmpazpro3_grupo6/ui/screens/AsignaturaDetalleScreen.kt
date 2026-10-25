@@ -39,7 +39,10 @@ private data class ContenidoAsignatura(
     val ejercicios: List<Ejercicio>
 )
 
-private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
+private fun obtenerAsignatura(
+    id: String
+): ContenidoAsignatura? {
+
     return when (id) {
 
         "lenguaje" -> ContenidoAsignatura(
@@ -277,10 +280,10 @@ fun AsignaturaDetalleScreen(
     onVolverClick: () -> Unit = {},
     porcentajeGuardado: Int = 0,
     errorGuardado: String? = null,
-    onEjercicioRespondido: (Int) -> Unit = {},
-
+    onRespuestaRegistrada: (Int, Boolean) -> Unit = { _, _ -> },
     modoEstudioActivo: Boolean = false
 ) {
+
     val asignatura = remember(asignaturaId) {
         obtenerAsignatura(asignaturaId)
     }
@@ -310,9 +313,11 @@ fun AsignaturaDetalleScreen(
     val total = ejercicios.size
 
     MPAZBackground {
+
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
+
             val alturaDisponible = maxHeight
 
             Column(
@@ -337,6 +342,7 @@ fun AsignaturaDetalleScreen(
                 )
 
                 if (modoEstudioActivo) {
+
                     Text(
                         text = "📚 Modo estudio activado",
                         fontSize = 14.sp,
@@ -346,13 +352,14 @@ fun AsignaturaDetalleScreen(
                     )
                 }
 
-                if (asignatura == null || ejercicio == null) {
+                if (asignatura == null) {
 
                     MPAZCard(
                         modifier = Modifier
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
+
                         Text(
                             text = "Asignatura no encontrada",
                             color = MPAZTexto
@@ -366,6 +373,7 @@ fun AsignaturaDetalleScreen(
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
+
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment =
@@ -373,6 +381,7 @@ fun AsignaturaDetalleScreen(
                             verticalArrangement =
                                 Arrangement.spacedBy(14.dp)
                         ) {
+
                             Text(
                                 text = "🏆",
                                 fontSize = 55.sp
@@ -400,6 +409,20 @@ fun AsignaturaDetalleScreen(
                                 color = MPAZTexto
                             )
 
+                            val rendimientoSesion = if (total > 0) {
+                                (aciertos * 100f / total).toInt()
+                            } else {
+                                0
+                            }
+
+                            Text(
+                                text = "Rendimiento de esta práctica: " +
+                                        "$rendimientoSesion%",
+                                fontSize = 16.sp,
+                                color = MPAZTextoSecundario,
+                                textAlign = TextAlign.Center
+                            )
+
                             Text(
                                 text = "¡Llegaste al nivel difícil!",
                                 color = MPAZTextoSecundario,
@@ -420,13 +443,14 @@ fun AsignaturaDetalleScreen(
                         modifier = Modifier.widthIn(max = 480.dp)
                     )
 
-                } else {
+                } else if (ejercicio != null) {
 
                     MPAZCard(
                         modifier = Modifier
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
+
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment =
@@ -434,6 +458,7 @@ fun AsignaturaDetalleScreen(
                             verticalArrangement =
                                 Arrangement.spacedBy(12.dp)
                         ) {
+
                             Text(
                                 text = asignatura.emoji,
                                 fontSize = 52.sp
@@ -461,6 +486,7 @@ fun AsignaturaDetalleScreen(
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
+
                         Text(
                             text = "Ejercicio ${numeroEjercicio + 1} " +
                                     "de $total · Nivel ${ejercicio.nivel}",
@@ -501,6 +527,7 @@ fun AsignaturaDetalleScreen(
                             modoEstudioActivo &&
                             respuestaSeleccionada == null
                         ) {
+
                             Spacer(Modifier.height(10.dp))
 
                             TextButton(
@@ -508,6 +535,7 @@ fun AsignaturaDetalleScreen(
                                     mostrarPista = !mostrarPista
                                 }
                             ) {
+
                                 Text(
                                     text = if (mostrarPista) {
                                         "Ocultar pista ▲"
@@ -522,7 +550,9 @@ fun AsignaturaDetalleScreen(
                             AnimatedVisibility(
                                 visible = mostrarPista
                             ) {
+
                                 Column {
+
                                     Spacer(Modifier.height(6.dp))
 
                                     Text(
@@ -544,30 +574,39 @@ fun AsignaturaDetalleScreen(
                             val hayRespuesta =
                                 respuestaSeleccionada != null
 
-                            val correcta =
+                            val esOpcionCorrecta =
                                 opcion == ejercicio.correcta
 
                             val elegida =
                                 opcion == respuestaSeleccionada
 
                             val colorBorde = when {
-                                hayRespuesta && correcta -> MPAZVerde
-                                hayRespuesta && elegida -> MPAZError
+
+                                hayRespuesta && esOpcionCorrecta ->
+                                    MPAZVerde
+
+                                hayRespuesta && elegida ->
+                                    MPAZError
+
                                 else -> Color.LightGray
                             }
 
                             OutlinedButton(
                                 onClick = {
-                                    if (
-                                        respuestaSeleccionada == null
-                                    ) {
+
+                                    if (respuestaSeleccionada == null) {
+
+                                        val respuestaCorrecta =
+                                            opcion == ejercicio.correcta
+
                                         respuestaSeleccionada = opcion
 
-                                        onEjercicioRespondido(
-                                            numeroEjercicio + 1
+                                        onRespuestaRegistrada(
+                                            numeroEjercicio + 1,
+                                            respuestaCorrecta
                                         )
 
-                                        if (correcta) {
+                                        if (respuestaCorrecta) {
                                             aciertos++
                                         }
                                     }
@@ -576,7 +615,7 @@ fun AsignaturaDetalleScreen(
                                 border = BorderStroke(
                                     width = if (
                                         hayRespuesta &&
-                                        (correcta || elegida)
+                                        (esOpcionCorrecta || elegida)
                                     ) {
                                         2.dp
                                     } else {
@@ -586,6 +625,7 @@ fun AsignaturaDetalleScreen(
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
+
                                 Text(
                                     text = opcion,
                                     fontSize = 16.sp,
@@ -600,7 +640,9 @@ fun AsignaturaDetalleScreen(
                         AnimatedVisibility(
                             visible = respuestaSeleccionada != null
                         ) {
+
                             Column {
+
                                 Spacer(Modifier.height(14.dp))
 
                                 val esCorrecta =
@@ -633,6 +675,7 @@ fun AsignaturaDetalleScreen(
                                 )
 
                                 if (modoEstudioActivo) {
+
                                     Spacer(Modifier.height(14.dp))
 
                                     Text(
@@ -656,6 +699,7 @@ fun AsignaturaDetalleScreen(
                     }
 
                     if (errorGuardado != null) {
+
                         Text(
                             text = errorGuardado,
                             color = MPAZError,
@@ -665,6 +709,7 @@ fun AsignaturaDetalleScreen(
                     }
 
                     if (respuestaSeleccionada != null) {
+
                         MPAZButton(
                             texto = if (
                                 numeroEjercicio == total - 1
@@ -674,9 +719,8 @@ fun AsignaturaDetalleScreen(
                                 "Siguiente ejercicio →"
                             },
                             onClick = {
-                                if (
-                                    numeroEjercicio == total - 1
-                                ) {
+
+                                if (numeroEjercicio == total - 1) {
                                     terminado = true
                                 } else {
                                     numeroEjercicio++
@@ -707,6 +751,7 @@ fun AsignaturaDetalleScreen(
 )
 @Composable
 fun AsignaturaDetalleScreenPreview() {
+
     AppMPAZPRO3_Grupo6Theme {
         AsignaturaDetalleScreen(
             asignaturaId = "matematica",
@@ -723,6 +768,7 @@ fun AsignaturaDetalleScreenPreview() {
 )
 @Composable
 fun AsignaturaModoEstudioPreview() {
+
     AppMPAZPRO3_Grupo6Theme {
         AsignaturaDetalleScreen(
             asignaturaId = "matematica",
