@@ -1,12 +1,15 @@
 package com.example.appmpazpro3_grupo6.repository
 
 import android.content.Context
+import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -58,23 +61,25 @@ data class RendimientoAsignatura(
         get() = if (ejerciciosEvaluados == 0) {
             null
         } else {
-            (
-                    respuestasCorrectas * 100f /
-                            ejerciciosEvaluados
-                    ).roundToInt()
+            (respuestasCorrectas * 100f / ejerciciosEvaluados).roundToInt()
         }
 }
+
+data class SesionPractica(
+    @SerializedName("ejercicio") val numeroEjercicio: Int = 0,
+    @SerializedName("respuesta") val respuestaSeleccionada: String? = null,
+    @SerializedName("aciertos") val aciertos: Int = 0,
+    @SerializedName("terminada") val terminado: Boolean = false
+)
 
 data class ProgresoEstudiante(
     val lenguaje: Int = 0,
     val matematica: Int = 0,
     val ciencias: Int = 0,
     val historia: Int = 0,
-
-    val resultados: Map<String, Map<Int, ResultadoEjercicio>> =
-        emptyMap()
+    val resultados: Map<String, Map<Int, ResultadoEjercicio>> = emptyMap(),
+    val sesionesPractica: Map<String, SesionPractica>? = null
 ) {
-
     fun completados(asignaturaId: String): Int {
         val cantidad = when (asignaturaId) {
             "lenguaje" -> lenguaje
@@ -88,9 +93,7 @@ data class ProgresoEstudiante(
     }
 
     fun porcentaje(asignaturaId: String): Int {
-        return (
-                completados(asignaturaId) * 100f / 3
-                ).toInt()
+        return (completados(asignaturaId) * 100f / 3).toInt()
     }
 
     val totalCompletados: Int
@@ -118,34 +121,21 @@ data class ProgresoEstudiante(
         asignaturaId: String,
         numeroEjercicio: Int
     ): ResultadoEjercicio {
-        return resultados[asignaturaId]
-            ?.get(numeroEjercicio)
+        return resultados[asignaturaId]?.get(numeroEjercicio)
             ?: ResultadoEjercicio()
     }
 
-    fun rendimiento(
-        asignaturaId: String
-    ): RendimientoAsignatura {
-
-        val ejercicios = resultados[asignaturaId]
-            ?.values
-            .orEmpty()
-
-        val evaluados = ejercicios.filter {
-            it.ultimaRespuestaCorrecta != null
-        }
+    fun rendimiento(asignaturaId: String): RendimientoAsignatura {
+        val ejercicios = resultados[asignaturaId]?.values.orEmpty()
+        val evaluados = ejercicios.filter { it.ultimaRespuestaCorrecta != null }
 
         return RendimientoAsignatura(
             ejerciciosEvaluados = evaluados.size,
-            respuestasCorrectas = evaluados.count {
-                it.ultimaRespuestaCorrecta == true
-            }
+            respuestasCorrectas = evaluados.count { it.ultimaRespuestaCorrecta == true }
         )
     }
 
-    fun porcentajeRendimiento(
-        asignaturaId: String
-    ): Int? {
+    fun porcentajeRendimiento(asignaturaId: String): Int? {
         return rendimiento(asignaturaId).porcentaje
     }
 
@@ -154,12 +144,8 @@ data class ProgresoEstudiante(
             val resumenes = idsAsignaturas.map { rendimiento(it) }
 
             return RendimientoAsignatura(
-                ejerciciosEvaluados = resumenes.sumOf {
-                    it.ejerciciosEvaluados
-                },
-                respuestasCorrectas = resumenes.sumOf {
-                    it.respuestasCorrectas
-                }
+                ejerciciosEvaluados = resumenes.sumOf { it.ejerciciosEvaluados },
+                respuestasCorrectas = resumenes.sumOf { it.respuestasCorrectas }
             )
         }
 
@@ -170,6 +156,7 @@ data class ProgresoEstudiante(
 class ProgresoRepository(context: Context) {
 
     private val contexto = context.applicationContext
+    private val gson = Gson()
 
     private val claves = mapOf(
         "lenguaje" to intPreferencesKey("ejercicios_lenguaje"),
@@ -178,43 +165,48 @@ class ProgresoRepository(context: Context) {
         "historia" to intPreferencesKey("ejercicios_historia")
     )
 
+    private fun claveSesion(asignaturaId: String) =
+        stringPreferencesKey("sesion_practica_$asignaturaId")
+
     private fun claveIntentos(
         asignaturaId: String,
         numeroEjercicio: Int
-    ) = intPreferencesKey(
-        "intentos_${asignaturaId}_$numeroEjercicio"
-    )
+    ) = intPreferencesKey("intentos_${asignaturaId}_$numeroEjercicio")
 
     private fun claveHistorial(
         asignaturaId: String,
         numeroEjercicio: Int
-    ) = stringPreferencesKey(
-        "historial_${asignaturaId}_$numeroEjercicio"
-    )
+    ) = stringPreferencesKey("historial_${asignaturaId}_$numeroEjercicio")
+
+    private fun leerSesion(
+        preferencias: Preferences,
+        asignaturaId: String
+    ): SesionPractica {
+        val json = preferencias[claveSesion(asignaturaId)] ?: return SesionPractica()
+        return gson.fromJson(json, SesionPractica::class.java) ?: SesionPractica()
+    }
+
+    private fun aplicarSesion(
+        preferencias: MutablePreferences,
+        asignaturaId: String,
+        anterior: SesionPractica,
+        siguiente: SesionPractica
+    ): Boolean {
+        if (leerSesion(preferencias, asignaturaId) != anterior) return false
+
+        preferencias[claveSesion(asignaturaId)] = gson.toJson(siguiente)
+        return true
+    }
 
     private fun obtenerResultados(
         preferencias: Preferences
     ): Map<String, Map<Int, ResultadoEjercicio>> {
-
         return idsAsignaturas.associateWith { asignaturaId ->
-
             (1..3).associateWith { numeroEjercicio ->
-
                 ResultadoEjercicio(
-                    intentos = preferencias[
-                        claveIntentos(
-                            asignaturaId,
-                            numeroEjercicio
-                        )
-                    ] ?: 0,
-
+                    intentos = preferencias[claveIntentos(asignaturaId, numeroEjercicio)] ?: 0,
                     historial = leerHistorial(
-                        preferencias[
-                            claveHistorial(
-                                asignaturaId,
-                                numeroEjercicio
-                            )
-                        ]
+                        preferencias[claveHistorial(asignaturaId, numeroEjercicio)]
                     )
                 )
             }
@@ -231,25 +223,15 @@ class ProgresoRepository(context: Context) {
                 }
             }
             .map { preferencias ->
-
                 ProgresoEstudiante(
-                    lenguaje = preferencias[
-                        claves.getValue("lenguaje")
-                    ] ?: 0,
-
-                    matematica = preferencias[
-                        claves.getValue("matematica")
-                    ] ?: 0,
-
-                    ciencias = preferencias[
-                        claves.getValue("ciencias")
-                    ] ?: 0,
-
-                    historia = preferencias[
-                        claves.getValue("historia")
-                    ] ?: 0,
-
-                    resultados = obtenerResultados(preferencias)
+                    lenguaje = preferencias[claves.getValue("lenguaje")] ?: 0,
+                    matematica = preferencias[claves.getValue("matematica")] ?: 0,
+                    ciencias = preferencias[claves.getValue("ciencias")] ?: 0,
+                    historia = preferencias[claves.getValue("historia")] ?: 0,
+                    resultados = obtenerResultados(preferencias),
+                    sesionesPractica = idsAsignaturas.associateWith { asignaturaId ->
+                        leerSesion(preferencias, asignaturaId)
+                    }
                 )
             }
 
@@ -258,70 +240,73 @@ class ProgresoRepository(context: Context) {
         ejerciciosRespondidos: Int
     ) {
         val clave = claves[asignaturaId] ?: return
-
         val cantidad = ejerciciosRespondidos.coerceIn(0, 3)
 
         contexto.progresoDataStore.edit { preferencias ->
             val anterior = preferencias[clave] ?: 0
+            preferencias[clave] = maxOf(anterior, cantidad)
+        }
+    }
 
-            preferencias[clave] = maxOf(
-                anterior,
-                cantidad
+    suspend fun guardarSesion(
+        asignaturaId: String,
+        anterior: SesionPractica,
+        siguiente: SesionPractica,
+        esCorrecta: Boolean?
+    ) {
+        if (asignaturaId !in claves) return
+
+        if (esCorrecta != null) {
+            registrarRespuesta(
+                asignaturaId = asignaturaId,
+                numeroEjercicio = anterior.numeroEjercicio + 1,
+                esCorrecta = esCorrecta,
+                cambioSesion = anterior to siguiente
             )
+        } else {
+            contexto.progresoDataStore.edit { preferencias ->
+                aplicarSesion(preferencias, asignaturaId, anterior, siguiente)
+            }
         }
     }
 
     suspend fun registrarRespuesta(
         asignaturaId: String,
         numeroEjercicio: Int,
-        esCorrecta: Boolean
+        esCorrecta: Boolean,
+        cambioSesion: Pair<SesionPractica, SesionPractica>? = null
     ) {
         val claveProgreso = claves[asignaturaId] ?: return
-
         if (numeroEjercicio !in 1..3) return
 
-        val claveIntentosActual = claveIntentos(
-            asignaturaId,
-            numeroEjercicio
-        )
-
-        val claveHistorialActual = claveHistorial(
-            asignaturaId,
-            numeroEjercicio
-        )
+        val claveIntentosActual = claveIntentos(asignaturaId, numeroEjercicio)
+        val claveHistorialActual = claveHistorial(asignaturaId, numeroEjercicio)
 
         contexto.progresoDataStore.edit { preferencias ->
-
-            val progresoAnterior =
-                preferencias[claveProgreso] ?: 0
-
-            preferencias[claveProgreso] = maxOf(
-                progresoAnterior,
-                numeroEjercicio
-            ).coerceIn(0, 3)
-
-            val intentosAnteriores =
-                preferencias[claveIntentosActual] ?: 0
-
-            preferencias[claveIntentosActual] =
-                if (intentosAnteriores < Int.MAX_VALUE) {
-                    intentosAnteriores + 1
-                } else {
-                    Int.MAX_VALUE
+            if (cambioSesion != null) {
+                val (anterior, siguiente) = cambioSesion
+                if (!aplicarSesion(preferencias, asignaturaId, anterior, siguiente)) {
+                    return@edit
                 }
+            }
 
-            val historialAnterior = leerHistorial(
-                preferencias[claveHistorialActual]
-            )
+            val progresoAnterior = preferencias[claveProgreso] ?: 0
+            preferencias[claveProgreso] =
+                maxOf(progresoAnterior, numeroEjercicio).coerceIn(0, 3)
 
-            val historialNuevo = (
-                    historialAnterior + esCorrecta
-                    ).takeLast(30)
+            val intentosAnteriores = preferencias[claveIntentosActual] ?: 0
+            preferencias[claveIntentosActual] = if (intentosAnteriores < Int.MAX_VALUE) {
+                intentosAnteriores + 1
+            } else {
+                Int.MAX_VALUE
+            }
 
-            preferencias[claveHistorialActual] =
-                historialNuevo.joinToString(",") {
-                    if (it) "1" else "0"
-                }
+            val historialAnterior = leerHistorial(preferencias[claveHistorialActual])
+            val historialNuevo = (historialAnterior + esCorrecta).takeLast(30)
+
+            preferencias[claveHistorialActual] = historialNuevo.joinToString(",") {
+                if (it) "1" else "0"
+            }
         }
     }
 }
