@@ -12,9 +12,9 @@ data class LecturaCiencias(
 class LecturasCienciasRepository(
     private val api: WikipediaApi = WikipediaApi.servicio
 ) {
-    suspend fun obtenerFotosintesis(): LecturaCiencias? {
+    suspend fun obtenerLectura(articulo: String): LecturaCiencias? {
         val respuesta = api.buscarPaginas(
-            consulta = "fotosíntesis",
+            consulta = articulo.replace('_', ' '),
             limite = 5
         )
 
@@ -22,7 +22,7 @@ class LecturasCienciasRepository(
             "La respuesta de Wikipedia no contiene el campo pages."
         }
 
-        val pagina = paginas.firstOrNull { it.key == "Fotosíntesis" }
+        val pagina = paginas.firstOrNull { it.key == articulo }
             ?: return null
 
         val claveCodificada = URLEncoder.encode(pagina.key, "UTF-8")

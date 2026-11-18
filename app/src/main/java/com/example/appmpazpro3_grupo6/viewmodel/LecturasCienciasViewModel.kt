@@ -19,6 +19,7 @@ sealed interface EstadoLecturaCiencias {
 }
 
 class LecturasCienciasViewModel(
+    private val articulo: String,
     private val repositorio: LecturasCienciasRepository = LecturasCienciasRepository()
 ) : ViewModel() {
 
@@ -30,17 +31,17 @@ class LecturasCienciasViewModel(
     private var carga: Job? = null
 
     init {
-        cargarFotosintesis()
+        cargarLectura()
     }
 
-    fun cargarFotosintesis() {
+    fun cargarLectura() {
         if (carga?.isActive == true) return
 
         _estado.value = EstadoLecturaCiencias.Cargando
 
         carga = viewModelScope.launch {
             _estado.value = try {
-                val lectura = repositorio.obtenerFotosintesis()
+                val lectura = repositorio.obtenerLectura(articulo)
 
                 if (lectura == null) {
                     EstadoLecturaCiencias.SinResultados

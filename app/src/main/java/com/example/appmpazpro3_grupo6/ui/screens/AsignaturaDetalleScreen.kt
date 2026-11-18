@@ -10,6 +10,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,11 +20,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.appmpazpro3_grupo6.repository.SesionPractica
 import com.example.appmpazpro3_grupo6.ui.components.*
 import com.example.appmpazpro3_grupo6.ui.theme.*
 
 private data class Ejercicio(
     val nivel: String,
+    val articuloWikipedia: String,
     val pregunta: String,
     val opciones: List<String>,
     val correcta: String,
@@ -39,12 +42,8 @@ private data class ContenidoAsignatura(
     val ejercicios: List<Ejercicio>
 )
 
-private fun obtenerAsignatura(
-    id: String
-): ContenidoAsignatura? {
-
+private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
     return when (id) {
-
         "lenguaje" -> ContenidoAsignatura(
             titulo = "Lenguaje y Comunicación",
             emoji = "📖",
@@ -52,6 +51,7 @@ private fun obtenerAsignatura(
             ejercicios = listOf(
                 Ejercicio(
                     nivel = "Fácil",
+                    articuloWikipedia = "Sustantivo",
                     pregunta = "¿Cuál de estas palabras es un sustantivo?",
                     opciones = listOf("Correr", "Mesa", "Rápido"),
                     correcta = "Mesa",
@@ -65,6 +65,7 @@ private fun obtenerAsignatura(
                 ),
                 Ejercicio(
                     nivel = "Medio",
+                    articuloWikipedia = "Adjetivo",
                     pregunta = "¿Qué oración contiene un adjetivo?",
                     opciones = listOf(
                         "El gato duerme.",
@@ -80,6 +81,7 @@ private fun obtenerAsignatura(
                 ),
                 Ejercicio(
                     nivel = "Difícil",
+                    articuloWikipedia = "Inferencia",
                     pregunta = "Lucía llevó un paraguas porque había " +
                             "nubes oscuras. ¿Qué podemos inferir?",
                     opciones = listOf(
@@ -105,6 +107,7 @@ private fun obtenerAsignatura(
             ejercicios = listOf(
                 Ejercicio(
                     nivel = "Fácil",
+                    articuloWikipedia = "Adición_(matemática)",
                     pregunta = "¿Cuánto es 7 + 5?",
                     opciones = listOf("10", "12", "14"),
                     correcta = "12",
@@ -116,6 +119,7 @@ private fun obtenerAsignatura(
                 ),
                 Ejercicio(
                     nivel = "Medio",
+                    articuloWikipedia = "Notación_posicional",
                     pregunta = "¿Cuánto es 23 + 18?",
                     opciones = listOf("31", "41", "51"),
                     correcta = "41",
@@ -130,6 +134,7 @@ private fun obtenerAsignatura(
                 ),
                 Ejercicio(
                     nivel = "Difícil",
+                    articuloWikipedia = "Resta",
                     pregunta = "Una biblioteca tiene 46 libros, " +
                             "presta 19 y recibe 28 nuevos. " +
                             "¿Cuántos libros tiene al final?",
@@ -154,12 +159,9 @@ private fun obtenerAsignatura(
             ejercicios = listOf(
                 Ejercicio(
                     nivel = "Fácil",
+                    articuloWikipedia = "Fotosíntesis",
                     pregunta = "¿Qué necesitan las plantas para crecer?",
-                    opciones = listOf(
-                        "Luz y agua",
-                        "Solo piedras",
-                        "Solo plástico"
-                    ),
+                    opciones = listOf("Luz y agua", "Solo piedras", "Solo plástico"),
                     correcta = "Luz y agua",
                     explicacion = "Las plantas necesitan luz y agua " +
                             "para crecer. También requieren aire, " +
@@ -171,13 +173,10 @@ private fun obtenerAsignatura(
                 ),
                 Ejercicio(
                     nivel = "Medio",
+                    articuloWikipedia = "Raíz_(botánica)",
                     pregunta = "¿Qué parte de la planta absorbe " +
                             "agua del suelo?",
-                    opciones = listOf(
-                        "Las flores",
-                        "La raíz",
-                        "Los frutos"
-                    ),
+                    opciones = listOf("Las flores", "La raíz", "Los frutos"),
                     correcta = "La raíz",
                     explicacion = "La raíz absorbe agua y minerales " +
                             "del suelo que la planta necesita.",
@@ -188,14 +187,11 @@ private fun obtenerAsignatura(
                 ),
                 Ejercicio(
                     nivel = "Difícil",
+                    articuloWikipedia = "Evaporación",
                     pregunta = "Cuando el agua se calienta y se " +
                             "transforma en vapor, ¿cómo se llama " +
                             "ese proceso?",
-                    opciones = listOf(
-                        "Congelación",
-                        "Evaporación",
-                        "Condensación"
-                    ),
+                    opciones = listOf("Congelación", "Evaporación", "Condensación"),
                     correcta = "Evaporación",
                     explicacion = "La evaporación transforma " +
                             "el agua líquida en vapor. La congelación " +
@@ -216,12 +212,9 @@ private fun obtenerAsignatura(
             ejercicios = listOf(
                 Ejercicio(
                     nivel = "Fácil",
+                    articuloWikipedia = "Mapa",
                     pregunta = "¿Qué representa un mapa?",
-                    opciones = listOf(
-                        "Lugares y territorios",
-                        "Recetas",
-                        "Canciones"
-                    ),
+                    opciones = listOf("Lugares y territorios", "Recetas", "Canciones"),
                     correcta = "Lugares y territorios",
                     explicacion = "Un mapa representa lugares " +
                             "y territorios mediante símbolos, " +
@@ -232,13 +225,10 @@ private fun obtenerAsignatura(
                 ),
                 Ejercicio(
                     nivel = "Medio",
+                    articuloWikipedia = "Este",
                     pregunta = "Si el norte está arriba en un mapa, " +
                             "¿dónde está el este?",
-                    opciones = listOf(
-                        "A la izquierda",
-                        "A la derecha",
-                        "Abajo"
-                    ),
+                    opciones = listOf("A la izquierda", "A la derecha", "Abajo"),
                     correcta = "A la derecha",
                     explicacion = "Cuando el norte está arriba, " +
                             "el sur está abajo, el este a la derecha " +
@@ -250,14 +240,11 @@ private fun obtenerAsignatura(
                 ),
                 Ejercicio(
                     nivel = "Difícil",
+                    articuloWikipedia = "Rosa_de_los_vientos",
                     pregunta = "Caminas dos cuadras al norte " +
                             "y una al este. ¿En qué dirección general " +
                             "quedas respecto del inicio?",
-                    opciones = listOf(
-                        "Suroeste",
-                        "Noreste",
-                        "Noroeste"
-                    ),
+                    opciones = listOf("Suroeste", "Noreste", "Noroeste"),
                     correcta = "Noreste",
                     explicacion = "Como avanzaste hacia el norte " +
                             "y hacia el este, quedas al noreste " +
@@ -274,6 +261,25 @@ private fun obtenerAsignatura(
     }
 }
 
+private val sesionPracticaSaver = listSaver<SesionPractica, Any>(
+    save = { sesion ->
+        listOf(
+            sesion.numeroEjercicio,
+            sesion.respuestaSeleccionada.orEmpty(),
+            sesion.aciertos,
+            sesion.terminado
+        )
+    },
+    restore = { datos ->
+        SesionPractica(
+            numeroEjercicio = datos[0] as Int,
+            respuestaSeleccionada = (datos[1] as String).takeIf(String::isNotEmpty),
+            aciertos = datos[2] as Int,
+            terminado = datos[3] as Boolean
+        )
+    }
+)
+
 @Composable
 fun AsignaturaDetalleScreen(
     asignaturaId: String,
@@ -281,31 +287,54 @@ fun AsignaturaDetalleScreen(
     porcentajeGuardado: Int = 0,
     errorGuardado: String? = null,
     onRespuestaRegistrada: (Int, Boolean) -> Unit = { _, _ -> },
-    modoEstudioActivo: Boolean = false
+    modoEstudioActivo: Boolean = false,
+    sesionPractica: SesionPractica? = null,
+    guardandoPractica: Boolean = false,
+    onCambiarPractica: ((SesionPractica, SesionPractica, Boolean?) -> Unit)? = null
 ) {
-
     val asignatura = remember(asignaturaId) {
         obtenerAsignatura(asignaturaId)
     }
 
-    var numeroEjercicio by rememberSaveable(asignaturaId) {
-        mutableIntStateOf(0)
+    if (onCambiarPractica != null && sesionPractica == null) {
+        MPAZBackground {
+            Text(
+                text = "Cargando práctica…",
+                modifier = Modifier.align(Alignment.Center),
+                color = MPAZTexto
+            )
+        }
+        return
     }
 
-    var respuestaSeleccionada by rememberSaveable(asignaturaId) {
-        mutableStateOf<String?>(null)
+    var sesionLocal by rememberSaveable(
+        asignaturaId,
+        stateSaver = sesionPracticaSaver
+    ) {
+        mutableStateOf(SesionPractica())
     }
 
-    var aciertos by rememberSaveable(asignaturaId) {
-        mutableIntStateOf(0)
-    }
+    val sesion = sesionPractica ?: sesionLocal
+    val numeroEjercicio = sesion.numeroEjercicio
+    val respuestaSeleccionada = sesion.respuestaSeleccionada
+    val aciertos = sesion.aciertos
+    val terminado = sesion.terminado
 
-    var terminado by rememberSaveable(asignaturaId) {
+    var mostrarPista by rememberSaveable(asignaturaId, numeroEjercicio) {
         mutableStateOf(false)
     }
 
-    var mostrarPista by rememberSaveable(asignaturaId) {
-        mutableStateOf(false)
+    fun actualizarSesion(siguiente: SesionPractica, esCorrecta: Boolean? = null) {
+        if (guardandoPractica) return
+
+        if (onCambiarPractica != null) {
+            onCambiarPractica(sesion, siguiente, esCorrecta)
+        } else {
+            sesionLocal = siguiente
+            if (esCorrecta != null) {
+                onRespuestaRegistrada(numeroEjercicio + 1, esCorrecta)
+            }
+        }
     }
 
     val ejercicios = asignatura?.ejercicios.orEmpty()
@@ -313,11 +342,7 @@ fun AsignaturaDetalleScreen(
     val total = ejercicios.size
 
     MPAZBackground {
-
-        BoxWithConstraints(
-            modifier = Modifier.fillMaxSize()
-        ) {
-
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
             val alturaDisponible = maxHeight
 
             Column(
@@ -325,24 +350,19 @@ fun AsignaturaDetalleScreen(
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
                     .heightIn(min = alturaDisponible)
-                    .padding(
-                        horizontal = 24.dp,
-                        vertical = 24.dp
-                    ),
+                    .padding(horizontal = 24.dp, vertical = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(
                     space = 20.dp,
                     alignment = Alignment.CenterVertically
                 )
             ) {
-
                 MPAZScreenHeader(
                     titulo = asignatura?.titulo ?: "Asignatura",
                     subtitulo = "¡Vamos a aprender!"
                 )
 
                 if (modoEstudioActivo) {
-
                     Text(
                         text = "📚 Modo estudio activado",
                         fontSize = 14.sp,
@@ -353,39 +373,28 @@ fun AsignaturaDetalleScreen(
                 }
 
                 if (asignatura == null) {
-
                     MPAZCard(
                         modifier = Modifier
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
-
                         Text(
                             text = "Asignatura no encontrada",
                             color = MPAZTexto
                         )
                     }
-
                 } else if (terminado) {
-
                     MPAZCard(
                         modifier = Modifier
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
-
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment =
-                                Alignment.CenterHorizontally,
-                            verticalArrangement =
-                                Arrangement.spacedBy(14.dp)
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(14.dp)
                         ) {
-
-                            Text(
-                                text = "🏆",
-                                fontSize = 55.sp
-                            )
+                            Text(text = "🏆", fontSize = 55.sp)
 
                             Text(
                                 text = "¡Terminaste los ejercicios!",
@@ -403,8 +412,7 @@ fun AsignaturaDetalleScreen(
                             )
 
                             Text(
-                                text = "Respuestas correctas: " +
-                                        "$aciertos de $total",
+                                text = "Respuestas correctas: $aciertos de $total",
                                 fontSize = 17.sp,
                                 color = MPAZTexto
                             )
@@ -416,8 +424,7 @@ fun AsignaturaDetalleScreen(
                             }
 
                             Text(
-                                text = "Rendimiento de esta práctica: " +
-                                        "$rendimientoSesion%",
+                                text = "Rendimiento de esta práctica: $rendimientoSesion%",
                                 fontSize = 16.sp,
                                 color = MPAZTextoSecundario,
                                 textAlign = TextAlign.Center
@@ -433,36 +440,22 @@ fun AsignaturaDetalleScreen(
 
                     MPAZButton(
                         texto = "Volver a practicar",
-                        onClick = {
-                            numeroEjercicio = 0
-                            respuestaSeleccionada = null
-                            aciertos = 0
-                            terminado = false
-                            mostrarPista = false
-                        },
+                        onClick = { actualizarSesion(SesionPractica()) },
+                        enabled = !guardandoPractica,
                         modifier = Modifier.widthIn(max = 480.dp)
                     )
-
                 } else if (ejercicio != null) {
-
                     MPAZCard(
                         modifier = Modifier
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
-
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment =
-                                Alignment.CenterHorizontally,
-                            verticalArrangement =
-                                Arrangement.spacedBy(12.dp)
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-
-                            Text(
-                                text = asignatura.emoji,
-                                fontSize = 52.sp
-                            )
+                            Text(text = asignatura.emoji, fontSize = 52.sp)
 
                             Text(
                                 text = asignatura.titulo,
@@ -486,7 +479,6 @@ fun AsignaturaDetalleScreen(
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
-
                         Text(
                             text = "Ejercicio ${numeroEjercicio + 1} " +
                                     "de $total · Nivel ${ejercicio.nivel}",
@@ -506,10 +498,7 @@ fun AsignaturaDetalleScreen(
                         Spacer(Modifier.height(8.dp))
 
                         LinearProgressIndicator(
-                            progress = {
-                                (porcentajeGuardado / 100f)
-                                    .coerceIn(0f, 1f)
-                            },
+                            progress = { (porcentajeGuardado / 100f).coerceIn(0f, 1f) },
                             modifier = Modifier.fillMaxWidth(),
                             color = MPAZCoral,
                             trackColor = MPAZAmarilloSuave
@@ -523,19 +512,10 @@ fun AsignaturaDetalleScreen(
                             color = MPAZTexto
                         )
 
-                        if (
-                            modoEstudioActivo &&
-                            respuestaSeleccionada == null
-                        ) {
-
+                        if (modoEstudioActivo && respuestaSeleccionada == null) {
                             Spacer(Modifier.height(10.dp))
 
-                            TextButton(
-                                onClick = {
-                                    mostrarPista = !mostrarPista
-                                }
-                            ) {
-
+                            TextButton(onClick = { mostrarPista = !mostrarPista }) {
                                 Text(
                                     text = if (mostrarPista) {
                                         "Ocultar pista ▲"
@@ -547,12 +527,8 @@ fun AsignaturaDetalleScreen(
                                 )
                             }
 
-                            AnimatedVisibility(
-                                visible = mostrarPista
-                            ) {
-
+                            AnimatedVisibility(visible = mostrarPista) {
                                 Column {
-
                                     Spacer(Modifier.height(6.dp))
 
                                     Text(
@@ -570,53 +546,30 @@ fun AsignaturaDetalleScreen(
                         Spacer(Modifier.height(14.dp))
 
                         ejercicio.opciones.forEach { opcion ->
-
-                            val hayRespuesta =
-                                respuestaSeleccionada != null
-
-                            val esOpcionCorrecta =
-                                opcion == ejercicio.correcta
-
-                            val elegida =
-                                opcion == respuestaSeleccionada
+                            val hayRespuesta = respuestaSeleccionada != null
+                            val esOpcionCorrecta = opcion == ejercicio.correcta
+                            val elegida = opcion == respuestaSeleccionada
 
                             val colorBorde = when {
-
-                                hayRespuesta && esOpcionCorrecta ->
-                                    MPAZVerde
-
-                                hayRespuesta && elegida ->
-                                    MPAZError
-
+                                hayRespuesta && esOpcionCorrecta -> MPAZVerde
+                                hayRespuesta && elegida -> MPAZError
                                 else -> Color.LightGray
                             }
 
                             OutlinedButton(
                                 onClick = {
-
-                                    if (respuestaSeleccionada == null) {
-
-                                        val respuestaCorrecta =
-                                            opcion == ejercicio.correcta
-
-                                        respuestaSeleccionada = opcion
-
-                                        onRespuestaRegistrada(
-                                            numeroEjercicio + 1,
-                                            respuestaCorrecta
-                                        )
-
-                                        if (respuestaCorrecta) {
-                                            aciertos++
-                                        }
-                                    }
+                                    val esCorrecta = opcion == ejercicio.correcta
+                                    actualizarSesion(
+                                        siguiente = sesion.copy(
+                                            respuestaSeleccionada = opcion,
+                                            aciertos = aciertos + if (esCorrecta) 1 else 0
+                                        ),
+                                        esCorrecta = esCorrecta
+                                    )
                                 },
-                                enabled = !hayRespuesta,
+                                enabled = !hayRespuesta && !guardandoPractica,
                                 border = BorderStroke(
-                                    width = if (
-                                        hayRespuesta &&
-                                        (esOpcionCorrecta || elegida)
-                                    ) {
+                                    width = if (hayRespuesta && (esOpcionCorrecta || elegida)) {
                                         2.dp
                                     } else {
                                         1.dp
@@ -625,7 +578,6 @@ fun AsignaturaDetalleScreen(
                                 ),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-
                                 Text(
                                     text = opcion,
                                     fontSize = 16.sp,
@@ -637,30 +589,19 @@ fun AsignaturaDetalleScreen(
                             Spacer(Modifier.height(5.dp))
                         }
 
-                        AnimatedVisibility(
-                            visible = respuestaSeleccionada != null
-                        ) {
-
+                        AnimatedVisibility(visible = respuestaSeleccionada != null) {
                             Column {
-
                                 Spacer(Modifier.height(14.dp))
 
-                                val esCorrecta =
-                                    respuestaSeleccionada ==
-                                            ejercicio.correcta
+                                val esCorrecta = respuestaSeleccionada == ejercicio.correcta
 
                                 Text(
                                     text = if (esCorrecta) {
                                         "✅ ¡Muy bien! Respuesta correcta."
                                     } else {
-                                        "💡 Respuesta correcta: " +
-                                                ejercicio.correcta
+                                        "💡 Respuesta correcta: ${ejercicio.correcta}"
                                     },
-                                    color = if (esCorrecta) {
-                                        MPAZVerde
-                                    } else {
-                                        MPAZError
-                                    },
+                                    color = if (esCorrecta) MPAZVerde else MPAZError,
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -675,7 +616,6 @@ fun AsignaturaDetalleScreen(
                                 )
 
                                 if (modoEstudioActivo) {
-
                                     Spacer(Modifier.height(14.dp))
 
                                     Text(
@@ -698,39 +638,47 @@ fun AsignaturaDetalleScreen(
                         }
                     }
 
-                    if (errorGuardado != null) {
-
-                        Text(
-                            text = errorGuardado,
-                            color = MPAZError,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-
                     if (respuestaSeleccionada != null) {
-
                         MPAZButton(
-                            texto = if (
-                                numeroEjercicio == total - 1
-                            ) {
+                            texto = if (numeroEjercicio == total - 1) {
                                 "Ver mis resultados →"
                             } else {
                                 "Siguiente ejercicio →"
                             },
                             onClick = {
-
-                                if (numeroEjercicio == total - 1) {
-                                    terminado = true
+                                val siguiente = if (numeroEjercicio == total - 1) {
+                                    sesion.copy(terminado = true)
                                 } else {
-                                    numeroEjercicio++
-                                    respuestaSeleccionada = null
-                                    mostrarPista = false
+                                    sesion.copy(
+                                        numeroEjercicio = numeroEjercicio + 1,
+                                        respuestaSeleccionada = null
+                                    )
                                 }
+
+                                actualizarSesion(siguiente)
                             },
+                            enabled = !guardandoPractica,
                             modifier = Modifier.widthIn(max = 480.dp)
                         )
                     }
+                }
+
+                if (!terminado && ejercicio != null && respuestaSeleccionada != null) {
+                    MPAZLecturaCiencias(
+                        articulo = ejercicio.articuloWikipedia,
+                        modifier = Modifier
+                            .widthIn(max = 480.dp)
+                            .fillMaxWidth()
+                    )
+                }
+
+                if (errorGuardado != null) {
+                    Text(
+                        text = errorGuardado,
+                        color = MPAZError,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
                 }
 
                 MPAZButton(
@@ -751,7 +699,6 @@ fun AsignaturaDetalleScreen(
 )
 @Composable
 fun AsignaturaDetalleScreenPreview() {
-
     AppMPAZPRO3_Grupo6Theme {
         AsignaturaDetalleScreen(
             asignaturaId = "matematica",
@@ -768,7 +715,6 @@ fun AsignaturaDetalleScreenPreview() {
 )
 @Composable
 fun AsignaturaModoEstudioPreview() {
-
     AppMPAZPRO3_Grupo6Theme {
         AsignaturaDetalleScreen(
             asignaturaId = "matematica",

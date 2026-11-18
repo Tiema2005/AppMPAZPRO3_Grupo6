@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmpazpro3_grupo6.repository.ProgresoEstudiante
 import com.example.appmpazpro3_grupo6.repository.ProgresoRepository
+import com.example.appmpazpro3_grupo6.repository.SesionPractica
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,8 +27,39 @@ class ProgresoViewModel(
         )
 
     private val _errorGuardado = MutableStateFlow<String?>(null)
-
     val errorGuardado: StateFlow<String?> = _errorGuardado
+
+    private val _sesionesGuardando = MutableStateFlow<Set<String>>(emptySet())
+    val sesionesGuardando: StateFlow<Set<String>> = _sesionesGuardando
+
+    fun guardarSesion(
+        asignaturaId: String,
+        anterior: SesionPractica,
+        siguiente: SesionPractica,
+        esCorrecta: Boolean?
+    ) {
+        if (asignaturaId in _sesionesGuardando.value) return
+
+        _sesionesGuardando.value = _sesionesGuardando.value + asignaturaId
+        _errorGuardado.value = null
+
+        viewModelScope.launch {
+            try {
+                repositorio.guardarSesion(
+                    asignaturaId = asignaturaId,
+                    anterior = anterior,
+                    siguiente = siguiente,
+                    esCorrecta = esCorrecta
+                )
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                _errorGuardado.value = "No pudimos guardar la práctica. Intenta de nuevo."
+            } finally {
+                _sesionesGuardando.value = _sesionesGuardando.value - asignaturaId
+            }
+        }
+    }
 
     fun registrarEjercicio(
         asignaturaId: String,
@@ -41,11 +73,10 @@ class ProgresoViewModel(
                     asignaturaId = asignaturaId,
                     ejerciciosRespondidos = cantidadCompletada
                 )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _errorGuardado.value =
-                    "No se pudo guardar el progreso del estudiante."
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                _errorGuardado.value = "No se pudo guardar el progreso del estudiante."
             }
         }
     }
@@ -64,11 +95,10 @@ class ProgresoViewModel(
                     numeroEjercicio = numeroEjercicio,
                     esCorrecta = esCorrecta
                 )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _errorGuardado.value =
-                    "No se pudo guardar la respuesta del ejercicio."
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                _errorGuardado.value = "No se pudo guardar la respuesta del ejercicio."
             }
         }
     }
