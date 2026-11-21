@@ -15,4 +15,13 @@ public interface ProgresoRepository
             Long estudianteId,
             String asignatura
     );
+
+    List<Progreso> findByEstudianteIdOrderByAsignaturaAsc(
+            Long estudianteId
+    );
+
+    Optional<Progreso> findByIdAndEstudianteId(
+            Long id,
+            Long estudianteId
+    );
 }
