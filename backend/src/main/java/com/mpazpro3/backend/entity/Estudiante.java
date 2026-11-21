@@ -19,6 +19,9 @@ public class Estudiante {
     @Column(nullable = false, length = 50)
     private String curso;
 
+    @Column(name = "password_hash", length = 100)
+    private String passwordHash;
+
     public Estudiante() {
     }
 
@@ -54,5 +57,13 @@ public class Estudiante {
 
     public void setCurso(String curso) {
         this.curso = curso;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 }
