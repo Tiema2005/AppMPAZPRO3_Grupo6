@@ -2,6 +2,7 @@ package com.example.appmpazpro3_grupo6.repository
 
 import com.example.appmpazpro3_grupo6.data.remote.WikipediaApi
 import java.net.URLEncoder
+import kotlinx.coroutines.CancellationException
 
 data class LecturaCiencias(
     val titulo: String,
@@ -13,25 +14,25 @@ class LecturasCienciasRepository(
     private val api: WikipediaApi = WikipediaApi.servicio
 ) {
     suspend fun obtenerLectura(articulo: String): LecturaCiencias? {
-        val respuesta = api.buscarPaginas(
-            consulta = articulo.replace('_', ' '),
-            limite = 5
-        )
-
-        val paginas = checkNotNull(respuesta.pages) {
-            "La respuesta de Wikipedia no contiene el campo pages."
+        val pagina = try {
+            val respuesta = api.buscarPaginas(
+                consulta = articulo.replace('_', ' '),
+                limite = 10
+            )
+            respuesta.pages.orEmpty().firstOrNull {
+                it.key.equals(articulo, ignoreCase = true)
+            }
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: Exception) {
+            null
         }
-
-        val pagina = paginas.firstOrNull { it.key == articulo }
-            ?: return null
-
-        val claveCodificada = URLEncoder.encode(pagina.key, "UTF-8")
-            .replace("+", "%20")
-
+        val paginaBuscada = pagina?.key ?: articulo
+        val ruta = URLEncoder.encode(paginaBuscada, "UTF-8").replace("+", "%20")
         return LecturaCiencias(
-            titulo = pagina.title,
-            descripcion = pagina.description,
-            urlFuente = "https://es.wikipedia.org/wiki/$claveCodificada"
+            titulo = pagina?.title ?: articulo.replace('_', ' '),
+            descripcion = pagina?.description,
+            urlFuente = "https://es.wikipedia.org/wiki/$ruta"
         )
     }
 }

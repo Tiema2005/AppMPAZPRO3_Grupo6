@@ -2,9 +2,14 @@ package com.example.appmpazpro3_grupo6.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -15,267 +20,34 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmpazpro3_grupo6.repository.SesionPractica
 import com.example.appmpazpro3_grupo6.ui.components.*
 import com.example.appmpazpro3_grupo6.ui.theme.*
 
-private data class Ejercicio(
-    val nivel: String,
-    val articuloWikipedia: String,
-    val pregunta: String,
-    val opciones: List<String>,
-    val correcta: String,
-    val explicacion: String,
-    val pista: String,
-    val consejo: String
-)
-
-private data class ContenidoAsignatura(
-    val titulo: String,
-    val emoji: String,
-    val descripcion: String,
-    val ejercicios: List<Ejercicio>
-)
-
-private fun obtenerAsignatura(id: String): ContenidoAsignatura? {
-    return when (id) {
-        "lenguaje" -> ContenidoAsignatura(
-            titulo = "Lenguaje y Comunicación",
-            emoji = "📖",
-            descripcion = "Aprenderemos a leer, escribir y comprender textos.",
-            ejercicios = listOf(
-                Ejercicio(
-                    nivel = "Fácil",
-                    articuloWikipedia = "Sustantivo",
-                    pregunta = "¿Cuál de estas palabras es un sustantivo?",
-                    opciones = listOf("Correr", "Mesa", "Rápido"),
-                    correcta = "Mesa",
-                    explicacion = "Mesa es un sustantivo porque nombra " +
-                            "un objeto. Correr es un verbo y rápido " +
-                            "puede ser un adjetivo.",
-                    pista = "Piensa cuál de las palabras nombra un objeto.",
-                    consejo = "Para reconocer un sustantivo, pregunta: " +
-                            "¿es el nombre de una persona, animal, " +
-                            "lugar o cosa?"
-                ),
-                Ejercicio(
-                    nivel = "Medio",
-                    articuloWikipedia = "Adjetivo",
-                    pregunta = "¿Qué oración contiene un adjetivo?",
-                    opciones = listOf(
-                        "El gato duerme.",
-                        "El gato negro duerme.",
-                        "El gato corre."
-                    ),
-                    correcta = "El gato negro duerme.",
-                    explicacion = "La palabra negro es un adjetivo " +
-                            "porque describe una característica del gato.",
-                    pista = "Busca una palabra que describa cómo es el gato.",
-                    consejo = "Los adjetivos permiten describir " +
-                            "colores, tamaños y otras características."
-                ),
-                Ejercicio(
-                    nivel = "Difícil",
-                    articuloWikipedia = "Inferencia",
-                    pregunta = "Lucía llevó un paraguas porque había " +
-                            "nubes oscuras. ¿Qué podemos inferir?",
-                    opciones = listOf(
-                        "Podría llover.",
-                        "Hace mucho calor.",
-                        "Es de noche."
-                    ),
-                    correcta = "Podría llover.",
-                    explicacion = "El paraguas y las nubes oscuras " +
-                            "son pistas que indican que podría llover.",
-                    pista = "Relaciona el paraguas con el estado del cielo.",
-                    consejo = "Inferir es descubrir una idea usando " +
-                            "las pistas del texto, aunque no " +
-                            "se diga directamente."
-                )
-            )
-        )
-
-        "matematica" -> ContenidoAsignatura(
-            titulo = "Matemática",
-            emoji = "🔢",
-            descripcion = "Aprenderemos a calcular y resolver problemas.",
-            ejercicios = listOf(
-                Ejercicio(
-                    nivel = "Fácil",
-                    articuloWikipedia = "Adición_(matemática)",
-                    pregunta = "¿Cuánto es 7 + 5?",
-                    opciones = listOf("10", "12", "14"),
-                    correcta = "12",
-                    explicacion = "Partimos de 7 y sumamos 5: " +
-                            "8, 9, 10, 11 y 12. Por eso 7 + 5 = 12.",
-                    pista = "Empieza en 7 y cuenta cinco números más.",
-                    consejo = "Puedes usar tus dedos o dibujar " +
-                            "elementos para practicar las sumas."
-                ),
-                Ejercicio(
-                    nivel = "Medio",
-                    articuloWikipedia = "Notación_posicional",
-                    pregunta = "¿Cuánto es 23 + 18?",
-                    opciones = listOf("31", "41", "51"),
-                    correcta = "41",
-                    explicacion = "Sumamos las unidades: 3 + 8 = 11. " +
-                            "Escribimos 1 y llevamos 1 decena. " +
-                            "Después sumamos 2 + 1 + 1 = 4 decenas. " +
-                            "El resultado es 41.",
-                    pista = "Suma las unidades 3 + 8. " +
-                            "Recuerda llevar una decena.",
-                    consejo = "Ordena los números en columnas: " +
-                            "unidades con unidades y decenas con decenas."
-                ),
-                Ejercicio(
-                    nivel = "Difícil",
-                    articuloWikipedia = "Resta",
-                    pregunta = "Una biblioteca tiene 46 libros, " +
-                            "presta 19 y recibe 28 nuevos. " +
-                            "¿Cuántos libros tiene al final?",
-                    opciones = listOf("55", "65", "37"),
-                    correcta = "55",
-                    explicacion = "Primero restamos los prestados: " +
-                            "46 - 19 = 27. Después sumamos los nuevos: " +
-                            "27 + 28 = 55 libros.",
-                    pista = "Primero resta los libros prestados. " +
-                            "Después suma los libros recibidos.",
-                    consejo = "En problemas de varias operaciones, " +
-                            "separa los pasos. Identifica qué cantidad " +
-                            "disminuye y cuál aumenta."
-                )
-            )
-        )
-
-        "ciencias" -> ContenidoAsignatura(
-            titulo = "Ciencias Naturales",
-            emoji = "🧪",
-            descripcion = "Descubriremos los seres vivos y la naturaleza.",
-            ejercicios = listOf(
-                Ejercicio(
-                    nivel = "Fácil",
-                    articuloWikipedia = "Fotosíntesis",
-                    pregunta = "¿Qué necesitan las plantas para crecer?",
-                    opciones = listOf("Luz y agua", "Solo piedras", "Solo plástico"),
-                    correcta = "Luz y agua",
-                    explicacion = "Las plantas necesitan luz y agua " +
-                            "para crecer. También requieren aire, " +
-                            "nutrientes y condiciones adecuadas.",
-                    pista = "Piensa qué necesita una planta " +
-                            "cuando la riegas y la dejas cerca del sol.",
-                    consejo = "Puedes observar una planta en casa " +
-                            "y registrar cómo cambia con los días."
-                ),
-                Ejercicio(
-                    nivel = "Medio",
-                    articuloWikipedia = "Raíz_(botánica)",
-                    pregunta = "¿Qué parte de la planta absorbe " +
-                            "agua del suelo?",
-                    opciones = listOf("Las flores", "La raíz", "Los frutos"),
-                    correcta = "La raíz",
-                    explicacion = "La raíz absorbe agua y minerales " +
-                            "del suelo que la planta necesita.",
-                    pista = "Busca la parte que normalmente " +
-                            "está debajo de la tierra.",
-                    consejo = "Dibuja una planta y escribe " +
-                            "el nombre de sus partes principales."
-                ),
-                Ejercicio(
-                    nivel = "Difícil",
-                    articuloWikipedia = "Evaporación",
-                    pregunta = "Cuando el agua se calienta y se " +
-                            "transforma en vapor, ¿cómo se llama " +
-                            "ese proceso?",
-                    opciones = listOf("Congelación", "Evaporación", "Condensación"),
-                    correcta = "Evaporación",
-                    explicacion = "La evaporación transforma " +
-                            "el agua líquida en vapor. La congelación " +
-                            "forma hielo y la condensación transforma " +
-                            "vapor en gotas de agua.",
-                    pista = "Piensa qué ocurre con un charco " +
-                            "cuando recibe calor durante el día.",
-                    consejo = "Recuerda los cambios de estado: " +
-                            "sólido, líquido y gaseoso."
-                )
-            )
-        )
-
-        "historia" -> ContenidoAsignatura(
-            titulo = "Historia y Geografía",
-            emoji = "🌎",
-            descripcion = "Conoceremos mapas, lugares y nuestro entorno.",
-            ejercicios = listOf(
-                Ejercicio(
-                    nivel = "Fácil",
-                    articuloWikipedia = "Mapa",
-                    pregunta = "¿Qué representa un mapa?",
-                    opciones = listOf("Lugares y territorios", "Recetas", "Canciones"),
-                    correcta = "Lugares y territorios",
-                    explicacion = "Un mapa representa lugares " +
-                            "y territorios mediante símbolos, " +
-                            "colores y ubicaciones.",
-                    pista = "Piensa qué utilizamos para encontrar lugares.",
-                    consejo = "Revisa el título, los símbolos y " +
-                            "la orientación cuando observes un mapa."
-                ),
-                Ejercicio(
-                    nivel = "Medio",
-                    articuloWikipedia = "Este",
-                    pregunta = "Si el norte está arriba en un mapa, " +
-                            "¿dónde está el este?",
-                    opciones = listOf("A la izquierda", "A la derecha", "Abajo"),
-                    correcta = "A la derecha",
-                    explicacion = "Cuando el norte está arriba, " +
-                            "el sur está abajo, el este a la derecha " +
-                            "y el oeste a la izquierda.",
-                    pista = "Imagina una rosa de los vientos " +
-                            "con el norte apuntando hacia arriba.",
-                    consejo = "Practica con una rosa de los vientos: " +
-                            "Norte, Sur, Este y Oeste."
-                ),
-                Ejercicio(
-                    nivel = "Difícil",
-                    articuloWikipedia = "Rosa_de_los_vientos",
-                    pregunta = "Caminas dos cuadras al norte " +
-                            "y una al este. ¿En qué dirección general " +
-                            "quedas respecto del inicio?",
-                    opciones = listOf("Suroeste", "Noreste", "Noroeste"),
-                    correcta = "Noreste",
-                    explicacion = "Como avanzaste hacia el norte " +
-                            "y hacia el este, quedas al noreste " +
-                            "de tu punto de partida.",
-                    pista = "Combina las dos direcciones " +
-                            "en las que caminaste.",
-                    consejo = "Dibuja una cruz con los puntos cardinales " +
-                            "y marca cada movimiento con una flecha."
-                )
-            )
-        )
-
-        else -> null
-    }
-}
-
 private val sesionPracticaSaver = listSaver<SesionPractica, Any>(
-    save = { sesion ->
+    save = {
         listOf(
-            sesion.numeroEjercicio,
-            sesion.respuestaSeleccionada.orEmpty(),
-            sesion.aciertos,
-            sesion.terminado
+            it.numeroEjercicio,
+            it.respuestaSeleccionada.orEmpty(),
+            it.aciertos,
+            it.terminado
         )
     },
-    restore = { datos ->
+    restore = {
         SesionPractica(
-            numeroEjercicio = datos[0] as Int,
-            respuestaSeleccionada = (datos[1] as String).takeIf(String::isNotEmpty),
-            aciertos = datos[2] as Int,
-            terminado = datos[3] as Boolean
+            numeroEjercicio = it[0] as Int,
+            respuestaSeleccionada =
+                (it[1] as String).takeIf(String::isNotEmpty),
+            aciertos = it[2] as Int,
+            terminado = it[3] as Boolean
         )
     }
 )
@@ -283,442 +55,830 @@ private val sesionPracticaSaver = listSaver<SesionPractica, Any>(
 @Composable
 fun AsignaturaDetalleScreen(
     asignaturaId: String,
+    nivelId: String = "facil",
     onVolverClick: () -> Unit = {},
+    onVolverAsignaturasClick: () -> Unit = onVolverClick,
     porcentajeGuardado: Int = 0,
     errorGuardado: String? = null,
-    onRespuestaRegistrada: (Int, Boolean) -> Unit = { _, _ -> },
     modoEstudioActivo: Boolean = false,
     sesionPractica: SesionPractica? = null,
     guardandoPractica: Boolean = false,
-    onCambiarPractica: ((SesionPractica, SesionPractica, Boolean?) -> Unit)? = null
+    onCambiarPractica: ((
+        SesionPractica,
+        SesionPractica,
+        Boolean?
+    ) -> Unit)? = null
 ) {
+
     val asignatura = remember(asignaturaId) {
-        obtenerAsignatura(asignaturaId)
+        datosAsignaturaMPAZ(asignaturaId)
     }
 
-    if (onCambiarPractica != null && sesionPractica == null) {
-        MPAZBackground {
-            Text(
-                text = "Cargando práctica…",
-                modifier = Modifier.align(Alignment.Center),
-                color = MPAZTexto
-            )
-        }
-        return
+    val dificultad = remember(nivelId) {
+        DificultadMPAZ.desdeId(nivelId)
+    }
+
+    val ejercicios = remember(asignaturaId, nivelId) {
+        dificultad?.let {
+            preguntasMPAZ(asignaturaId, it)
+        }.orEmpty()
     }
 
     var sesionLocal by rememberSaveable(
         asignaturaId,
+        nivelId,
         stateSaver = sesionPracticaSaver
     ) {
         mutableStateOf(SesionPractica())
     }
 
-    val sesion = sesionPractica ?: sesionLocal
-    val numeroEjercicio = sesion.numeroEjercicio
-    val respuestaSeleccionada = sesion.respuestaSeleccionada
-    val aciertos = sesion.aciertos
-    val terminado = sesion.terminado
+    val esperandoDatos =
+        onCambiarPractica != null && sesionPractica == null
 
-    var mostrarPista by rememberSaveable(asignaturaId, numeroEjercicio) {
+    val sesion = sesionPractica ?: sesionLocal
+    val numero = sesion.numeroEjercicio
+    val ejercicio = ejercicios.getOrNull(numero)
+    val total = ejercicios.size
+
+    var mostrarPista by rememberSaveable(
+        asignaturaId,
+        nivelId,
+        numero
+    ) {
         mutableStateOf(false)
     }
 
-    fun actualizarSesion(siguiente: SesionPractica, esCorrecta: Boolean? = null) {
+    val ajustes = recordarAjustesAccesibilidadMPAZ()
+
+    var inclusionActiva by rememberSaveable(
+        asignaturaId,
+        nivelId
+    ) {
+        mutableStateOf(false)
+    }
+
+    val textoGrandeActivo =
+        inclusionActiva && ajustes.textoGrande
+
+    val contrasteActivo =
+        inclusionActiva && ajustes.altoContraste
+
+    val botonesGrandesActivos =
+        inclusionActiva && ajustes.botonesGrandes
+
+    val densidadActual = LocalDensity.current
+
+    val densidadAdaptada = remember(
+        densidadActual,
+        textoGrandeActivo
+    ) {
+        Density(
+            density = densidadActual.density,
+            fontScale = densidadActual.fontScale *
+                    if (textoGrandeActivo) 1.25f else 1f
+        )
+    }
+
+    val fondoPregunta = if (contrasteActivo) {
+        Color(0xFF17263D)
+    } else {
+        MPAZBlanco
+    }
+
+    val textoPregunta = if (contrasteActivo) {
+        Color.White
+    } else {
+        MPAZTexto
+    }
+
+    val textoAyuda = if (contrasteActivo) {
+        Color(0xFFE2E8F0)
+    } else {
+        MPAZTextoSecundario
+    }
+
+    fun guardar(
+        siguiente: SesionPractica,
+        esCorrecta: Boolean? = null
+    ) {
         if (guardandoPractica) return
 
         if (onCambiarPractica != null) {
-            onCambiarPractica(sesion, siguiente, esCorrecta)
+            onCambiarPractica(
+                sesion,
+                siguiente,
+                esCorrecta
+            )
         } else {
             sesionLocal = siguiente
-            if (esCorrecta != null) {
-                onRespuestaRegistrada(numeroEjercicio + 1, esCorrecta)
-            }
         }
     }
 
-    val ejercicios = asignatura?.ejercicios.orEmpty()
-    val ejercicio = ejercicios.getOrNull(numeroEjercicio)
-    val total = ejercicios.size
+    fun responder(opcion: String) {
 
-    MPAZBackground {
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            val alturaDisponible = maxHeight
+        if (
+            sesion.respuestaSeleccionada != null ||
+            guardandoPractica
+        ) {
+            return
+        }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .heightIn(min = alturaDisponible)
-                    .padding(horizontal = 24.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(
-                    space = 20.dp,
-                    alignment = Alignment.CenterVertically
-                )
+        val acierto = opcion == ejercicio?.correcta
+
+        guardar(
+            sesion.copy(
+                respuestaSeleccionada = opcion,
+                aciertos = sesion.aciertos +
+                        if (acierto) 1 else 0
+            ),
+            esCorrecta = acierto
+        )
+    }
+
+    val porcentajeVisible = when {
+
+        onCambiarPractica != null ->
+            porcentajeGuardado.coerceIn(0, 100)
+
+        sesion.terminado ->
+            100
+
+        else ->
+            (
+                    (
+                            numero +
+                                    if (
+                                        sesion.respuestaSeleccionada != null
+                                    ) 1 else 0
+                            ) * 20
+                    ).coerceIn(0, 100)
+    }
+
+    CompositionLocalProvider(
+        LocalDensity provides densidadAdaptada
+    ) {
+
+        MPAZBackground {
+
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxSize()
             ) {
-                MPAZScreenHeader(
-                    titulo = asignatura?.titulo ?: "Asignatura",
-                    subtitulo = "¡Vamos a aprender!"
-                )
 
-                if (modoEstudioActivo) {
-                    Text(
-                        text = "📚 Modo estudio activado",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MPAZVerde,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                val alturaDisponible = maxHeight
 
-                if (asignatura == null) {
-                    MPAZCard(
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+
+                    Column(
                         modifier = Modifier
-                            .widthIn(max = 480.dp)
                             .fillMaxWidth()
+                            .heightIn(min = alturaDisponible)
+                            .padding(
+                                horizontal = 20.dp,
+                                vertical = 24.dp
+                            ),
+                        horizontalAlignment =
+                            Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Text(
-                            text = "Asignatura no encontrada",
-                            color = MPAZTexto
-                        )
-                    }
-                } else if (terminado) {
-                    MPAZCard(
-                        modifier = Modifier
-                            .widthIn(max = 480.dp)
-                            .fillMaxWidth()
-                    ) {
+
                         Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(14.dp)
+                            modifier = Modifier
+                                .widthIn(max = 500.dp)
+                                .fillMaxWidth(),
+                            horizontalAlignment =
+                                Alignment.CenterHorizontally,
+                            verticalArrangement =
+                                Arrangement.spacedBy(15.dp)
                         ) {
-                            Text(text = "🏆", fontSize = 55.sp)
 
-                            Text(
-                                text = "¡Terminaste los ejercicios!",
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MPAZTexto,
-                                textAlign = TextAlign.Center
-                            )
+                            when {
 
-                            Text(
-                                text = "Avance guardado: $porcentajeGuardado%",
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MPAZVerde
-                            )
-
-                            Text(
-                                text = "Respuestas correctas: $aciertos de $total",
-                                fontSize = 17.sp,
-                                color = MPAZTexto
-                            )
-
-                            val rendimientoSesion = if (total > 0) {
-                                (aciertos * 100f / total).toInt()
-                            } else {
-                                0
-                            }
-
-                            Text(
-                                text = "Rendimiento de esta práctica: $rendimientoSesion%",
-                                fontSize = 16.sp,
-                                color = MPAZTextoSecundario,
-                                textAlign = TextAlign.Center
-                            )
-
-                            Text(
-                                text = "¡Llegaste al nivel difícil!",
-                                color = MPAZTextoSecundario,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-
-                    MPAZButton(
-                        texto = "Volver a practicar",
-                        onClick = { actualizarSesion(SesionPractica()) },
-                        enabled = !guardandoPractica,
-                        modifier = Modifier.widthIn(max = 480.dp)
-                    )
-                } else if (ejercicio != null) {
-                    MPAZCard(
-                        modifier = Modifier
-                            .widthIn(max = 480.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text(text = asignatura.emoji, fontSize = 52.sp)
-
-                            Text(
-                                text = asignatura.titulo,
-                                fontSize = 23.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = MPAZTexto,
-                                textAlign = TextAlign.Center
-                            )
-
-                            Text(
-                                text = asignatura.descripcion,
-                                fontSize = 15.sp,
-                                color = MPAZTextoSecundario,
-                                textAlign = TextAlign.Center
-                            )
-                        }
-                    }
-
-                    MPAZCard(
-                        modifier = Modifier
-                            .widthIn(max = 480.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = "Ejercicio ${numeroEjercicio + 1} " +
-                                    "de $total · Nivel ${ejercicio.nivel}",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MPAZTexto
-                        )
-
-                        Spacer(Modifier.height(14.dp))
-
-                        Text(
-                            text = "Avance guardado: $porcentajeGuardado%",
-                            fontSize = 14.sp,
-                            color = MPAZTextoSecundario
-                        )
-
-                        Spacer(Modifier.height(8.dp))
-
-                        LinearProgressIndicator(
-                            progress = { (porcentajeGuardado / 100f).coerceIn(0f, 1f) },
-                            modifier = Modifier.fillMaxWidth(),
-                            color = MPAZCoral,
-                            trackColor = MPAZAmarilloSuave
-                        )
-
-                        Spacer(Modifier.height(18.dp))
-
-                        Text(
-                            text = ejercicio.pregunta,
-                            fontSize = 17.sp,
-                            color = MPAZTexto
-                        )
-
-                        if (modoEstudioActivo && respuestaSeleccionada == null) {
-                            Spacer(Modifier.height(10.dp))
-
-                            TextButton(onClick = { mostrarPista = !mostrarPista }) {
-                                Text(
-                                    text = if (mostrarPista) {
-                                        "Ocultar pista ▲"
-                                    } else {
-                                        "💡 Ver una pista"
-                                    },
-                                    color = MPAZCoral,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-
-                            AnimatedVisibility(visible = mostrarPista) {
-                                Column {
-                                    Spacer(Modifier.height(6.dp))
+                                esperandoDatos -> {
 
                                     Text(
-                                        text = "💡 " + ejercicio.pista,
-                                        fontSize = 15.sp,
-                                        lineHeight = 22.sp,
-                                        color = MPAZTextoSecundario
+                                        text = "Cargando práctica…",
+                                        color = MPAZTexto
+                                    )
+                                }
+
+                                asignatura == null ||
+                                        dificultad == null ||
+                                        total != 5 -> {
+
+                                    MPAZCard(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+
+                                        Text(
+                                            text = "No se encontraron los ejercicios de este nivel.",
+                                            modifier = Modifier.fillMaxWidth(),
+                                            color = MPAZTexto,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
+
+                                sesion.terminado -> {
+
+                                    Text(
+                                        text = asignatura.titulo,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        fontSize = 26.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MPAZTexto,
+                                        textAlign = TextAlign.Center
                                     )
 
-                                    Spacer(Modifier.height(8.dp))
+                                    MPAZCard(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalAlignment =
+                                                Alignment.CenterHorizontally,
+                                            verticalArrangement =
+                                                Arrangement.spacedBy(13.dp)
+                                        ) {
+
+                                            Text(
+                                                text = "🦉🏆",
+                                                fontSize = 55.sp
+                                            )
+
+                                            Text(
+                                                text = "¡Felicidades!",
+                                                fontSize = 26.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MPAZTexto,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                            Text(
+                                                text = "Has completado los ejercicios.",
+                                                fontSize = 17.sp,
+                                                color = MPAZTexto,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                            Text(
+                                                text = "Nivel ${dificultad.titulo} · 5 de 5 preguntas",
+                                                color = MPAZTextoSecundario,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                            Text(
+                                                text = "Respuestas correctas: ${sesion.aciertos} de 5",
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MPAZVerde,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                            Text(
+                                                text = "Progreso del nivel: $porcentajeVisible%",
+                                                color = MPAZTextoSecundario,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
+                                    }
+
+                                    MPAZButton(
+                                        texto = "Repetir nivel",
+                                        onClick = {
+                                            guardar(SesionPractica())
+                                        },
+                                        enabled = !guardandoPractica
+                                    )
+
+                                    MPAZButton(
+                                        texto = "Elegir otra dificultad",
+                                        onClick = onVolverClick
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier.height(3.dp)
+                                    )
+
+                                    Button(
+                                        onClick = onVolverAsignaturasClick,
+                                        modifier = Modifier.size(70.dp),
+                                        shape = CircleShape,
+                                        contentPadding = PaddingValues(0.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = MPAZCoral
+                                        )
+                                    ) {
+
+                                        Text(
+                                            text = "⌂",
+                                            fontSize = 34.sp,
+                                            color = MPAZBlanco
+                                        )
+                                    }
+
+                                    Text(
+                                        text = "Volver a las asignaturas",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MPAZTexto,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+
+                                ejercicio != null -> {
+
+                                    Text(
+                                        text = asignatura.titulo,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        fontSize = 27.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MPAZTexto,
+                                        textAlign = TextAlign.Center
+                                    )
+
+                                    Text(
+                                        text = "¡Vamos a aprender!",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        color = MPAZTextoSecundario,
+                                        textAlign = TextAlign.Center
+                                    )
+
+                                    if (modoEstudioActivo) {
+
+                                        Text(
+                                            text = "📚 Modo estudio activado",
+                                            modifier = Modifier.fillMaxWidth(),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MPAZVerde,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+
+                                    TextButton(
+                                        onClick = {
+                                            inclusionActiva = !inclusionActiva
+                                        }
+                                    ) {
+
+                                        Text(
+                                            text = if (inclusionActiva) {
+                                                "♿ Desactivar inclusión"
+                                            } else {
+                                                "♿ Activar inclusión"
+                                            },
+                                            fontWeight = FontWeight.Bold,
+                                            color = MPAZCoral,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+
+                                    if (inclusionActiva) {
+
+                                        ConfiguracionAccesibilidadMPAZ(
+                                            ajustes = ajustes
+                                        )
+                                    }
+
+                                    MPAZCard(
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalAlignment =
+                                                Alignment.CenterHorizontally,
+                                            verticalArrangement =
+                                                Arrangement.spacedBy(10.dp)
+                                        ) {
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(70.dp)
+                                                    .background(
+                                                        MPAZAzulSuave,
+                                                        RoundedCornerShape(14.dp)
+                                                    ),
+                                                contentAlignment =
+                                                    Alignment.Center
+                                            ) {
+
+                                                Text(
+                                                    text = asignatura.emoji,
+                                                    fontSize = 36.sp
+                                                )
+                                            }
+
+                                            Text(
+                                                text = asignatura.titulo,
+                                                color = MPAZTexto,
+                                                fontSize = 20.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                            Text(
+                                                text = asignatura.descripcion,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                color = MPAZTextoSecundario,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
+                                    }
+
+                                    MPAZCard(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        fondo = fondoPregunta
+                                    ) {
+
+                                        Column(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalAlignment =
+                                                Alignment.CenterHorizontally,
+                                            verticalArrangement =
+                                                Arrangement.spacedBy(12.dp)
+                                        ) {
+
+                                            Text(
+                                                text = "${asignatura.emoji} ${dificultad.estrellas} ${dificultad.titulo}",
+                                                modifier = Modifier.fillMaxWidth(),
+                                                color = textoPregunta,
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                            Text(
+                                                text = "Ejercicio ${numero + 1} de 5",
+                                                color = textoPregunta,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 18.sp
+                                            )
+
+                                            Text(
+                                                text = "Avance guardado: $porcentajeVisible%",
+                                                color = textoAyuda,
+                                                fontSize = 14.sp
+                                            )
+
+                                            LinearProgressIndicator(
+                                                progress = {
+                                                    porcentajeVisible / 100f
+                                                },
+                                                modifier = Modifier.fillMaxWidth(),
+                                                color = if (contrasteActivo) {
+                                                    Color(0xFFFFD166)
+                                                } else {
+                                                    MPAZCoral
+                                                },
+                                                trackColor = if (contrasteActivo) {
+                                                    Color(0xFF53657B)
+                                                } else {
+                                                    MPAZAmarilloSuave
+                                                }
+                                            )
+
+                                            Text(
+                                                text = ejercicio.pregunta,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                fontSize = 18.sp,
+                                                color = textoPregunta,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                            if (inclusionActiva) {
+
+                                                LectorPreguntasMPAZ(
+                                                    pregunta = ejercicio.pregunta,
+                                                    opciones = ejercicio.opciones,
+                                                    explicacion =
+                                                        ejercicio.explicacion.takeIf {
+                                                            sesion.respuestaSeleccionada != null
+                                                        },
+                                                    respuestaCorrecta =
+                                                        ejercicio.correcta.takeIf {
+                                                            sesion.respuestaSeleccionada != null
+                                                        },
+                                                    clavePregunta =
+                                                        "$asignaturaId:$nivelId:$numero"
+                                                )
+
+                                                if (LocalInspectionMode.current) {
+
+                                                    Text(
+                                                        text = "🎤 Responder por voz",
+                                                        color = textoAyuda,
+                                                        textAlign = TextAlign.Center
+                                                    )
+
+                                                } else {
+
+                                                    RespuestaPorVozMPAZ(
+                                                        opciones = ejercicio.opciones,
+                                                        habilitado =
+                                                            sesion.respuestaSeleccionada == null &&
+                                                                    !guardandoPractica,
+                                                        clavePregunta =
+                                                            "$asignaturaId:$nivelId:$numero",
+                                                        onRespuesta = { opcion ->
+                                                            responder(opcion)
+                                                        }
+                                                    )
+                                                }
+                                            }
+
+                                            if (
+                                                modoEstudioActivo &&
+                                                sesion.respuestaSeleccionada == null
+                                            ) {
+
+                                                TextButton(
+                                                    onClick = {
+                                                        mostrarPista = !mostrarPista
+                                                    }
+                                                ) {
+
+                                                    Text(
+                                                        text = if (mostrarPista) {
+                                                            "Ocultar pista ▲"
+                                                        } else {
+                                                            "💡 Ver una pista"
+                                                        }
+                                                    )
+                                                }
+
+                                                AnimatedVisibility(
+                                                    visible = mostrarPista
+                                                ) {
+
+                                                    Text(
+                                                        text = ejercicio.pista,
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        color = textoAyuda,
+                                                        textAlign = TextAlign.Center
+                                                    )
+                                                }
+                                            }
+
+                                            ejercicio.opciones.forEach { opcion ->
+
+                                                val respondida =
+                                                    sesion.respuestaSeleccionada != null
+
+                                                val correcta =
+                                                    opcion == ejercicio.correcta
+
+                                                val elegida =
+                                                    opcion == sesion.respuestaSeleccionada
+
+                                                val borde = when {
+
+                                                    respondida && correcta ->
+                                                        if (contrasteActivo) {
+                                                            Color(0xFF86EFAC)
+                                                        } else {
+                                                            MPAZVerde
+                                                        }
+
+                                                    respondida && elegida ->
+                                                        if (contrasteActivo) {
+                                                            Color(0xFFFCA5A5)
+                                                        } else {
+                                                            MPAZError
+                                                        }
+
+                                                    else ->
+                                                        if (contrasteActivo) {
+                                                            Color.White
+                                                        } else {
+                                                            Color.LightGray
+                                                        }
+                                                }
+
+                                                OutlinedButton(
+                                                    onClick = {
+                                                        responder(opcion)
+                                                    },
+                                                    enabled =
+                                                        !respondida &&
+                                                                !guardandoPractica,
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .heightIn(
+                                                            min =
+                                                                if (botonesGrandesActivos) {
+                                                                    72.dp
+                                                                } else {
+                                                                    48.dp
+                                                                }
+                                                        ),
+                                                    border = BorderStroke(
+                                                        if (respondida) {
+                                                            2.dp
+                                                        } else {
+                                                            1.dp
+                                                        },
+                                                        borde
+                                                    ),
+                                                    colors =
+                                                        ButtonDefaults.outlinedButtonColors(
+                                                            containerColor =
+                                                                if (contrasteActivo) {
+                                                                    Color(0xFF273D55)
+                                                                } else {
+                                                                    Color.Transparent
+                                                                },
+                                                            disabledContainerColor =
+                                                                if (contrasteActivo) {
+                                                                    Color(0xFF273D55)
+                                                                } else {
+                                                                    Color.Transparent
+                                                                }
+                                                        )
+                                                ) {
+
+                                                    Text(
+                                                        text = opcion,
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        color = textoPregunta,
+                                                        textAlign = TextAlign.Center
+                                                    )
+                                                }
+                                            }
+
+                                            AnimatedVisibility(
+                                                visible =
+                                                    sesion.respuestaSeleccionada != null
+                                            ) {
+
+                                                Column(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalAlignment =
+                                                        Alignment.CenterHorizontally,
+                                                    verticalArrangement =
+                                                        Arrangement.spacedBy(8.dp)
+                                                ) {
+
+                                                    val acierto =
+                                                        sesion.respuestaSeleccionada ==
+                                                                ejercicio.correcta
+
+                                                    Text(
+                                                        text = if (acierto) {
+                                                            "✅ ¡Muy bien! Respuesta correcta."
+                                                        } else {
+                                                            "💡 Respuesta correcta: ${ejercicio.correcta}"
+                                                        },
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        color = if (acierto) {
+                                                            if (contrasteActivo) {
+                                                                Color(0xFF86EFAC)
+                                                            } else {
+                                                                MPAZVerde
+                                                            }
+                                                        } else {
+                                                            if (contrasteActivo) {
+                                                                Color(0xFFFCA5A5)
+                                                            } else {
+                                                                MPAZError
+                                                            }
+                                                        },
+                                                        fontWeight = FontWeight.Bold,
+                                                        textAlign = TextAlign.Center
+                                                    )
+
+                                                    Text(
+                                                        text = ejercicio.explicacion,
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        color = textoPregunta,
+                                                        textAlign = TextAlign.Center
+                                                    )
+
+                                                    if (modoEstudioActivo) {
+
+                                                        Text(
+                                                            text = "📚 Consejo: ${ejercicio.consejo}",
+                                                            modifier = Modifier.fillMaxWidth(),
+                                                            color = textoAyuda,
+                                                            textAlign = TextAlign.Center
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (
+                                        sesion.respuestaSeleccionada != null
+                                    ) {
+
+                                        MPAZLecturaCiencias(
+                                            articulo = ejercicio.articuloWikipedia,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+
+                                        MPAZButton(
+                                            texto = if (numero == total - 1) {
+                                                "Ver mis resultados →"
+                                            } else {
+                                                "Siguiente pregunta →"
+                                            },
+                                            onClick = {
+
+                                                val siguiente =
+                                                    if (numero == total - 1) {
+
+                                                        sesion.copy(
+                                                            terminado = true
+                                                        )
+
+                                                    } else {
+
+                                                        sesion.copy(
+                                                            numeroEjercicio = numero + 1,
+                                                            respuestaSeleccionada = null
+                                                        )
+                                                    }
+
+                                                guardar(siguiente)
+                                            },
+                                            enabled = !guardandoPractica
+                                        )
+                                    }
+                                }
+
+                                else -> {
+
+                                    Text(
+                                        text = "No se pudo recuperar esta pregunta.",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        color = MPAZError,
+                                        textAlign = TextAlign.Center
+                                    )
                                 }
                             }
-                        }
 
-                        Spacer(Modifier.height(14.dp))
+                            if (errorGuardado != null) {
 
-                        ejercicio.opciones.forEach { opcion ->
-                            val hayRespuesta = respuestaSeleccionada != null
-                            val esOpcionCorrecta = opcion == ejercicio.correcta
-                            val elegida = opcion == respuestaSeleccionada
-
-                            val colorBorde = when {
-                                hayRespuesta && esOpcionCorrecta -> MPAZVerde
-                                hayRespuesta && elegida -> MPAZError
-                                else -> Color.LightGray
-                            }
-
-                            OutlinedButton(
-                                onClick = {
-                                    val esCorrecta = opcion == ejercicio.correcta
-                                    actualizarSesion(
-                                        siguiente = sesion.copy(
-                                            respuestaSeleccionada = opcion,
-                                            aciertos = aciertos + if (esCorrecta) 1 else 0
-                                        ),
-                                        esCorrecta = esCorrecta
-                                    )
-                                },
-                                enabled = !hayRespuesta && !guardandoPractica,
-                                border = BorderStroke(
-                                    width = if (hayRespuesta && (esOpcionCorrecta || elegida)) {
-                                        2.dp
-                                    } else {
-                                        1.dp
-                                    },
-                                    color = colorBorde
-                                ),
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
                                 Text(
-                                    text = opcion,
-                                    fontSize = 16.sp,
-                                    color = MPAZTexto,
+                                    text = errorGuardado,
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = MPAZError,
                                     textAlign = TextAlign.Center
                                 )
                             }
-
-                            Spacer(Modifier.height(5.dp))
-                        }
-
-                        AnimatedVisibility(visible = respuestaSeleccionada != null) {
-                            Column {
-                                Spacer(Modifier.height(14.dp))
-
-                                val esCorrecta = respuestaSeleccionada == ejercicio.correcta
-
-                                Text(
-                                    text = if (esCorrecta) {
-                                        "✅ ¡Muy bien! Respuesta correcta."
-                                    } else {
-                                        "💡 Respuesta correcta: ${ejercicio.correcta}"
-                                    },
-                                    color = if (esCorrecta) MPAZVerde else MPAZError,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-
-                                Spacer(Modifier.height(10.dp))
-
-                                Text(
-                                    text = ejercicio.explicacion,
-                                    fontSize = 15.sp,
-                                    lineHeight = 23.sp,
-                                    color = MPAZTexto
-                                )
-
-                                if (modoEstudioActivo) {
-                                    Spacer(Modifier.height(14.dp))
-
-                                    Text(
-                                        text = "📚 Consejo para aprender",
-                                        fontSize = 15.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MPAZVerde
-                                    )
-
-                                    Spacer(Modifier.height(6.dp))
-
-                                    Text(
-                                        text = ejercicio.consejo,
-                                        fontSize = 15.sp,
-                                        lineHeight = 23.sp,
-                                        color = MPAZTextoSecundario
-                                    )
-                                }
-                            }
                         }
                     }
-
-                    if (respuestaSeleccionada != null) {
-                        MPAZButton(
-                            texto = if (numeroEjercicio == total - 1) {
-                                "Ver mis resultados →"
-                            } else {
-                                "Siguiente ejercicio →"
-                            },
-                            onClick = {
-                                val siguiente = if (numeroEjercicio == total - 1) {
-                                    sesion.copy(terminado = true)
-                                } else {
-                                    sesion.copy(
-                                        numeroEjercicio = numeroEjercicio + 1,
-                                        respuestaSeleccionada = null
-                                    )
-                                }
-
-                                actualizarSesion(siguiente)
-                            },
-                            enabled = !guardandoPractica,
-                            modifier = Modifier.widthIn(max = 480.dp)
-                        )
-                    }
                 }
-
-                if (!terminado && ejercicio != null && respuestaSeleccionada != null) {
-                    MPAZLecturaCiencias(
-                        articulo = ejercicio.articuloWikipedia,
-                        modifier = Modifier
-                            .widthIn(max = 480.dp)
-                            .fillMaxWidth()
-                    )
-                }
-
-                if (errorGuardado != null) {
-                    Text(
-                        text = errorGuardado,
-                        color = MPAZError,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                MPAZButton(
-                    texto = "Volver a asignaturas",
-                    onClick = onVolverClick,
-                    modifier = Modifier.widthIn(max = 480.dp)
-                )
             }
         }
     }
 }
 
 @Preview(
-    name = "MPAZ - Matemática modo normal",
+    name = "Matemática - Fácil",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
 )
 @Composable
-fun AsignaturaDetalleScreenPreview() {
+private fun AsignaturaDetalleScreenPreview() {
+
     AppMPAZPRO3_Grupo6Theme {
+
         AsignaturaDetalleScreen(
             asignaturaId = "matematica",
-            modoEstudioActivo = false
+            nivelId = "facil"
         )
     }
 }
 
 @Preview(
-    name = "MPAZ - Matemática modo estudio",
+    name = "Matemática - Terminada",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
 )
 @Composable
-fun AsignaturaModoEstudioPreview() {
+private fun AsignaturaTerminadaPreview() {
+
     AppMPAZPRO3_Grupo6Theme {
+
         AsignaturaDetalleScreen(
             asignaturaId = "matematica",
-            modoEstudioActivo = true
+            nivelId = "facil",
+            sesionPractica = SesionPractica(
+                numeroEjercicio = 4,
+                aciertos = 4,
+                terminado = true
+            ),
+            porcentajeGuardado = 100
         )
     }
 }

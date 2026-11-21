@@ -1,7 +1,6 @@
 package com.example.appmpazpro3_grupo6.repository
 
 import android.content.Context
-import androidx.datastore.preferences.core.MutablePreferences
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
@@ -17,27 +16,36 @@ import java.io.IOException
 import kotlin.math.roundToInt
 
 private val Context.progresoDataStore by preferencesDataStore(
-    name = "progreso_materias_mpaz"
+    name = "progreso_materias_mpaz_niveles_v2"
 )
 
-private val idsAsignaturas = listOf(
+private val asignaturas = listOf(
     "lenguaje",
     "matematica",
     "ciencias",
     "historia"
 )
 
-private fun leerHistorial(valor: String?): List<Boolean> {
-    if (valor.isNullOrBlank()) return emptyList()
+private val niveles = listOf(
+    "facil",
+    "medio",
+    "dificil"
+)
 
-    return valor.split(",").mapNotNull { respuesta ->
-        when (respuesta) {
+private val clavesPractica = asignaturas.flatMap { materia ->
+    niveles.map { nivel ->
+        "${materia}_${nivel}"
+    }
+}
+
+private fun leerHistorial(valor: String?): List<Boolean> =
+    valor?.split(",")?.mapNotNull {
+        when (it) {
             "1" -> true
             "0" -> false
             else -> null
         }
-    }
-}
+    }.orEmpty()
 
 data class ResultadoEjercicio(
     val intentos: Int = 0,
@@ -61,91 +69,141 @@ data class RendimientoAsignatura(
         get() = if (ejerciciosEvaluados == 0) {
             null
         } else {
-            (respuestasCorrectas * 100f / ejerciciosEvaluados).roundToInt()
+            (
+                    respuestasCorrectas * 100f /
+                            ejerciciosEvaluados
+                    ).roundToInt()
         }
 }
 
 data class SesionPractica(
-    @SerializedName("ejercicio") val numeroEjercicio: Int = 0,
-    @SerializedName("respuesta") val respuestaSeleccionada: String? = null,
-    @SerializedName("aciertos") val aciertos: Int = 0,
-    @SerializedName("terminada") val terminado: Boolean = false
+    @SerializedName("ejercicio")
+    val numeroEjercicio: Int = 0,
+
+    @SerializedName("respuesta")
+    val respuestaSeleccionada: String? = null,
+
+    @SerializedName("aciertos")
+    val aciertos: Int = 0,
+
+    @SerializedName("terminada")
+    val terminado: Boolean = false
 )
 
 data class ProgresoEstudiante(
-    val lenguaje: Int = 0,
-    val matematica: Int = 0,
-    val ciencias: Int = 0,
-    val historia: Int = 0,
-    val resultados: Map<String, Map<Int, ResultadoEjercicio>> = emptyMap(),
+    val progresoPorNivel: Map<String, Int> = emptyMap(),
+
+    val resultados: Map<
+            String,
+            Map<Int, ResultadoEjercicio>
+            > = emptyMap(),
+
     val sesionesPractica: Map<String, SesionPractica>? = null
 ) {
-    fun completados(asignaturaId: String): Int {
-        val cantidad = when (asignaturaId) {
-            "lenguaje" -> lenguaje
-            "matematica" -> matematica
-            "ciencias" -> ciencias
-            "historia" -> historia
-            else -> 0
-        }
 
-        return cantidad.coerceIn(0, 3)
+    val lenguaje get() = completados("lenguaje")
+    val matematica get() = completados("matematica")
+    val ciencias get() = completados("ciencias")
+    val historia get() = completados("historia")
+
+    fun completados(id: String): Int {
+        return if (id in asignaturas) {
+            niveles.sumOf { nivel ->
+                (
+                        progresoPorNivel["${id}_${nivel}"] ?: 0
+                        ).coerceIn(0, 5)
+            }
+        } else {
+            (
+                    progresoPorNivel[id] ?: 0
+                    ).coerceIn(0, 5)
+        }
     }
 
-    fun porcentaje(asignaturaId: String): Int {
-        return (completados(asignaturaId) * 100f / 3).toInt()
+    fun porcentaje(id: String): Int {
+        return if (id in asignaturas) {
+            (
+                    completados(id) * 100f / 15
+                    ).roundToInt()
+        } else {
+            (
+                    completados(id) * 100f / 5
+                    ).roundToInt()
+        }
     }
 
     val totalCompletados: Int
-        get() = lenguaje.coerceIn(0, 3) +
-                matematica.coerceIn(0, 3) +
-                ciencias.coerceIn(0, 3) +
-                historia.coerceIn(0, 3)
+        get() = asignaturas.sumOf {
+            completados(it)
+        }
 
     val progresoGeneral: Float
-        get() = totalCompletados / 12f
+        get() = totalCompletados / 60f
 
     val porcentajeGeneral: Int
-        get() = (progresoGeneral * 100).toInt()
+        get() = (
+                progresoGeneral * 100
+                ).roundToInt()
 
-    fun porcentajesPorAsignatura(): Map<String, Int> {
-        return linkedMapOf(
+    fun porcentajesPorAsignatura(): Map<String, Int> =
+        linkedMapOf(
             "Lenguaje y Comunicación" to porcentaje("lenguaje"),
             "Matemática" to porcentaje("matematica"),
             "Ciencias Naturales" to porcentaje("ciencias"),
             "Historia y Geografía" to porcentaje("historia")
         )
-    }
 
     fun resultadoEjercicio(
-        asignaturaId: String,
+        id: String,
         numeroEjercicio: Int
     ): ResultadoEjercicio {
-        return resultados[asignaturaId]?.get(numeroEjercicio)
+        return resultados[id]?.get(numeroEjercicio)
             ?: ResultadoEjercicio()
     }
 
-    fun rendimiento(asignaturaId: String): RendimientoAsignatura {
-        val ejercicios = resultados[asignaturaId]?.values.orEmpty()
-        val evaluados = ejercicios.filter { it.ultimaRespuestaCorrecta != null }
+    fun rendimiento(id: String): RendimientoAsignatura {
+
+        val seleccionadas = if (id in asignaturas) {
+            niveles.map {
+                "${id}_${it}"
+            }
+        } else {
+            listOf(id)
+        }
+
+        val evaluados = seleccionadas
+            .flatMap {
+                resultados[it]?.values.orEmpty()
+            }
+            .filter {
+                it.ultimaRespuestaCorrecta != null
+            }
 
         return RendimientoAsignatura(
             ejerciciosEvaluados = evaluados.size,
-            respuestasCorrectas = evaluados.count { it.ultimaRespuestaCorrecta == true }
+            respuestasCorrectas = evaluados.count {
+                it.ultimaRespuestaCorrecta == true
+            }
         )
     }
 
-    fun porcentajeRendimiento(asignaturaId: String): Int? {
-        return rendimiento(asignaturaId).porcentaje
+    fun porcentajeRendimiento(id: String): Int? {
+        return rendimiento(id).porcentaje
     }
 
     val rendimientoGeneral: RendimientoAsignatura
         get() {
-            val resumenes = idsAsignaturas.map { rendimiento(it) }
+            val datos = asignaturas.map {
+                rendimiento(it)
+            }
 
             return RendimientoAsignatura(
-                ejerciciosEvaluados = resumenes.sumOf { it.ejerciciosEvaluados },
-                respuestasCorrectas = resumenes.sumOf { it.respuestasCorrectas }
+                ejerciciosEvaluados = datos.sumOf {
+                    it.ejerciciosEvaluados
+                },
+                respuestasCorrectas = datos.sumOf {
+                    it.respuestasCorrectas
+                }
             )
         }
 
@@ -156,57 +214,57 @@ data class ProgresoEstudiante(
 class ProgresoRepository(context: Context) {
 
     private val contexto = context.applicationContext
+
     private val gson = Gson()
 
-    private val claves = mapOf(
-        "lenguaje" to intPreferencesKey("ejercicios_lenguaje"),
-        "matematica" to intPreferencesKey("ejercicios_matematica"),
-        "ciencias" to intPreferencesKey("ejercicios_ciencias"),
-        "historia" to intPreferencesKey("ejercicios_historia")
-    )
+    private fun claveContador(id: String) =
+        intPreferencesKey("ejercicios_$id")
 
-    private fun claveSesion(asignaturaId: String) =
-        stringPreferencesKey("sesion_practica_$asignaturaId")
+    private fun claveSesion(id: String) =
+        stringPreferencesKey("sesion_practica_$id")
 
     private fun claveIntentos(
-        asignaturaId: String,
-        numeroEjercicio: Int
-    ) = intPreferencesKey("intentos_${asignaturaId}_$numeroEjercicio")
+        id: String,
+        numero: Int
+    ) = intPreferencesKey("intentos_${id}_$numero")
 
     private fun claveHistorial(
-        asignaturaId: String,
-        numeroEjercicio: Int
-    ) = stringPreferencesKey("historial_${asignaturaId}_$numeroEjercicio")
+        id: String,
+        numero: Int
+    ) = stringPreferencesKey("historial_${id}_$numero")
 
     private fun leerSesion(
         preferencias: Preferences,
-        asignaturaId: String
+        id: String
     ): SesionPractica {
-        val json = preferencias[claveSesion(asignaturaId)] ?: return SesionPractica()
-        return gson.fromJson(json, SesionPractica::class.java) ?: SesionPractica()
-    }
 
-    private fun aplicarSesion(
-        preferencias: MutablePreferences,
-        asignaturaId: String,
-        anterior: SesionPractica,
-        siguiente: SesionPractica
-    ): Boolean {
-        if (leerSesion(preferencias, asignaturaId) != anterior) return false
+        val json = preferencias[claveSesion(id)]
+            ?: return SesionPractica()
 
-        preferencias[claveSesion(asignaturaId)] = gson.toJson(siguiente)
-        return true
+        return runCatching {
+            gson.fromJson(
+                json,
+                SesionPractica::class.java
+            )
+        }.getOrNull() ?: SesionPractica()
     }
 
     private fun obtenerResultados(
         preferencias: Preferences
     ): Map<String, Map<Int, ResultadoEjercicio>> {
-        return idsAsignaturas.associateWith { asignaturaId ->
-            (1..3).associateWith { numeroEjercicio ->
+
+        return clavesPractica.associateWith { id ->
+            (1..5).associateWith { numero ->
+
                 ResultadoEjercicio(
-                    intentos = preferencias[claveIntentos(asignaturaId, numeroEjercicio)] ?: 0,
+                    intentos = preferencias[
+                        claveIntentos(id, numero)
+                    ] ?: 0,
+
                     historial = leerHistorial(
-                        preferencias[claveHistorial(asignaturaId, numeroEjercicio)]
+                        preferencias[
+                            claveHistorial(id, numero)
+                        ]
                     )
                 )
             }
@@ -215,6 +273,7 @@ class ProgresoRepository(context: Context) {
 
     val progreso: Flow<ProgresoEstudiante> =
         contexto.progresoDataStore.data
+
             .catch { error ->
                 if (error is IOException) {
                     emit(emptyPreferences())
@@ -222,29 +281,42 @@ class ProgresoRepository(context: Context) {
                     throw error
                 }
             }
+
             .map { preferencias ->
+
                 ProgresoEstudiante(
-                    lenguaje = preferencias[claves.getValue("lenguaje")] ?: 0,
-                    matematica = preferencias[claves.getValue("matematica")] ?: 0,
-                    ciencias = preferencias[claves.getValue("ciencias")] ?: 0,
-                    historia = preferencias[claves.getValue("historia")] ?: 0,
-                    resultados = obtenerResultados(preferencias),
-                    sesionesPractica = idsAsignaturas.associateWith { asignaturaId ->
-                        leerSesion(preferencias, asignaturaId)
-                    }
+                    progresoPorNivel =
+                        clavesPractica.associateWith { id ->
+                            (
+                                    preferencias[claveContador(id)]
+                                        ?: 0
+                                    ).coerceIn(0, 5)
+                        },
+
+                    resultados = obtenerResultados(
+                        preferencias
+                    ),
+
+                    sesionesPractica =
+                        clavesPractica.associateWith { id ->
+                            leerSesion(preferencias, id)
+                        }
                 )
             }
 
     suspend fun registrarEjercicioRespondido(
-        asignaturaId: String,
+        id: String,
         ejerciciosRespondidos: Int
     ) {
-        val clave = claves[asignaturaId] ?: return
-        val cantidad = ejerciciosRespondidos.coerceIn(0, 3)
+
+        if (id !in clavesPractica) return
 
         contexto.progresoDataStore.edit { preferencias ->
-            val anterior = preferencias[clave] ?: 0
-            preferencias[clave] = maxOf(anterior, cantidad)
+
+            preferencias[claveContador(id)] = maxOf(
+                preferencias[claveContador(id)] ?: 0,
+                ejerciciosRespondidos.coerceIn(0, 5)
+            )
         }
     }
 
@@ -254,19 +326,68 @@ class ProgresoRepository(context: Context) {
         siguiente: SesionPractica,
         esCorrecta: Boolean?
     ) {
-        if (asignaturaId !in claves) return
+
+        if (asignaturaId !in clavesPractica) return
 
         if (esCorrecta != null) {
+
             registrarRespuesta(
                 asignaturaId = asignaturaId,
                 numeroEjercicio = anterior.numeroEjercicio + 1,
                 esCorrecta = esCorrecta,
                 cambioSesion = anterior to siguiente
             )
-        } else {
-            contexto.progresoDataStore.edit { preferencias ->
-                aplicarSesion(preferencias, asignaturaId, anterior, siguiente)
+
+            return
+        }
+
+        contexto.progresoDataStore.edit { preferencias ->
+
+            val guardada = leerSesion(
+                preferencias,
+                asignaturaId
+            )
+
+            if (
+                anterior.terminado &&
+                siguiente == SesionPractica()
+            ) {
+
+                if (!guardada.terminado) {
+                    return@edit
+                }
+
+                preferencias[claveSesion(asignaturaId)] =
+                    gson.toJson(SesionPractica())
+
+                preferencias[claveContador(asignaturaId)] = 0
+
+                for (numero in 1..5) {
+
+                    preferencias.remove(
+                        claveIntentos(
+                            asignaturaId,
+                            numero
+                        )
+                    )
+
+                    preferencias.remove(
+                        claveHistorial(
+                            asignaturaId,
+                            numero
+                        )
+                    )
+                }
+
+                return@edit
             }
+
+            if (guardada != anterior) {
+                return@edit
+            }
+
+            preferencias[claveSesion(asignaturaId)] =
+                gson.toJson(siguiente)
         }
     }
 
@@ -274,39 +395,75 @@ class ProgresoRepository(context: Context) {
         asignaturaId: String,
         numeroEjercicio: Int,
         esCorrecta: Boolean,
-        cambioSesion: Pair<SesionPractica, SesionPractica>? = null
+        cambioSesion: Pair<
+                SesionPractica,
+                SesionPractica
+                >? = null
     ) {
-        val claveProgreso = claves[asignaturaId] ?: return
-        if (numeroEjercicio !in 1..3) return
 
-        val claveIntentosActual = claveIntentos(asignaturaId, numeroEjercicio)
-        val claveHistorialActual = claveHistorial(asignaturaId, numeroEjercicio)
+        if (
+            asignaturaId !in clavesPractica ||
+            numeroEjercicio !in 1..5
+        ) {
+            return
+        }
 
         contexto.progresoDataStore.edit { preferencias ->
+
             if (cambioSesion != null) {
+
                 val (anterior, siguiente) = cambioSesion
-                if (!aplicarSesion(preferencias, asignaturaId, anterior, siguiente)) {
+
+                if (
+                    leerSesion(preferencias, asignaturaId) != anterior ||
+                    anterior.terminado ||
+                    anterior.respuestaSeleccionada != null ||
+                    anterior.numeroEjercicio + 1 != numeroEjercicio ||
+                    siguiente.respuestaSeleccionada == null
+                ) {
                     return@edit
                 }
+
+                preferencias[claveSesion(asignaturaId)] =
+                    gson.toJson(siguiente)
             }
 
-            val progresoAnterior = preferencias[claveProgreso] ?: 0
-            preferencias[claveProgreso] =
-                maxOf(progresoAnterior, numeroEjercicio).coerceIn(0, 3)
+            preferencias[claveContador(asignaturaId)] =
+                maxOf(
+                    preferencias[claveContador(asignaturaId)]
+                        ?: 0,
+                    numeroEjercicio
+                ).coerceIn(0, 5)
 
-            val intentosAnteriores = preferencias[claveIntentosActual] ?: 0
-            preferencias[claveIntentosActual] = if (intentosAnteriores < Int.MAX_VALUE) {
-                intentosAnteriores + 1
-            } else {
-                Int.MAX_VALUE
-            }
+            val intentos = claveIntentos(
+                asignaturaId,
+                numeroEjercicio
+            )
 
-            val historialAnterior = leerHistorial(preferencias[claveHistorialActual])
-            val historialNuevo = (historialAnterior + esCorrecta).takeLast(30)
+            preferencias[intentos] =
+                (preferencias[intentos] ?: 0).let { cantidad ->
+                    if (cantidad == Int.MAX_VALUE) {
+                        cantidad
+                    } else {
+                        cantidad + 1
+                    }
+                }
 
-            preferencias[claveHistorialActual] = historialNuevo.joinToString(",") {
-                if (it) "1" else "0"
-            }
+            val historial = claveHistorial(
+                asignaturaId,
+                numeroEjercicio
+            )
+
+            preferencias[historial] =
+                (
+                        leerHistorial(
+                            preferencias[historial]
+                        ) + esCorrecta
+                        )
+                    .takeLast(30)
+                    .joinToString(",") {
+                        if (it) "1" else "0"
+                    }
         }
     }
 }

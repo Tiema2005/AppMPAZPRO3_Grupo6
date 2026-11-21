@@ -285,7 +285,7 @@ private fun ContenidoPerfil(
 
                 Text(
                     text = "Ejercicios completados: " +
-                            "$totalEjerciciosRespondidos de 12",
+                            "$totalEjerciciosRespondidos de 60",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MPAZTexto
