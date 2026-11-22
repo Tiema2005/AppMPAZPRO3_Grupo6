@@ -1,38 +1,70 @@
 package com.example.appmpazpro3_grupo6.navigation
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.appmpazpro3_grupo6.ui.components.MPAZBackground
 import com.example.appmpazpro3_grupo6.ui.screens.AsignaturaDetalleScreen
-import com.example.appmpazpro3_grupo6.ui.screens.SeleccionDificultadScreen
 import com.example.appmpazpro3_grupo6.ui.screens.AsignaturasScreen
 import com.example.appmpazpro3_grupo6.ui.screens.BienvenidaScreen
 import com.example.appmpazpro3_grupo6.ui.screens.LoginScreen
+import com.example.appmpazpro3_grupo6.ui.screens.MetasScreen
 import com.example.appmpazpro3_grupo6.ui.screens.ModoEstudioScreen
 import com.example.appmpazpro3_grupo6.ui.screens.PerfilScreen
 import com.example.appmpazpro3_grupo6.ui.screens.RegistroScreen
+import com.example.appmpazpro3_grupo6.ui.screens.SeleccionDificultadScreen
+import com.example.appmpazpro3_grupo6.ui.theme.MPAZCoral
+import com.example.appmpazpro3_grupo6.ui.theme.MPAZTextoSecundario
+import com.example.appmpazpro3_grupo6.viewmodel.CuentaViewModel
 import com.example.appmpazpro3_grupo6.viewmodel.EstadoViewModel
-import com.example.appmpazpro3_grupo6.viewmodel.EstudianteViewModel
+import com.example.appmpazpro3_grupo6.viewmodel.MetasViewModel
 import com.example.appmpazpro3_grupo6.viewmodel.ProgresoViewModel
+import kotlinx.coroutines.flow.first
+import java.util.Locale
 
 @Composable
 fun AppNavigation() {
 
     val navController = rememberNavController()
 
-    val estudianteViewModel: EstudianteViewModel = viewModel()
+    val cuentaViewModel: CuentaViewModel = viewModel()
     val progresoViewModel: ProgresoViewModel = viewModel()
     val estadoViewModel: EstadoViewModel = viewModel()
+    val metasViewModel: MetasViewModel = viewModel()
+
+    val cuentaActual by cuentaViewModel.cuentaActual.collectAsState()
+    val errorCuenta by cuentaViewModel.mensajeError.collectAsState()
 
     val progresoActual by progresoViewModel.progreso.collectAsState()
-
     val errorProgreso by progresoViewModel.errorGuardado.collectAsState()
+    val cuentaProgreso by progresoViewModel.cuentaActiva.collectAsState()
+    val cargandoProgreso by progresoViewModel.cargandoProgreso.collectAsState()
 
     val modoEstudioActivo by estadoViewModel.activo.collectAsState()
+
+    val metasActuales by metasViewModel.metas.collectAsState()
+    val metasCargando by metasViewModel.cargando.collectAsState()
+    val metasProcesando by metasViewModel.procesando.collectAsState()
+    val errorMetas by metasViewModel.mensajeError.collectAsState()
+
+    LaunchedEffect(cuentaActual?.correo) {
+        progresoViewModel.activarCuenta(cuentaActual?.correo)
+    }
 
     NavHost(
         navController = navController,
@@ -54,24 +86,21 @@ fun AppNavigation() {
                 onVolverClick = {
                     navController.popBackStack()
                 },
-
                 onCrearCuentaClick = {
                     navController.navigate(Routes.REGISTRO)
                 },
+                onIngresarClick = { _, _ ->
 
-                onIngresarClick = { nombre, curso ->
-
-                    estudianteViewModel.registrarEstudiante(
-                        nombre = nombre,
-                        curso = curso
-                    )
+                    metasViewModel.limpiar()
 
                     navController.navigate(Routes.PERFIL) {
                         popUpTo(Routes.LOGIN) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
-                }
+                },
+                cuentaViewModel = cuentaViewModel
             )
         }
 
@@ -81,84 +110,193 @@ fun AppNavigation() {
                 onVolverClick = {
                     navController.popBackStack()
                 },
+                onRegistroExitoso = { _, _ ->
 
-                onRegistroExitoso = { nombre, curso ->
-
-                    estudianteViewModel.registrarEstudiante(
-                        nombre = nombre,
-                        curso = curso
-                    )
+                    metasViewModel.limpiar()
 
                     navController.navigate(Routes.PERFIL) {
-                        popUpTo(Routes.REGISTRO) {
+                        popUpTo(Routes.LOGIN) {
                             inclusive = true
                         }
+                        launchSingleTop = true
                     }
-                }
+                },
+                cuentaViewModel = cuentaViewModel
             )
         }
 
         composable(Routes.PERFIL) {
 
-            val nombre = estudianteViewModel.nombreEstudiante
-                .ifBlank {
-                    "Estudiante de prueba"
+            LaunchedEffect(Unit) {
+
+                cuentaViewModel.procesando.first { !it }
+
+                if (cuentaViewModel.cuentaActual.value != null) {
+                    cuentaViewModel.cargarPerfil()
+                }
+            }
+
+            val cuenta = cuentaActual
+
+            if (cuenta == null) {
+
+                LaunchedEffect(Unit) {
+
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.BIENVENIDA) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 }
 
-            val rendimientoGeneral =
-                progresoActual.rendimientoGeneral
+            } else {
 
-            val rendimientoPorAsignatura = linkedMapOf(
-                "Lenguaje y Comunicación" to
-                        progresoActual.porcentajeRendimiento("lenguaje"),
+                val correoNormalizado = cuenta.correo
+                    .trim()
+                    .lowercase(Locale.ROOT)
 
-                "Matemática" to
-                        progresoActual.porcentajeRendimiento("matematica"),
+                val progresoListo =
+                    cuentaProgreso == correoNormalizado &&
+                            !cargandoProgreso
 
-                "Ciencias Naturales" to
-                        progresoActual.porcentajeRendimiento("ciencias"),
+                if (!progresoListo) {
 
-                "Historia y Geografía" to
-                        progresoActual.porcentajeRendimiento("historia")
-            )
+                    PantallaCargandoProgresoMPAZ()
 
-            PerfilScreen(
-                nombre = nombre,
+                } else {
 
-                curso = estudianteViewModel.cursoEstudiante,
+                    val rendimientoGeneral =
+                        progresoActual.rendimientoGeneral
 
-                progreso = progresoActual.progresoGeneral,
+                    val rendimientoPorAsignatura = linkedMapOf(
+                        "Lenguaje y Comunicación" to
+                                progresoActual.porcentajeRendimiento("lenguaje"),
 
-                totalEjerciciosRespondidos =
-                    progresoActual.totalCompletados,
+                        "Matemática" to
+                                progresoActual.porcentajeRendimiento("matematica"),
 
-                progresoAsignaturas =
-                    progresoActual.porcentajesPorAsignatura(),
+                        "Ciencias Naturales" to
+                                progresoActual.porcentajeRendimiento("ciencias"),
 
-                rendimientoGeneral =
-                    progresoActual.porcentajeRendimientoGeneral,
+                        "Historia y Geografía" to
+                                progresoActual.porcentajeRendimiento("historia")
+                    )
 
-                aciertosGeneral =
-                    rendimientoGeneral.respuestasCorrectas,
+                    PerfilScreen(
+                        nombre = cuenta.nombre,
+                        curso = cuenta.curso,
 
-                ejerciciosEvaluados =
-                    rendimientoGeneral.ejerciciosEvaluados,
+                        progreso = progresoActual.progresoGeneral,
 
-                rendimientoAsignaturas =
-                    rendimientoPorAsignatura,
+                        totalEjerciciosRespondidos =
+                            progresoActual.totalCompletados,
 
-                onContinuarClick = {
-                    navController.navigate(Routes.ASIGNATURAS)
-                },
+                        progresoAsignaturas =
+                            progresoActual.porcentajesPorAsignatura(),
 
-                onModoEstudioClick = {
-                    navController.navigate(Routes.MODO_ESTUDIO)
-                },
+                        rendimientoGeneral =
+                            progresoActual.porcentajeRendimientoGeneral,
 
-                onVolverClick = {
-                    navController.popBackStack()
+                        aciertosGeneral =
+                            rendimientoGeneral.respuestasCorrectas,
+
+                        ejerciciosEvaluados =
+                            rendimientoGeneral.ejerciciosEvaluados,
+
+                        rendimientoAsignaturas =
+                            rendimientoPorAsignatura,
+
+                        mensajeErrorCuenta =
+                            errorCuenta ?: errorProgreso,
+
+                        onContinuarClick = {
+                            navController.navigate(Routes.ASIGNATURAS)
+                        },
+
+                        onMisMetasClick = {
+                            navController.navigate(Routes.METAS)
+                        },
+
+                        onModoEstudioClick = {
+                            navController.navigate(Routes.MODO_ESTUDIO)
+                        },
+
+                        onVolverClick = {
+                            navController.popBackStack()
+                        },
+
+                        onCerrarSesionClick = {
+                            progresoViewModel.activarCuenta(null)
+                            metasViewModel.limpiar()
+                            cuentaViewModel.cerrarSesion()
+                        }
+                    )
                 }
-            )
+            }
+        }
+
+        composable(Routes.METAS) {
+
+            val cuenta = cuentaActual
+
+            if (cuenta == null) {
+
+                LaunchedEffect(Unit) {
+
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.BIENVENIDA) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                }
+
+            } else {
+
+                LaunchedEffect(cuenta.correo) {
+                    metasViewModel.cargarMetas()
+                }
+
+                MetasScreen(
+                    metas = metasActuales,
+                    cargando = metasCargando,
+                    procesando = metasProcesando,
+                    mensajeError = errorMetas,
+
+                    onVolverClick = {
+                        navController.popBackStack()
+                    },
+
+                    onRecargar = {
+                        metasViewModel.cargarMetas()
+                    },
+
+                    onGuardar = {
+                            id,
+                            titulo,
+                            descripcion,
+                            completada,
+                            onExito ->
+
+                        metasViewModel.guardarMeta(
+                            id = id,
+                            titulo = titulo,
+                            descripcion = descripcion,
+                            completada = completada,
+                            onExito = onExito
+                        )
+                    },
+
+                    onEliminar = { id, onExito ->
+
+                        metasViewModel.eliminarMeta(
+                            id = id,
+                            onExito = onExito
+                        )
+                    }
+                )
+            }
         }
 
         composable(Routes.ASIGNATURAS) {
@@ -196,7 +334,6 @@ fun AppNavigation() {
                     }
 
                     if (id != null) {
-
                         navController.navigate(
                             Routes.elegirDificultad(id)
                         )
@@ -213,25 +350,48 @@ fun AppNavigation() {
                 ?.getString("asignaturaId")
                 .orEmpty()
 
-            SeleccionDificultadScreen(
-                asignaturaId = asignaturaId,
+            val cuenta = cuentaActual
 
-                progreso = progresoActual,
+            if (cuenta == null) {
 
-                onSeleccionar = { dificultad ->
-
-                    navController.navigate(
-                        Routes.detalleAsignatura(
-                            asignaturaId,
-                            dificultad.id
-                        )
-                    )
-                },
-
-                onVolverClick = {
-                    navController.popBackStack()
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.BIENVENIDA) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 }
-            )
+
+            } else if (
+                cuentaProgreso != cuenta.correo.trim()
+                    .lowercase(Locale.ROOT) ||
+                cargandoProgreso
+            ) {
+
+                PantallaCargandoProgresoMPAZ()
+
+            } else {
+
+                SeleccionDificultadScreen(
+                    asignaturaId = asignaturaId,
+                    progreso = progresoActual,
+
+                    onSeleccionar = { dificultad ->
+
+                        navController.navigate(
+                            Routes.detalleAsignatura(
+                                asignaturaId,
+                                dificultad.id
+                            )
+                        )
+                    },
+
+                    onVolverClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
 
         composable(
@@ -246,59 +406,81 @@ fun AppNavigation() {
                 ?.getString("nivelId")
                 .orEmpty()
 
-            val clave = "${asignaturaId}_${nivelId}"
+            val cuenta = cuentaActual
 
-            val sesionesGuardando by progresoViewModel
-                .sesionesGuardando
-                .collectAsState()
+            if (cuenta == null) {
 
-            val sesion = progresoActual
-                .sesionesPractica
-                ?.get(clave)
-
-            AsignaturaDetalleScreen(
-                asignaturaId = asignaturaId,
-
-                nivelId = nivelId,
-
-                sesionPractica = sesion,
-
-                guardandoPractica =
-                    clave in sesionesGuardando,
-
-                porcentajeGuardado =
-                    progresoActual.porcentaje(clave),
-
-                errorGuardado = errorProgreso,
-
-                modoEstudioActivo =
-                    modoEstudioActivo == true,
-
-                onCambiarPractica = {
-                        anterior,
-                        siguiente,
-                        esCorrecta ->
-
-                    progresoViewModel.guardarSesion(
-                        asignaturaId = clave,
-                        anterior = anterior,
-                        siguiente = siguiente,
-                        esCorrecta = esCorrecta
-                    )
-                },
-
-                onVolverClick = {
-                    navController.popBackStack()
-                },
-
-                onVolverAsignaturasClick = {
-
-                    navController.popBackStack(
-                        Routes.ASIGNATURAS,
-                        inclusive = false
-                    )
+                LaunchedEffect(Unit) {
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.BIENVENIDA) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 }
-            )
+
+            } else if (
+                cuentaProgreso != cuenta.correo.trim()
+                    .lowercase(Locale.ROOT) ||
+                cargandoProgreso
+            ) {
+
+                PantallaCargandoProgresoMPAZ()
+
+            } else {
+
+                val clave = "${asignaturaId}_${nivelId}"
+
+                val sesionesGuardando by progresoViewModel
+                    .sesionesGuardando
+                    .collectAsState()
+
+                val sesion = progresoActual
+                    .sesionesPractica
+                    ?.get(clave)
+
+                AsignaturaDetalleScreen(
+                    asignaturaId = asignaturaId,
+                    nivelId = nivelId,
+
+                    sesionPractica = sesion,
+
+                    guardandoPractica =
+                        clave in sesionesGuardando,
+
+                    porcentajeGuardado =
+                        progresoActual.porcentaje(clave),
+
+                    errorGuardado = errorProgreso,
+
+                    modoEstudioActivo =
+                        modoEstudioActivo == true,
+
+                    onCambiarPractica = {
+                            anterior,
+                            siguiente,
+                            esCorrecta ->
+
+                        progresoViewModel.guardarSesion(
+                            asignaturaId = clave,
+                            anterior = anterior,
+                            siguiente = siguiente,
+                            esCorrecta = esCorrecta
+                        )
+                    },
+
+                    onVolverClick = {
+                        navController.popBackStack()
+                    },
+
+                    onVolverAsignaturasClick = {
+                        navController.popBackStack(
+                            Routes.ASIGNATURAS,
+                            inclusive = false
+                        )
+                    }
+                )
+            }
         }
 
         composable(Routes.MODO_ESTUDIO) {
@@ -309,6 +491,42 @@ fun AppNavigation() {
                 },
 
                 estadoViewModel = estadoViewModel
+            )
+        }
+    }
+}
+
+@Composable
+private fun PantallaCargandoProgresoMPAZ() {
+
+    MPAZBackground {
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+
+            horizontalAlignment = Alignment.CenterHorizontally,
+
+            verticalArrangement = Arrangement.spacedBy(
+                18.dp,
+                Alignment.CenterVertically
+            )
+        ) {
+
+            Text(
+                text = "🦉",
+                textAlign = TextAlign.Center
+            )
+
+            CircularProgressIndicator(
+                color = MPAZCoral
+            )
+
+            Text(
+                text = "Preparando tu progreso...",
+                color = MPAZTextoSecundario,
+                textAlign = TextAlign.Center
             )
         }
     }

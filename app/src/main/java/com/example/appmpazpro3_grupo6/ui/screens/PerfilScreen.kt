@@ -26,20 +26,19 @@ import com.example.appmpazpro3_grupo6.viewmodel.PerfilImagenViewModel
 fun PerfilScreen(
     nombre: String = "Estudiante de prueba",
     curso: String = "3° Básico",
-
     progreso: Float = 0f,
     totalEjerciciosRespondidos: Int = 0,
     progresoAsignaturas: Map<String, Int> = emptyMap(),
-
     rendimientoGeneral: Int? = null,
     aciertosGeneral: Int = 0,
     ejerciciosEvaluados: Int = 0,
     rendimientoAsignaturas: Map<String, Int?> = emptyMap(),
-
+    mensajeErrorCuenta: String? = null,
     onContinuarClick: () -> Unit = {},
+    onMisMetasClick: () -> Unit = {},
     onModoEstudioClick: () -> Unit = {},
     onVolverClick: () -> Unit = {},
-
+    onCerrarSesionClick: () -> Unit = {},
     perfilImagenViewModel: PerfilImagenViewModel = viewModel()
 ) {
 
@@ -88,12 +87,11 @@ fun PerfilScreen(
         progreso = progreso,
         totalEjerciciosRespondidos = totalEjerciciosRespondidos,
         progresoAsignaturas = progresoAsignaturas,
-
         rendimientoGeneral = rendimientoGeneral,
         aciertosGeneral = aciertosGeneral,
         ejerciciosEvaluados = ejerciciosEvaluados,
         rendimientoAsignaturas = rendimientoAsignaturas,
-
+        mensajeErrorCuenta = mensajeErrorCuenta,
         imagenUri = imagenUri,
 
         onAbrirGaleria = {
@@ -101,6 +99,7 @@ fun PerfilScreen(
         },
 
         onAbrirCamara = {
+
             try {
                 errorCamara = null
 
@@ -113,7 +112,6 @@ fun PerfilScreen(
             } catch (e: Exception) {
 
                 uriCamaraPendiente = null
-
                 perfilImagenViewModel.cancelarCamara()
 
                 errorCamara =
@@ -124,8 +122,10 @@ fun PerfilScreen(
 
         errorCamara = errorCamara,
         onContinuarClick = onContinuarClick,
+        onMisMetasClick = onMisMetasClick,
         onModoEstudioClick = onModoEstudioClick,
-        onVolverClick = onVolverClick
+        onVolverClick = onVolverClick,
+        onCerrarSesionClick = onCerrarSesionClick
     )
 }
 
@@ -136,19 +136,20 @@ private fun ContenidoPerfil(
     progreso: Float,
     totalEjerciciosRespondidos: Int,
     progresoAsignaturas: Map<String, Int>,
-
     rendimientoGeneral: Int?,
     aciertosGeneral: Int,
     ejerciciosEvaluados: Int,
     rendimientoAsignaturas: Map<String, Int?>,
-
+    mensajeErrorCuenta: String?,
     imagenUri: Uri?,
     onAbrirGaleria: () -> Unit,
     onAbrirCamara: () -> Unit,
     errorCamara: String?,
     onContinuarClick: () -> Unit,
+    onMisMetasClick: () -> Unit,
     onModoEstudioClick: () -> Unit,
-    onVolverClick: () -> Unit
+    onVolverClick: () -> Unit,
+    onCerrarSesionClick: () -> Unit
 ) {
 
     val progresoSeguro = progreso.coerceIn(0f, 1f)
@@ -172,6 +173,19 @@ private fun ContenidoPerfil(
                 subtitulo = "¡Bienvenido a tu espacio!",
                 onVolverClick = onVolverClick
             )
+
+            if (mensajeErrorCuenta != null) {
+
+                Text(
+                    text = mensajeErrorCuenta,
+                    modifier = Modifier
+                        .widthIn(max = 480.dp)
+                        .fillMaxWidth(),
+                    color = MPAZCoral,
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
 
             MPAZCard(
                 modifier = Modifier
@@ -459,8 +473,20 @@ private fun ContenidoPerfil(
             )
 
             MPAZSecondaryButton(
+                texto = "🎯 Mis metas de estudio",
+                onClick = onMisMetasClick,
+                modifier = Modifier.widthIn(max = 480.dp)
+            )
+
+            MPAZSecondaryButton(
                 texto = "Ir a modo estudio",
                 onClick = onModoEstudioClick,
+                modifier = Modifier.widthIn(max = 480.dp)
+            )
+
+            MPAZSecondaryButton(
+                texto = "Cerrar sesión",
+                onClick = onCerrarSesionClick,
                 modifier = Modifier.widthIn(max = 480.dp)
             )
 
@@ -470,7 +496,7 @@ private fun ContenidoPerfil(
 }
 
 @Preview(
-    name = "MPAZ - Perfil y rendimiento real",
+    name = "MPAZ - Perfil y metas",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
@@ -481,38 +507,39 @@ fun PerfilScreenPreview() {
     AppMPAZPRO3_Grupo6Theme {
 
         ContenidoPerfil(
-            nombre = "Camila González",
+            nombre = "Estudiante de prueba",
             curso = "3° Básico",
-
-            progreso = 0.75f,
-            totalEjerciciosRespondidos = 9,
+            progreso = 0f,
+            totalEjerciciosRespondidos = 0,
 
             progresoAsignaturas = linkedMapOf(
-                "Lenguaje y Comunicación" to 100,
-                "Matemática" to 100,
-                "Ciencias Naturales" to 67,
-                "Historia y Geografía" to 33
+                "Lenguaje y Comunicación" to 0,
+                "Matemática" to 0,
+                "Ciencias Naturales" to 0,
+                "Historia y Geografía" to 0
             ),
 
-            rendimientoGeneral = 78,
-            aciertosGeneral = 7,
-            ejerciciosEvaluados = 9,
+            rendimientoGeneral = null,
+            aciertosGeneral = 0,
+            ejerciciosEvaluados = 0,
 
             rendimientoAsignaturas = linkedMapOf(
-                "Lenguaje y Comunicación" to 100,
-                "Matemática" to 67,
-                "Ciencias Naturales" to 50,
-                "Historia y Geografía" to 100
+                "Lenguaje y Comunicación" to null,
+                "Matemática" to null,
+                "Ciencias Naturales" to null,
+                "Historia y Geografía" to null
             ),
 
+            mensajeErrorCuenta = null,
             imagenUri = null,
             onAbrirGaleria = {},
             onAbrirCamara = {},
             errorCamara = null,
-
             onContinuarClick = {},
+            onMisMetasClick = {},
             onModoEstudioClick = {},
-            onVolverClick = {}
+            onVolverClick = {},
+            onCerrarSesionClick = {}
         )
     }
 }
