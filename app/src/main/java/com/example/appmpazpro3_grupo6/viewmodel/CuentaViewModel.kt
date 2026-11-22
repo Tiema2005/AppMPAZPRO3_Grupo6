@@ -14,10 +14,14 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 
 class CuentaViewModel(
-    application: Application
+    application: Application,
+    private val repositorio: CuentaRemotaRepository
 ) : AndroidViewModel(application) {
 
-    private val repositorio = CuentaRemotaRepository()
+    constructor(application: Application) : this(
+        application,
+        CuentaRemotaRepository()
+    )
 
     private val _cuentaActual =
         MutableStateFlow<CuentaEstudiante?>(null)

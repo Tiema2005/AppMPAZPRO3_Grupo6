@@ -30,17 +30,20 @@ import java.util.Locale
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProgresoViewModel(
-    application: Application
+    application: Application,
+    private val local: ProgresoCuentaRepository,
+    private val remoto: ProgresoRemotoRepository,
+    private val versiones: EstadoSincronizacionMPAZ,
+    private val estadisticas: SincronizadorEstadisticasMPAZ =
+        SincronizadorEstadisticasMPAZ(remoto)
 ) : AndroidViewModel(application) {
 
-    private val local = ProgresoCuentaRepository(application)
-    private val remoto = ProgresoRemotoRepository()
-
-    private val estadisticas =
-        SincronizadorEstadisticasMPAZ(remoto)
-
-    private val versiones =
-        EstadoSincronizacionMPAZ(application)
+    constructor(application: Application) : this(
+        application = application,
+        local = ProgresoCuentaRepository(application),
+        remoto = ProgresoRemotoRepository(),
+        versiones = EstadoSincronizacionMPAZ(application)
+    )
 
     private val gson = Gson()
 

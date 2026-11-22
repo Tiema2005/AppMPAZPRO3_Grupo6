@@ -12,9 +12,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 
-class MetasViewModel : ViewModel() {
-
-    private val repositorio = MetasRepositoryMPAZ()
+class MetasViewModel(
+    private val repositorio: MetasRepositoryMPAZ = MetasRepositoryMPAZ()
+) : ViewModel() {
 
     private val _metas =
         MutableStateFlow<List<MetaEstudioMPAZ>>(emptyList())
