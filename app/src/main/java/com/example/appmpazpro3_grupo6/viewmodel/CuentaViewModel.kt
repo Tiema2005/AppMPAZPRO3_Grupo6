@@ -4,20 +4,20 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.appmpazpro3_grupo6.repository.CuentaEstudiante
-import com.example.appmpazpro3_grupo6.repository.CuentaLocalRepository
+import com.example.appmpazpro3_grupo6.repository.CuentaRemotaRepository
+import com.example.appmpazpro3_grupo6.repository.ErrorCuentaRemota
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 class CuentaViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val repositorio = CuentaLocalRepository(
-        application.applicationContext
-    )
+    private val repositorio = CuentaRemotaRepository()
 
     private val _cuentaActual =
         MutableStateFlow<CuentaEstudiante?>(null)
@@ -43,6 +43,7 @@ class CuentaViewModel(
         curso: String,
         onExito: (CuentaEstudiante) -> Unit
     ) {
+
         if (_procesando.value) return
 
         viewModelScope.launch {
@@ -52,41 +53,31 @@ class CuentaViewModel(
 
             try {
 
-                val registrada =
+                val estudiante =
                     repositorio.registrarCuenta(
                         nombre = nombre,
                         correo = correo,
-                        contrasena = contrasena,
-                        curso = curso
+                        contrasena = contrasena
                     )
 
-                if (registrada) {
+                _cuentaActual.value = estudiante
 
-                    val estudiante = CuentaEstudiante(
-                        nombre = nombre.trim(),
-                        correo = correo.trim().lowercase(),
-                        curso = curso
-                    )
-
-                    _cuentaActual.value = estudiante
-
-                    onExito(estudiante)
-
-                } else {
-
-                    _mensajeError.value =
-                        "Ya existe una cuenta registrada " +
-                                "en este dispositivo."
-                }
+                onExito(estudiante)
 
             } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception) {
+            } catch (e: ErrorCuentaRemota) {
+                _mensajeError.value = e.message
 
+            } catch (e: IOException) {
                 _mensajeError.value =
-                    "No se pudo guardar la cuenta. " +
-                            "Inténtalo nuevamente."
+                    "No se pudo conectar con el servidor. " +
+                            "Verifica que Spring Boot esté funcionando."
+
+            } catch (e: Exception) {
+                _mensajeError.value =
+                    "Ocurrió un error al crear la cuenta."
 
             } finally {
                 _procesando.value = false
@@ -99,6 +90,7 @@ class CuentaViewModel(
         contrasena: String,
         onExito: (CuentaEstudiante) -> Unit
     ) {
+
         if (_procesando.value) return
 
         viewModelScope.launch {
@@ -114,26 +106,64 @@ class CuentaViewModel(
                         contrasena = contrasena
                     )
 
-                if (estudiante != null) {
+                _cuentaActual.value = estudiante
 
-                    _cuentaActual.value = estudiante
-
-                    onExito(estudiante)
-
-                } else {
-
-                    _mensajeError.value =
-                        "Correo o contraseña incorrectos."
-                }
+                onExito(estudiante)
 
             } catch (e: CancellationException) {
                 throw e
 
-            } catch (e: Exception) {
+            } catch (e: ErrorCuentaRemota) {
+                _mensajeError.value = e.message
 
+            } catch (e: IOException) {
                 _mensajeError.value =
-                    "No se pudo iniciar sesión. " +
-                            "Inténtalo nuevamente."
+                    "No se pudo conectar con el servidor. " +
+                            "Verifica que Spring Boot esté funcionando."
+
+            } catch (e: Exception) {
+                _mensajeError.value =
+                    "Ocurrió un error al iniciar sesión."
+
+            } finally {
+                _procesando.value = false
+            }
+        }
+    }
+
+    fun cargarPerfil(
+        onExito: (CuentaEstudiante) -> Unit = {}
+    ) {
+
+        if (_procesando.value) return
+
+        viewModelScope.launch {
+
+            _procesando.value = true
+            _mensajeError.value = null
+
+            try {
+
+                val estudiante =
+                    repositorio.obtenerPerfil()
+
+                _cuentaActual.value = estudiante
+
+                onExito(estudiante)
+
+            } catch (e: CancellationException) {
+                throw e
+
+            } catch (e: ErrorCuentaRemota) {
+                _mensajeError.value = e.message
+
+            } catch (e: IOException) {
+                _mensajeError.value =
+                    "No fue posible consultar el perfil en el servidor."
+
+            } catch (e: Exception) {
+                _mensajeError.value =
+                    "Ocurrió un error al cargar el perfil."
 
             } finally {
                 _procesando.value = false
@@ -142,8 +172,28 @@ class CuentaViewModel(
     }
 
     fun cerrarSesion() {
-        _cuentaActual.value = null
-        _mensajeError.value = null
+
+        if (_procesando.value) return
+
+        viewModelScope.launch {
+
+            _procesando.value = true
+
+            try {
+                repositorio.cerrarSesion()
+
+            } catch (e: CancellationException) {
+                throw e
+
+            } catch (e: Exception) {
+                _mensajeError.value =
+                    "No se pudo confirmar el cierre de sesión en el servidor."
+
+            } finally {
+                _cuentaActual.value = null
+                _procesando.value = false
+            }
+        }
     }
 
     fun limpiarError() {
