@@ -1,4 +1,3 @@
-
 package com.example.appmpazpro3_grupo6.ui.screens
 
 import android.net.Uri
@@ -36,6 +35,7 @@ fun PerfilScreen(
     rendimientoAsignaturas: Map<String, Int?> = emptyMap(),
     mensajeErrorCuenta: String? = null,
     onContinuarClick: () -> Unit = {},
+    onMisMetasClick: () -> Unit = {},
     onModoEstudioClick: () -> Unit = {},
     onVolverClick: () -> Unit = {},
     onCerrarSesionClick: () -> Unit = {},
@@ -55,6 +55,7 @@ fun PerfilScreen(
     val galeriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uriSeleccionada ->
+
         if (uriSeleccionada != null) {
             perfilImagenViewModel.actualizarDesdeGaleria(
                 uriSeleccionada
@@ -92,10 +93,13 @@ fun PerfilScreen(
         rendimientoAsignaturas = rendimientoAsignaturas,
         mensajeErrorCuenta = mensajeErrorCuenta,
         imagenUri = imagenUri,
+
         onAbrirGaleria = {
             galeriaLauncher.launch("image/*")
         },
+
         onAbrirCamara = {
+
             try {
                 errorCamara = null
 
@@ -106,6 +110,7 @@ fun PerfilScreen(
                 camaraLauncher.launch(uri)
 
             } catch (e: Exception) {
+
                 uriCamaraPendiente = null
                 perfilImagenViewModel.cancelarCamara()
 
@@ -114,8 +119,10 @@ fun PerfilScreen(
                             "Revisa la configuración de FileProvider."
             }
         },
+
         errorCamara = errorCamara,
         onContinuarClick = onContinuarClick,
+        onMisMetasClick = onMisMetasClick,
         onModoEstudioClick = onModoEstudioClick,
         onVolverClick = onVolverClick,
         onCerrarSesionClick = onCerrarSesionClick
@@ -139,6 +146,7 @@ private fun ContenidoPerfil(
     onAbrirCamara: () -> Unit,
     errorCamara: String?,
     onContinuarClick: () -> Unit,
+    onMisMetasClick: () -> Unit,
     onModoEstudioClick: () -> Unit,
     onVolverClick: () -> Unit,
     onCerrarSesionClick: () -> Unit
@@ -167,6 +175,7 @@ private fun ContenidoPerfil(
             )
 
             if (mensajeErrorCuenta != null) {
+
                 Text(
                     text = mensajeErrorCuenta,
                     modifier = Modifier
@@ -236,6 +245,7 @@ private fun ContenidoPerfil(
                     )
 
                     if (errorCamara != null) {
+
                         Spacer(Modifier.height(12.dp))
 
                         Text(
@@ -463,6 +473,12 @@ private fun ContenidoPerfil(
             )
 
             MPAZSecondaryButton(
+                texto = "🎯 Mis metas de estudio",
+                onClick = onMisMetasClick,
+                modifier = Modifier.widthIn(max = 480.dp)
+            )
+
+            MPAZSecondaryButton(
                 texto = "Ir a modo estudio",
                 onClick = onModoEstudioClick,
                 modifier = Modifier.widthIn(max = 480.dp)
@@ -480,7 +496,7 @@ private fun ContenidoPerfil(
 }
 
 @Preview(
-    name = "MPAZ - Perfil y rendimiento",
+    name = "MPAZ - Perfil y metas",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
@@ -495,27 +511,32 @@ fun PerfilScreenPreview() {
             curso = "3° Básico",
             progreso = 0f,
             totalEjerciciosRespondidos = 0,
+
             progresoAsignaturas = linkedMapOf(
                 "Lenguaje y Comunicación" to 0,
                 "Matemática" to 0,
                 "Ciencias Naturales" to 0,
                 "Historia y Geografía" to 0
             ),
+
             rendimientoGeneral = null,
             aciertosGeneral = 0,
             ejerciciosEvaluados = 0,
+
             rendimientoAsignaturas = linkedMapOf(
                 "Lenguaje y Comunicación" to null,
                 "Matemática" to null,
                 "Ciencias Naturales" to null,
                 "Historia y Geografía" to null
             ),
+
             mensajeErrorCuenta = null,
             imagenUri = null,
             onAbrirGaleria = {},
             onAbrirCamara = {},
             errorCamara = null,
             onContinuarClick = {},
+            onMisMetasClick = {},
             onModoEstudioClick = {},
             onVolverClick = {},
             onCerrarSesionClick = {}

@@ -1,4 +1,3 @@
-
 package com.example.appmpazpro3_grupo6.navigation
 
 import androidx.compose.runtime.Composable
@@ -13,12 +12,14 @@ import com.example.appmpazpro3_grupo6.ui.screens.AsignaturaDetalleScreen
 import com.example.appmpazpro3_grupo6.ui.screens.AsignaturasScreen
 import com.example.appmpazpro3_grupo6.ui.screens.BienvenidaScreen
 import com.example.appmpazpro3_grupo6.ui.screens.LoginScreen
+import com.example.appmpazpro3_grupo6.ui.screens.MetasScreen
 import com.example.appmpazpro3_grupo6.ui.screens.ModoEstudioScreen
 import com.example.appmpazpro3_grupo6.ui.screens.PerfilScreen
 import com.example.appmpazpro3_grupo6.ui.screens.RegistroScreen
 import com.example.appmpazpro3_grupo6.ui.screens.SeleccionDificultadScreen
 import com.example.appmpazpro3_grupo6.viewmodel.CuentaViewModel
 import com.example.appmpazpro3_grupo6.viewmodel.EstadoViewModel
+import com.example.appmpazpro3_grupo6.viewmodel.MetasViewModel
 import com.example.appmpazpro3_grupo6.viewmodel.ProgresoViewModel
 import kotlinx.coroutines.flow.first
 
@@ -30,6 +31,7 @@ fun AppNavigation() {
     val cuentaViewModel: CuentaViewModel = viewModel()
     val progresoViewModel: ProgresoViewModel = viewModel()
     val estadoViewModel: EstadoViewModel = viewModel()
+    val metasViewModel: MetasViewModel = viewModel()
 
     val cuentaActual by cuentaViewModel.cuentaActual.collectAsState()
     val errorCuenta by cuentaViewModel.mensajeError.collectAsState()
@@ -37,12 +39,18 @@ fun AppNavigation() {
     val errorProgreso by progresoViewModel.errorGuardado.collectAsState()
     val modoEstudioActivo by estadoViewModel.activo.collectAsState()
 
+    val metasActuales by metasViewModel.metas.collectAsState()
+    val metasCargando by metasViewModel.cargando.collectAsState()
+    val metasProcesando by metasViewModel.procesando.collectAsState()
+    val errorMetas by metasViewModel.mensajeError.collectAsState()
+
     NavHost(
         navController = navController,
         startDestination = Routes.BIENVENIDA
     ) {
 
         composable(Routes.BIENVENIDA) {
+
             BienvenidaScreen(
                 onComenzarClick = {
                     navController.navigate(Routes.LOGIN)
@@ -51,6 +59,7 @@ fun AppNavigation() {
         }
 
         composable(Routes.LOGIN) {
+
             LoginScreen(
                 onVolverClick = {
                     navController.popBackStack()
@@ -59,6 +68,9 @@ fun AppNavigation() {
                     navController.navigate(Routes.REGISTRO)
                 },
                 onIngresarClick = { _, _ ->
+
+                    metasViewModel.limpiar()
+
                     navController.navigate(Routes.PERFIL) {
                         popUpTo(Routes.LOGIN) {
                             inclusive = true
@@ -71,11 +83,15 @@ fun AppNavigation() {
         }
 
         composable(Routes.REGISTRO) {
+
             RegistroScreen(
                 onVolverClick = {
                     navController.popBackStack()
                 },
                 onRegistroExitoso = { _, _ ->
+
+                    metasViewModel.limpiar()
+
                     navController.navigate(Routes.PERFIL) {
                         popUpTo(Routes.LOGIN) {
                             inclusive = true
@@ -90,6 +106,7 @@ fun AppNavigation() {
         composable(Routes.PERFIL) {
 
             LaunchedEffect(Unit) {
+
                 cuentaViewModel.procesando.first { !it }
 
                 if (cuentaViewModel.cuentaActual.value != null) {
@@ -102,6 +119,7 @@ fun AppNavigation() {
             if (cuenta == null) {
 
                 LaunchedEffect(Unit) {
+
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.BIENVENIDA) {
                             inclusive = false
@@ -118,10 +136,13 @@ fun AppNavigation() {
                 val rendimientoPorAsignatura = linkedMapOf(
                     "Lenguaje y Comunicación" to
                             progresoActual.porcentajeRendimiento("lenguaje"),
+
                     "Matemática" to
                             progresoActual.porcentajeRendimiento("matematica"),
+
                     "Ciencias Naturales" to
                             progresoActual.porcentajeRendimiento("ciencias"),
+
                     "Historia y Geografía" to
                             progresoActual.porcentajeRendimiento("historia")
                 )
@@ -129,41 +150,123 @@ fun AppNavigation() {
                 PerfilScreen(
                     nombre = cuenta.nombre,
                     curso = cuenta.curso,
+
                     progreso = progresoActual.progresoGeneral,
+
                     totalEjerciciosRespondidos =
                         progresoActual.totalCompletados,
+
                     progresoAsignaturas =
                         progresoActual.porcentajesPorAsignatura(),
+
                     rendimientoGeneral =
                         progresoActual.porcentajeRendimientoGeneral,
+
                     aciertosGeneral =
                         rendimientoGeneral.respuestasCorrectas,
+
                     ejerciciosEvaluados =
                         rendimientoGeneral.ejerciciosEvaluados,
+
                     rendimientoAsignaturas =
                         rendimientoPorAsignatura,
+
                     mensajeErrorCuenta = errorCuenta,
+
                     onContinuarClick = {
                         navController.navigate(Routes.ASIGNATURAS)
                     },
+
+                    onMisMetasClick = {
+                        navController.navigate(Routes.METAS)
+                    },
+
                     onModoEstudioClick = {
                         navController.navigate(Routes.MODO_ESTUDIO)
                     },
+
                     onVolverClick = {
                         navController.popBackStack()
                     },
+
                     onCerrarSesionClick = {
+                        metasViewModel.limpiar()
                         cuentaViewModel.cerrarSesion()
                     }
                 )
             }
         }
 
+        composable(Routes.METAS) {
+
+            val cuenta = cuentaActual
+
+            if (cuenta == null) {
+
+                LaunchedEffect(Unit) {
+
+                    navController.navigate(Routes.LOGIN) {
+                        popUpTo(Routes.BIENVENIDA) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                }
+
+            } else {
+
+                LaunchedEffect(cuenta.correo) {
+                    metasViewModel.cargarMetas()
+                }
+
+                MetasScreen(
+                    metas = metasActuales,
+                    cargando = metasCargando,
+                    procesando = metasProcesando,
+                    mensajeError = errorMetas,
+
+                    onVolverClick = {
+                        navController.popBackStack()
+                    },
+
+                    onRecargar = {
+                        metasViewModel.cargarMetas()
+                    },
+
+                    onGuardar = {
+                            id,
+                            titulo,
+                            descripcion,
+                            completada,
+                            onExito ->
+
+                        metasViewModel.guardarMeta(
+                            id = id,
+                            titulo = titulo,
+                            descripcion = descripcion,
+                            completada = completada,
+                            onExito = onExito
+                        )
+                    },
+
+                    onEliminar = { id, onExito ->
+
+                        metasViewModel.eliminarMeta(
+                            id = id,
+                            onExito = onExito
+                        )
+                    }
+                )
+            }
+        }
+
         composable(Routes.ASIGNATURAS) {
+
             AsignaturasScreen(
                 onVolverClick = {
                     navController.popBackStack()
                 },
+
                 onAsignaturaClick = { nombreAsignatura ->
 
                     val id = when {
@@ -192,6 +295,7 @@ fun AppNavigation() {
                     }
 
                     if (id != null) {
+
                         navController.navigate(
                             Routes.elegirDificultad(id)
                         )
@@ -210,8 +314,11 @@ fun AppNavigation() {
 
             SeleccionDificultadScreen(
                 asignaturaId = asignaturaId,
+
                 progreso = progresoActual,
+
                 onSeleccionar = { dificultad ->
+
                     navController.navigate(
                         Routes.detalleAsignatura(
                             asignaturaId,
@@ -219,6 +326,7 @@ fun AppNavigation() {
                         )
                     )
                 },
+
                 onVolverClick = {
                     navController.popBackStack()
                 }
@@ -250,12 +358,20 @@ fun AppNavigation() {
             AsignaturaDetalleScreen(
                 asignaturaId = asignaturaId,
                 nivelId = nivelId,
+
                 sesionPractica = sesion,
-                guardandoPractica = clave in sesionesGuardando,
+
+                guardandoPractica =
+                    clave in sesionesGuardando,
+
                 porcentajeGuardado =
                     progresoActual.porcentaje(clave),
+
                 errorGuardado = errorProgreso,
-                modoEstudioActivo = modoEstudioActivo == true,
+
+                modoEstudioActivo =
+                    modoEstudioActivo == true,
+
                 onCambiarPractica = {
                         anterior,
                         siguiente,
@@ -268,9 +384,11 @@ fun AppNavigation() {
                         esCorrecta = esCorrecta
                     )
                 },
+
                 onVolverClick = {
                     navController.popBackStack()
                 },
+
                 onVolverAsignaturasClick = {
                     navController.popBackStack(
                         Routes.ASIGNATURAS,
@@ -281,10 +399,12 @@ fun AppNavigation() {
         }
 
         composable(Routes.MODO_ESTUDIO) {
+
             ModoEstudioScreen(
                 onVolverClick = {
                     navController.popBackStack()
                 },
+
                 estadoViewModel = estadoViewModel
             )
         }

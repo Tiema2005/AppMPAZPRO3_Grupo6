@@ -66,14 +66,19 @@ class ClienteEstudiantesMPAZ private constructor(
         .cookieJar(cookies)
         .build()
 
-    val api: EstudiantesApiMPAZ = Retrofit.Builder()
+    private val retrofit = Retrofit.Builder()
         .baseUrl(baseUrl)
         .client(clienteHttp)
         .addConverterFactory(
             GsonConverterFactory.create()
         )
         .build()
-        .create(EstudiantesApiMPAZ::class.java)
+
+    val api: EstudiantesApiMPAZ =
+        retrofit.create(EstudiantesApiMPAZ::class.java)
+
+    val metasApi: MetasApiMPAZ =
+        retrofit.create(MetasApiMPAZ::class.java)
 
     fun limpiarSesion() {
         cookies.limpiar()
@@ -81,9 +86,7 @@ class ClienteEstudiantesMPAZ private constructor(
 
     companion object {
 
-        fun crear(
-            baseUrl: String
-        ): ClienteEstudiantesMPAZ {
+        fun crear(baseUrl: String): ClienteEstudiantesMPAZ {
             return ClienteEstudiantesMPAZ(baseUrl)
         }
     }
