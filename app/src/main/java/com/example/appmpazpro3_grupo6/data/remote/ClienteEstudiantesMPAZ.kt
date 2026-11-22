@@ -80,6 +80,9 @@ class ClienteEstudiantesMPAZ private constructor(
     val metasApi: MetasApiMPAZ =
         retrofit.create(MetasApiMPAZ::class.java)
 
+    val progresoApi: ProgresoApiMPAZ =
+        retrofit.create(ProgresoApiMPAZ::class.java)
+
     fun limpiarSesion() {
         cookies.limpiar()
     }
