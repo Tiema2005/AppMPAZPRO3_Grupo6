@@ -5,21 +5,24 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.Assume.assumeTrue
 
 class BackendApiIntegracionRealTest {
 
     @Test
     fun retrofitConectaConSpringBootReal() = runBlocking {
 
-        // Direccion del backend desde el computador
+        assumeTrue(
+            "Prueba real opcional: requiere Spring Boot",
+            System.getenv("MPAZ_REAL_INTEGRATION") == "true"
+        )
+
         val api = ClienteBackendMPAZ.crear(
             "http://127.0.0.1:8080/"
         )
 
-        // Solicitud HTTP real mediante Retrofit
         val respuesta = api.consultarEstado()
 
-        // Comprobar respuesta HTTP
         assertTrue(
             "El backend respondio HTTP ${respuesta.code()}",
             respuesta.isSuccessful
