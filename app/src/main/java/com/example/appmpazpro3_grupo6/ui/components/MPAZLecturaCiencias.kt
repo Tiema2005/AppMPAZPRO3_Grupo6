@@ -36,6 +36,25 @@ fun MPAZLecturaCiencias(
     val estado by lecturasViewModel.estado.collectAsState()
     val uriHandler = LocalUriHandler.current
 
+    MPAZLecturaCienciasContenido(
+        estado = estado,
+        onAbrirWikipedia = { url ->
+            uriHandler.openUri(url)
+        },
+        onReintentar = {
+            lecturasViewModel.cargarLectura()
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun MPAZLecturaCienciasContenido(
+    estado: EstadoLecturaCiencias,
+    onAbrirWikipedia: (String) -> Unit,
+    onReintentar: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     MPAZCard(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -48,12 +67,14 @@ fun MPAZLecturaCiencias(
                 color = MPAZTexto
             )
 
-            when (val estadoActual = estado) {
+            when (estado) {
+
                 EstadoLecturaCiencias.Cargando -> {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         color = MPAZCoral
                     )
+
                     Text(
                         text = "Cargando lectura…",
                         color = MPAZTextoSecundario
@@ -61,8 +82,7 @@ fun MPAZLecturaCiencias(
                 }
 
                 is EstadoLecturaCiencias.Disponible -> {
-                    val lectura = estadoActual.lectura
-                    val descripcion = lectura.descripcion
+                    val lectura = estado.lectura
 
                     Text(
                         text = lectura.titulo,
@@ -71,9 +91,9 @@ fun MPAZLecturaCiencias(
                         color = MPAZTexto
                     )
 
-                    if (!descripcion.isNullOrBlank()) {
+                    if (!lectura.descripcion.isNullOrBlank()) {
                         Text(
-                            text = descripcion,
+                            text = lectura.descripcion,
                             fontSize = 15.sp,
                             lineHeight = 22.sp,
                             color = MPAZTextoSecundario
@@ -81,7 +101,9 @@ fun MPAZLecturaCiencias(
                     }
 
                     TextButton(
-                        onClick = { uriHandler.openUri(lectura.urlFuente) }
+                        onClick = {
+                            onAbrirWikipedia(lectura.urlFuente)
+                        }
                     ) {
                         Text("Leer en Wikipedia")
                     }
@@ -92,7 +114,8 @@ fun MPAZLecturaCiencias(
                         text = "La lectura no está disponible por ahora.",
                         color = MPAZTextoSecundario
                     )
-                    TextButton(onClick = lecturasViewModel::cargarLectura) {
+
+                    TextButton(onClick = onReintentar) {
                         Text("Reintentar")
                     }
                 }
@@ -102,7 +125,8 @@ fun MPAZLecturaCiencias(
                         text = "No pudimos cargar la lectura. Revisa tu conexión.",
                         color = MPAZTextoSecundario
                     )
-                    TextButton(onClick = lecturasViewModel::cargarLectura) {
+
+                    TextButton(onClick = onReintentar) {
                         Text("Reintentar")
                     }
                 }
