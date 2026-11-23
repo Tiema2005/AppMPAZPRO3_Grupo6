@@ -73,7 +73,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Qué palabra significa lo contrario de alto?",
                 "Grande", "Bajo", "Largo",
-                "Bajo", "Antonimia",
+                "Bajo", "Antónimo",
                 "Bajo es un antónimo de alto.",
                 "Busca la palabra de significado contrario.",
                 "Los antónimos expresan significados opuestos."
@@ -122,7 +122,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Cuál es el verbo en «La niña dibuja un árbol»?",
                 "Niña", "Dibuja", "Árbol",
-                "Dibuja", "Verbo",
+                "Dibuja", "Predicado_(gramática)",
                 "Dibuja es la acción que realiza la niña.",
                 "Pregunta qué hace la niña.",
                 "Identifica primero la acción de la oración."
@@ -157,7 +157,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "Pedro vio charcos y salió con botas. ¿Qué ocurrió antes?",
                 "Llovió", "Nevó", "Hubo sequía",
-                "Llovió", "Inferencia",
+                "Llovió", "Indicio",
                 "Los charcos y las botas sugieren que llovió.",
                 "Utiliza las pistas del relato.",
                 "Inferir significa obtener conclusiones a partir de pistas."
@@ -181,7 +181,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "En «El perro pequeño corre rápido», ¿qué palabra describe al perro?",
                 "Pequeño", "Corre", "Rápido",
-                "Pequeño", "Adjetivo",
+                "Pequeño", "Descripción",
                 "Pequeño es un adjetivo que describe al sustantivo perro.",
                 "Busca cómo es el perro, no qué hace.",
                 "Los adjetivos aportan información sobre los sustantivos."
@@ -210,7 +210,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Cuánto es 6 + 8?",
                 "12", "14", "16",
-                "14", "Adición_(matemática)",
+                "14", "Cálculo_mental",
                 "6 + 8 = 14.",
                 "Completa primero diez y suma lo que falta.",
                 "Agrupar en decenas ayuda a sumar."
@@ -218,7 +218,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Cuánto es 30 + 20?",
                 "40", "50", "60",
-                "50", "Adición_(matemática)",
+                "50", "Sistema_de_numeración_decimal",
                 "Tres decenas más dos decenas son cinco decenas.",
                 "Suma las decenas.",
                 "Puedes sumar decenas completas con facilidad."
@@ -226,7 +226,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Cuánto es 15 - 7?",
                 "6", "8", "9",
-                "8", "Resta",
+                "8", "Operación_(matemática)",
                 "15 - 7 = 8.",
                 "Cuenta desde 7 hasta llegar a 15.",
                 "La resta se puede comprobar mediante una suma."
@@ -258,7 +258,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Cuánto es 5 × 6?",
                 "25", "30", "35",
-                "30", "Multiplicación",
+                "30", "Tabla_de_multiplicar",
                 "Cinco grupos de seis suman treinta.",
                 "Cuenta de seis en seis cinco veces.",
                 "Las tablas ayudan a multiplicar con rapidez."
@@ -282,7 +282,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
         )
         "matematica_dificil" -> listOf(
             PreguntaMPAZ(
-                articuloWikipedia = "Resta",
+                articuloWikipedia = "Problema_matemático",
                 pregunta = "Una biblioteca tiene 46 libros, " +
                         "presta 19 y recibe 28 nuevos. " +
                         "¿Cuántos libros tiene al final?",
@@ -300,7 +300,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "Hay 6 bolsas con 7 canicas cada una. ¿Cuántas canicas hay?",
                 "36", "42", "48",
-                "42", "Multiplicación",
+                "42", "Producto_(matemáticas)",
                 "6 × 7 = 42 canicas.",
                 "Usa la tabla del siete.",
                 "Descompón una multiplicación difícil en otras más sencillas."
@@ -308,7 +308,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "Si 36 galletas se reparten entre 6 niños, ¿cuántas recibe cada uno?",
                 "5", "6", "7",
-                "6", "División_(matemática)",
+                "6", "División_euclídea",
                 "36 ÷ 6 = 6 galletas por niño.",
                 "Piensa qué número por seis da treinta y seis.",
                 "La división es la operación inversa de la multiplicación."
@@ -324,7 +324,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "Un rectángulo mide 8 cm de largo y 3 cm de ancho. ¿Cuál es su perímetro?",
                 "11 cm", "22 cm", "24 cm",
-                "22 cm", "Perímetro",
+                "22 cm", "Rectángulo",
                 "8 + 3 + 8 + 3 = 22 cm.",
                 "El rectángulo tiene dos lados largos y dos cortos.",
                 "Suma la longitud de todos los lados para encontrar el perímetro."
@@ -514,7 +514,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Qué color suele representar el agua en un mapa físico escolar?",
                 "Azul", "Rojo", "Amarillo",
-                "Azul", "Mapa",
+                "Azul", "Mapa_topográfico",
                 "Muchos mapas escolares usan azul para mares y ríos.",
                 "Piensa en el color de los océanos del mapa.",
                 "Lee siempre la leyenda de colores del mapa."
@@ -562,7 +562,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Qué usamos para representar el recorrido entre dos lugares?",
                 "Mapa", "Receta", "Calendario",
-                "Mapa", "Mapa",
+                "Mapa", "Cartografía",
                 "Un mapa muestra ubicaciones y ayuda a planear recorridos.",
                 "Piensa en calles y caminos dibujados.",
                 "Busca el título y los símbolos de los mapas."
@@ -587,7 +587,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "Desde la plaza caminas al este y luego al sur. ¿Hacia dónde quedas?",
                 "Noreste", "Sureste", "Noroeste",
-                "Sureste", "Rosa_de_los_vientos",
+                "Sureste", "Sureste",
                 "Si avanzas hacia el este y el sur, quedas al sureste.",
                 "Combina las dos direcciones.",
                 "Puedes dibujar una rosa de los vientos para orientarte."
@@ -603,7 +603,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "¿Qué acción ayuda a conservar el patrimonio cultural?",
                 "Cuidar monumentos", "Rayar edificios históricos", "Destruir objetos antiguos",
-                "Cuidar monumentos", "Patrimonio_cultural",
+                "Cuidar monumentos", "Conservación_y_restauración",
                 "Proteger los monumentos permite conservar la historia compartida.",
                 "Piensa en una acción respetuosa.",
                 "El patrimonio es responsabilidad de toda la comunidad."
@@ -611,7 +611,7 @@ fun preguntasMPAZ(asignaturaId: String, dificultad: DificultadMPAZ): List<Pregun
             p(
                 "Si un mapa muestra norte arriba, ¿qué dirección queda abajo y a la izquierda?",
                 "Sureste", "Suroeste", "Noreste",
-                "Suroeste", "Puntos_cardinales",
+                "Suroeste", "Punto_cardinal",
                 "Abajo corresponde al sur e izquierda al oeste: suroeste.",
                 "Combina sur y oeste.",
                 "Practica orientarte con los cuatro puntos cardinales."
