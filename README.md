@@ -1,371 +1,469 @@
-# MPAZ PRO 3.º
+# 🦉 MPAZ PRO 3.º
 
 **Aplicación móvil educativa para estudiantes de Tercero Básico**
 
-**Proyecto académico:** Desarrollo de Aplicaciones Móviles — DUOC UC  
-**Caso educativo:** Escuela Escritora Marcela Paz  
+**Duoc UC | Desarrollo de Aplicaciones Móviles | Grupo 6**
+
+**Versión:** 1.0  
 **Plataforma:** Android  
-**Lenguaje:** Kotlin  
-**Estado:** MVP académico funcional
+**Estado:** Versión académica con APK release firmado y pruebas automatizadas.
+
+---
 
 ## 1. Descripción del proyecto
 
-MPAZ PRO 3.º es una aplicación móvil educativa orientada a estudiantes de Tercero Básico de la Escuela Escritora Marcela Paz.
+**MPAZ PRO 3.º** es una aplicación móvil educativa desarrollada para estudiantes de Tercero Básico de la Escuela Escritora Marcela Paz.
 
-Su propósito es facilitar el aprendizaje mediante actividades interactivas de Lenguaje y Comunicación, Matemática, Ciencias Naturales e Historia y Geografía.
+Su propósito es proporcionar una experiencia de aprendizaje interactiva, intuitiva y accesible, permitiendo a los estudiantes reforzar sus conocimientos mediante ejercicios organizados por asignatura y nivel de dificultad.
 
-La aplicación incorpora formularios validados, navegación entre pantallas, ejercicios de dificultad progresiva, explicaciones de respuestas, modo estudio, seguimiento de progreso y rendimiento, almacenamiento local y acceso a recursos del dispositivo.
+La aplicación incorpora una interfaz desarrollada con Jetpack Compose, navegación entre pantallas, registro e inicio de sesión, seguimiento del progreso académico, metas de estudio e integración con contenido educativo de Wikipedia.
 
-Se desarrolló como un prototipo académico, utilizando datos y actividades de demostración.
+El proyecto utiliza una arquitectura MVVM en Android y dispone de integración con un backend desarrollado mediante Spring Boot y PostgreSQL.
 
-## 2. Objetivo
+## 2. Objetivo general
 
-Ofrecer una experiencia educativa sencilla, visual y accesible que permita al estudiante practicar contenidos, recibir retroalimentación inmediata y consultar su avance de aprendizaje.
+Desarrollar una aplicación educativa Android que contribuya al fortalecimiento de los aprendizajes de estudiantes de Tercero Básico, mediante actividades interactivas, seguimiento del progreso y acceso a contenidos complementarios.
 
-## 3. Tecnologías utilizadas
+### Objetivos específicos
 
-- Android Studio.
-- Kotlin.
-- Jetpack Compose.
-- Material Design 3.
-- Navigation Compose.
-- Arquitectura MVVM.
-- ViewModel y StateFlow.
-- Kotlin Coroutines.
-- DataStore Preferences.
-- FileProvider.
-- Activity Result API.
-- Git y GitHub.
-- Jira para planificación y seguimiento.
-- JUnit para pruebas automatizadas.
+- Proporcionar actividades educativas organizadas por asignatura.
+- Incorporar tres niveles de dificultad para el aprendizaje progresivo.
+- Implementar registro, inicio de sesión y gestión del perfil estudiantil.
+- Registrar avances y resultados de los ejercicios.
+- Permitir crear y administrar metas personales de estudio.
+- Complementar las actividades mediante contenidos de Wikipedia.
+- Implementar pruebas unitarias, instrumentadas y de integración.
+- Generar una versión APK firmada para dispositivos Android compatibles.
+
+## 3. Asignaturas y actividades
+
+La aplicación incluye cuatro asignaturas:
+
+| Asignatura | Contenido |
+|---|---|
+| 📖 Lenguaje y Comunicación | Comprensión, vocabulario y habilidades lingüísticas |
+| 🔢 Matemática | Operaciones, cálculo y resolución de problemas |
+| 🧪 Ciencias Naturales | Seres vivos, naturaleza y fenómenos científicos |
+| 🌎 Historia y Geografía | Orientación, mapas, patrimonio y entorno |
+
+### Organización de los ejercicios
+
+El banco de preguntas contiene **60 ejercicios**, distribuidos de la siguiente manera:
+
+| Dificultad | Ejercicios por asignatura |
+|---|---:|
+| Fácil ⭐ | 5 |
+| Medio ⭐⭐ | 5 |
+| Difícil ⭐⭐⭐ | 5 |
+| **Total por asignatura** | **15** |
+
+Las cuatro asignaturas suman 60 ejercicios.
+
+Cada actividad incorpora una pregunta, alternativas de respuesta, identificación de la respuesta correcta y contenido de apoyo para el aprendizaje.
 
 ## 4. Funcionalidades implementadas
 
-### 4.1. Pantalla de bienvenida
+### 4.1. Bienvenida
 
-- Presentación inicial de MPAZ PRO 3.º.
-- Diseño visual educativo.
-- Mascota y elementos gráficos.
-- Adaptación a distintos tamaños de pantalla mediante Window Size Classes.
-- Botón para comenzar y acceder al inicio de sesión.
+- Pantalla inicial con la mascota educativa MPAZ.
+- Diseño adaptable a distintos tamaños de pantalla.
+- Navegación hacia el inicio de sesión.
 
 ### 4.2. Registro de estudiantes
 
-- Ingreso de nombre completo y correo electrónico.
-- Contraseña y confirmación de contraseña.
-- Validación de campos obligatorios.
-- Validación del formato de correo.
-- Validación de longitud mínima y coincidencia de contraseñas.
-- Mensajes visuales de error.
-- Registro de una cuenta local.
-- Curso predeterminado: 3.º Básico.
+- Ingreso de nombre completo.
+- Validación de correo electrónico.
+- Ingreso y confirmación de contraseña.
+- Curso correspondiente a Tercero Básico.
+- Validaciones de formularios.
+- Integración con el servicio de registro de estudiantes.
 
 ### 4.3. Inicio de sesión
 
-- Validación de correo y contraseña.
-- Verificación de las credenciales guardadas localmente.
-- Retroalimentación cuando los datos son incorrectos.
-- Recuperación de nombre y curso desde la cuenta registrada.
+- Autenticación mediante correo y contraseña.
+- Validación de campos obligatorios.
+- Mensajes de error y estados de carga.
+- Integración con el backend Spring Boot.
 - Navegación hacia el perfil del estudiante.
 
 ### 4.4. Perfil del estudiante
 
 - Visualización de nombre y curso.
-- Imagen de perfil personalizada.
-- Selección de fotografías desde la galería.
-- Captura de fotografías mediante la cámara del dispositivo.
-- Conservación local de la fotografía.
-- Visualización del progreso general de aprendizaje.
-- Porcentaje de avance por asignatura.
-- Número de ejercicios completados.
-- Rendimiento general de respuestas correctas.
-- Rendimiento por asignatura.
-- Acceso a las asignaturas y al modo estudio.
+- Fotografía de perfil desde la galería.
+- Captura de fotografía mediante la cámara.
+- Objetivo educativo personal.
+- Progreso general de aprendizaje.
+- Avance por asignatura.
+- Resultados y rendimiento académico.
+- Acceso a asignaturas, metas y modo estudio.
+- Opción de cerrar sesión.
 
-### 4.5. Asignaturas
+### 4.5. Actividades educativas
 
-La aplicación incorpora cuatro asignaturas:
+- Selección de las cuatro asignaturas.
+- Selección del nivel de dificultad.
+- Resolución de ejercicios.
+- Retroalimentación educativa.
+- Registro y consulta del progreso.
+- Visualización de resultados.
 
-1. Lenguaje y Comunicación.
-2. Matemática.
-3. Ciencias Naturales.
-4. Historia y Geografía.
+### 4.6. Metas de estudio
 
-Cada asignatura contiene tres ejercicios organizados por dificultad:
+- Crear metas educativas.
+- Consultar las metas registradas.
+- Editar su título y descripción.
+- Marcar metas como completadas.
+- Eliminar metas.
+- Integración con operaciones CRUD mediante Spring Boot.
 
-- Nivel fácil.
-- Nivel medio.
-- Nivel difícil.
+### 4.7. Modo estudio
 
-Cada ejercicio presenta una pregunta y alternativas de respuesta.
+- Pantalla y controles dedicados al estudio.
+- Activación y desactivación del modo.
+- Persistencia de preferencias con DataStore.
+- Componentes visuales educativos reutilizables.
 
-Después de responder, el sistema muestra si la respuesta es correcta o incorrecta, indica la alternativa correcta cuando corresponde y entrega una explicación educativa.
+### 4.8. Contenido externo de Wikipedia
 
-Al terminar los tres ejercicios se muestra un resumen de la práctica, con la cantidad de aciertos y el rendimiento obtenido.
+MPAZ PRO 3.º incorpora una integración con la API REST de Wikipedia en español.
 
-El estudiante puede volver a practicar.
+Las actividades educativas contienen referencias a artículos relacionados con sus temas.
 
-### 4.6. Modo estudio
+Esta integración permite consultar información complementaria y abrir el artículo correspondiente como fuente de apoyo.
 
-El modo estudio es una herramienta de apoyo al aprendizaje.
+Se implementaron componentes, repositorios y ViewModel reutilizables para utilizar esta funcionalidad en distintas asignaturas.
 
-Permite:
+## 5. Tecnologías utilizadas
 
-- Activar o desactivar una preferencia de estudio.
-- Guardar la configuración mediante DataStore.
-- Mostrar pistas antes de responder los ejercicios.
-- Presentar consejos adicionales después de responder.
-- Mantener las explicaciones de las respuestas.
-- Mostrar animaciones y retroalimentación visual al cambiar su estado.
+### Aplicación Android
 
-El modo estudio no modifica las respuestas correctas ni el cálculo del avance. Su finalidad es entregar apoyo durante la práctica.
+| Tecnología | Uso |
+|---|---|
+| Kotlin | Lenguaje principal |
+| Android Studio | Entorno de desarrollo |
+| Jetpack Compose | Interfaces declarativas |
+| Material Design 3 | Componentes visuales |
+| Navigation Compose | Navegación |
+| MVVM | Organización de la aplicación |
+| ViewModel y StateFlow | Gestión del estado |
+| Kotlin Coroutines | Operaciones asíncronas |
+| Retrofit | Consumo de servicios REST |
+| OkHttp | Cliente HTTP y gestión de cookies |
+| Gson | Conversión de datos JSON |
+| DataStore Preferences | Persistencia de preferencias |
+| Activity Result API | Acceso a cámara y galería |
+| FileProvider | Gestión segura de URI de archivos |
+| Gradle | Compilación y dependencias |
 
-## 5. Progreso real de aprendizaje
+### Backend e integración
 
-La aplicación registra el progreso mediante `ProgresoRepository.kt` y `ProgresoViewModel.kt`.
+- Java y Spring Boot.
+- API REST para estudiantes, metas y progreso.
+- PostgreSQL para persistencia remota.
+- Wikipedia REST API para contenido educativo externo.
 
-Existen dos indicadores diferentes.
+### Calidad y gestión
 
-### 5.1. Avance
+- JUnit.
+- MockK.
+- Robolectric.
+- MockWebServer.
+- AndroidX Test.
+- Espresso.
+- Jetpack Compose UI Test.
+- JaCoCo.
+- Git y GitHub.
+- Jira.
 
-El avance indica la cantidad de ejercicios completados.
+## 6. Arquitectura de software
 
-Cada asignatura tiene tres ejercicios y el proyecto tiene doce en total.
+La aplicación utiliza una arquitectura basada en **Model-View-ViewModel (MVVM)**, junto con repositorios y servicios de comunicación.
 
-**Fórmula por asignatura:**
+### Capa de presentación
 
-Porcentaje de avance = ejercicios completados / 3 × 100
+Contiene las pantallas construidas con Jetpack Compose, los componentes reutilizables y los elementos de navegación.
 
-**Fórmula general:**
+### Capa ViewModel
 
-Progreso general = ejercicios completados / 12 × 100
+Gestiona los estados de interfaz, operaciones asíncronas y comunicación entre las pantallas y los repositorios.
 
-El avance se conserva entre sesiones y no supera el 100 %.
+### Capa Repository
 
-### 5.2. Rendimiento
+Organiza el acceso a fuentes de información locales y remotas, incluyendo estudiantes, progreso, metas y contenido externo.
 
-El rendimiento indica cuántas respuestas fueron correctas.
+### Capa de datos
 
-Para calcularlo, el sistema considera la última respuesta registrada de cada ejercicio que tenga una calificación disponible.
+Contiene modelos, interfaces Retrofit, clientes HTTP y mecanismos de persistencia.
 
-**Fórmula:**
+### Backend
 
-Rendimiento = respuestas correctas / ejercicios evaluados × 100
+Spring Boot expone los servicios REST y realiza las operaciones de persistencia con PostgreSQL.
 
-El porcentaje se redondea al entero más cercano.
+**Flujo general:**
 
-**Ejemplo de Matemática:**
+Interfaz Compose → ViewModel → Repository → Retrofit / OkHttp → Spring Boot → PostgreSQL.
 
-Un estudiante responde los tres ejercicios, con dos respuestas correctas y una incorrecta.
+La integración con Wikipedia utiliza un cliente Retrofit independiente.
 
-- Ejercicios completados: 3 de 3.
-- Avance: 100 %.
-- Respuestas correctas: 2 de 3.
-- Rendimiento: 67 %.
+## 7. Estructura del proyecto
 
-Si el estudiante vuelve a practicar y mejora su respuesta, el rendimiento se actualiza con el último resultado del ejercicio.
+Carpeta principal:
 
-### 5.3. Historial de intentos
+`app/src/main/java/com/example/appmpazpro3_grupo6/`
 
-Para cada ejercicio, el sistema almacena:
+| Carpeta | Responsabilidad |
+|---|---|
+| `data/remote` | Clientes Retrofit, API y DTO |
+| `model` | Modelos de datos |
+| `navigation` | Rutas y navegación |
+| `repository` | Acceso a datos locales y remotos |
+| `ui/components` | Componentes Compose reutilizables |
+| `ui/screens` | Pantallas de la aplicación |
+| `ui/theme` | Colores y estilos |
+| `ui/utils` | Utilidades nativas |
+| `validation` | Validadores de formularios |
+| `viewmodel` | Gestión de estados y lógica de presentación |
 
-- Número total de intentos.
-- Últimos 30 resultados de acierto o error.
-- Último resultado registrado.
+Las pruebas se encuentran en:
 
-La información se utiliza para el cálculo de rendimiento.
+- `app/src/test/`: pruebas unitarias y de integración ejecutables en la JVM.
+- `app/src/androidTest/`: pruebas instrumentadas en dispositivos Android o emuladores.
 
-El historial almacena resultados booleanos de correcto o incorrecto. No conserva el texto de todas las alternativas seleccionadas.
+## 8. Comunicación con Spring Boot
 
-Los avances guardados antes de implementar el historial pueden conservar su porcentaje de avance, aunque no dispongan de calificaciones históricas.
+La aplicación integra servicios remotos para autenticación, gestión de estudiantes, metas y seguimiento del progreso.
 
-## 6. Persistencia y seguridad local
+Entre sus endpoints se encuentran:
 
-La aplicación utiliza DataStore Preferences para conservar:
+| Endpoint | Función |
+|---|---|
+| `GET /api/estado` | Consultar el estado del backend |
+| `GET /api/metas` | Listar metas |
+| `GET /api/metas/{id}` | Consultar una meta |
+| `POST /api/metas` | Crear una meta |
+| `PUT /api/metas/{id}` | Actualizar una meta |
+| `DELETE /api/metas/{id}` | Eliminar una meta |
 
-- Datos de la cuenta local.
-- Preferencia del modo estudio.
-- Avances y resultados de ejercicios.
+También existen servicios para estudiantes y progreso académico.
 
-En `CuentaLocalRepository.kt`, la contraseña no se guarda en texto plano. Se utiliza PBKDF2 con HMAC-SHA256 y una sal aleatoria para generar el verificador de contraseña.
+El backend utiliza PostgreSQL como sistema de almacenamiento.
 
-La fotografía del perfil se almacena en archivos privados de la aplicación y su referencia se conserva en preferencias locales.
+### Configuración de conexión
 
-La aplicación no utiliza un servidor para autenticar usuarios ni sincronizar datos entre dispositivos.
+La dirección del servidor se encuentra en:
 
-Las reglas de respaldo de Android se configuran para evitar copias automáticas no deseadas de los datos locales.
+`data/remote/ClienteEstudiantesMPAZ.kt`
 
-## 7. Recursos nativos del dispositivo
+La configuración actual utiliza `http://10.0.2.2:8080/`, correspondiente al acceso al servidor local desde el emulador Android.
 
-### Cámara
+Para utilizar las funcionalidades remotas en un teléfono independiente, se requiere configurar un backend accesible desde ese dispositivo.
 
-Permite tomar una fotografía para el perfil utilizando `ActivityResultContracts.TakePicture` y `FileProvider`.
+**No se debe utilizar la configuración local del emulador como dirección de producción.**
 
-### Galería
-
-Permite seleccionar una fotografía existente mediante `ActivityResultContracts.GetContent`.
-
-Ambos recursos están integrados en el flujo del perfil del estudiante.
-
-## 8. Arquitectura y organización
-
-El proyecto utiliza separación de responsabilidades basada en MVVM.
-
-**Paquete principal:**
-
-`com.example.appmpazpro3_grupo6`
-
-**Estructura:**
-
-- `navigation/`: rutas y navegación entre pantallas.
-- `repository/`: acceso y persistencia de datos locales.
-- `ui/components/`: componentes visuales reutilizables.
-- `ui/screens/`: pantallas de la aplicación.
-- `ui/theme/`: colores, tipografía y estilos.
-- `ui/utils/`: utilidades, incluido FileProvider.
-- `validation/`: reglas de validación de formularios.
-- `viewmodel/`: estado y coordinación de lógica de las pantallas.
-- `MainActivity.kt`: actividad principal.
-
-**Componentes principales:**
-
-- `AppNavigation.kt`
-- `CuentaLocalRepository.kt`
-- `EstadoDataStore.kt`
-- `ProgresoRepository.kt`
-- `CuentaViewModel.kt`
-- `EstadoViewModel.kt`
-- `EstudianteViewModel.kt`
-- `PerfilImagenViewModel.kt`
-- `ProgresoViewModel.kt`
-- `ValidadorFormulario.kt`
-
-La interfaz está desarrollada con Jetpack Compose y reutiliza componentes para botones, tarjetas, encabezados, fondos, textos y barras de progreso.
+Para un despliegue real se recomienda utilizar HTTPS, una configuración de red adecuada y medidas de seguridad para proteger las credenciales.
 
 ## 9. Requisitos de ejecución
 
-- Android Studio compatible con el proyecto.
-- Android SDK y Gradle configurados.
-- Dispositivo físico o emulador con Android 13 (API 33) o superior.
-- Kotlin y dependencias administradas por Gradle.
+### Requisitos Android
 
-**Configuración del módulo:**
+- Android 13 o superior.
+- API mínima: 33.
+- API objetivo: 37.
+- Dispositivo Android compatible o emulador.
 
-- `minSdk`: 33.
-- `targetSdk`: 37.
-- `compileSdk`: 37.
-- `versionName`: 1.0.
+### Requisitos de desarrollo
 
-## 10. Cómo ejecutar la aplicación
+- Android Studio.
+- JDK compatible con el proyecto.
+- Android SDK.
+- Gradle Wrapper incluido en el repositorio.
+- Conexión a Internet para dependencias y servicios externos.
 
-1. Clonar o descargar el repositorio de GitHub.
-2. Abrir la carpeta principal del proyecto en Android Studio.
-3. Esperar la sincronización de Gradle.
-4. Comprobar que el SDK de Android esté instalado.
-5. Seleccionar un emulador o conectar un dispositivo físico.
-6. Ejecutar el módulo `app` con el botón Run.
-7. Registrar una cuenta local.
-8. Iniciar sesión y acceder al perfil.
-9. Seleccionar una asignatura.
-10. Completar los ejercicios y consultar el avance y rendimiento.
-11. Activar el modo estudio para practicar con pistas y consejos.
+### Requisitos para funcionalidades remotas
 
-**Repositorio:**
+- Backend Spring Boot funcionando.
+- PostgreSQL configurado.
+- Acceso de red desde Android al backend.
+- Conexión a Internet para consultar Wikipedia.
+
+## 10. Instalación y ejecución desde Android Studio
+
+1. Clonar el repositorio desde GitHub.
+2. Abrir el proyecto en Android Studio.
+3. Sincronizar las dependencias de Gradle.
+4. Seleccionar un emulador o dispositivo Android compatible.
+5. Configurar la dirección del backend según el entorno.
+6. Ejecutar la aplicación mediante Run.
+
+Repositorio:
 
 https://github.com/Tiema2005/AppMPAZPRO3_Grupo6
 
-## 11. Pruebas y validación
+### Compilación Debug
 
-El proyecto incorpora pruebas automatizadas de validación de formularios y contempla pruebas unitarias para el modelo de progreso y rendimiento.
+En PowerShell, desde la raíz del proyecto, ejecutar:
 
-### Pruebas instrumentadas de formularios
+`.\gradlew.bat :app:assembleDebug`
 
-Archivo:
+### Compilación Release
 
-`app/src/androidTest/java/com/example/appmpazpro3_grupo6/validation/ValidadorFormularioTest.kt`
+`.\gradlew.bat :app:assembleRelease`
 
-Incluye siete casos sobre:
+La generación de una APK release instalable requiere una firma digital válida.
 
-- Correo vacío en login.
-- Formato de correo incorrecto.
-- Contraseña demasiado corta.
-- Login con formato válido.
-- Registro sin nombre.
-- Contraseñas diferentes en registro.
-- Registro con datos válidos.
+## 11. Pruebas y calidad de software
 
-### Pruebas unitarias de progreso
+Se implementaron pruebas automatizadas sobre validaciones, repositorios, ViewModel, integración con APIs y componentes de interfaz.
 
-Archivo:
+### Pruebas unitarias
 
-`app/src/test/java/com/example/appmpazpro3_grupo6/repository/ProgresoEstudianteTest.kt`
+Se realizaron pruebas sobre:
 
-Verifica los cálculos de avance y rendimiento, límites de porcentajes, últimas respuestas y casos sin calificación.
+- Validación de formularios.
+- Operaciones de repositorios.
+- Estados de ViewModel.
+- Gestión de estudiantes y metas.
+- Progreso académico.
+- Tratamiento de errores y excepciones.
+- Integración de lectura con Wikipedia.
 
-### Comandos de prueba
-
-Para las pruebas unitarias:
+Comando:
 
 `.\gradlew.bat :app:testDebugUnitTest`
 
-Para las pruebas instrumentadas con un dispositivo conectado:
+Las ejecuciones finales registradas terminaron con `BUILD SUCCESSFUL`.
+
+### Pruebas de Wikipedia
+
+Se implementaron pruebas para comprobar las referencias a Wikipedia de las cuatro asignaturas y la reutilización de la integración.
+
+Incluyen las clases `WikipediaBancoCompletoTest`, `WikipediaActividadesTest` y `LecturasCienciasReutilizacionTest`, entre otras.
+
+Las comprobaciones del banco de 60 ejercicios finalizaron exitosamente durante el desarrollo.
+
+### Pruebas instrumentadas
+
+Se ejecutaron pruebas en un Motorola moto g34 5G con Android 15.
+
+**Resultado documentado:**
+
+| Indicador | Resultado |
+|---|---:|
+| Pruebas ejecutadas | 14 |
+| Aprobadas | 14 |
+| Fallidas | 0 |
+| Omitidas | 0 |
+| Porcentaje de éxito | 100 % |
+
+Las pruebas incluyen validación de formularios, componentes de interfaz Compose y verificación del contexto Android.
+
+Comando:
 
 `.\gradlew.bat :app:connectedDebugAndroidTest`
 
-### Pruebas funcionales manuales
+La ejecución requiere un dispositivo físico o emulador disponible. Una ejecución posterior no pudo realizarse porque no había dispositivos conectados; esto no corresponde a un fallo de las pruebas.
 
-Durante el desarrollo se han probado en Android Studio y dispositivos Android:
+### Cobertura
 
-- Navegación entre pantallas.
-- Registro e inicio de sesión.
-- Validaciones visuales.
-- Actividades de las cuatro asignaturas.
-- Explicaciones y respuestas correctas.
-- Progreso real y rendimiento.
-- Modo estudio.
-- Cámara y galería.
-- Diseño adaptable.
+El proyecto incorpora JaCoCo y clases de pruebas destinadas a validar la lógica de repositorios, ViewModel y otros componentes.
 
-Los resultados de las ejecuciones automáticas finales deben documentarse con capturas antes de la entrega.
+La existencia de estas pruebas no equivale, por sí sola, a una medición global de cobertura. Debe consultarse el informe correspondiente para confirmar un porcentaje específico.
 
-## 12. Limitaciones y alcance
+## 12. APK release firmada
 
-MPAZ PRO 3.º es un MVP académico, no una plataforma escolar productiva.
+Se generó la primera versión APK firmada de MPAZ PRO 3.º.
 
-Limitaciones:
+| Característica | Valor |
+|---|---|
+| Versión | 1.0 |
+| `versionCode` | 1 |
+| Tipo | APK Release |
+| Archivo de respaldo | `MPAZ_PRO3_v1.0_firmada.apk` |
+| Tamaño | 49.420.063 bytes |
+| Algoritmo de firma | RSA |
+| Longitud de clave | 2048 bits |
+| Esquema válido | APK Signature Scheme V2 |
+| Resultado | Firma verificada correctamente |
 
-- Admite una cuenta local por instalación.
-- El progreso está almacenado por instalación y todavía no se separa por cuenta.
-- No existe sincronización entre dispositivos.
-- No hay recuperación automática de contraseñas.
-- Las actividades educativas son ejemplos de alcance limitado.
-- No existe un módulo docente completo de aprobación de contenidos.
-- No se generan diagnósticos académicos automáticos.
-- Los datos utilizados para las demostraciones deben ser ficticios.
+### Integridad SHA-256
 
-Las mejoras futuras podrían incluir más unidades educativas, seguimiento individual por cuenta, nuevas actividades y funciones docentes, sujetas a los requerimientos del proyecto.
+`F4E95252FD5340ADA02EE8D9440217CD1608E6E668D82B3DF8CB41E4ED6CDCBD`
 
-## 13. Gestión colaborativa
+El hash SHA-256 del APK original coincide con el de su copia de respaldo.
 
-El desarrollo se ha realizado mediante trabajo colaborativo, utilizando:
+### Seguridad de la firma
 
-- Git para control de versiones.
-- GitHub para almacenamiento del código e historial de commits.
-- Ramas y pull requests para integración de cambios.
-- Jira para planificación, asignación y seguimiento de tareas.
+La clave privada `.jks` y sus contraseñas se mantienen fuera del repositorio.
 
-Las evidencias del trabajo incluyen el historial de commits, las tareas asignadas, las pruebas y las capturas funcionales.
+La misma clave debe conservarse para firmar futuras actualizaciones de la aplicación, manteniendo un identificador de aplicación compatible y aumentando el `versionCode`.
 
-## 14. Equipo de desarrollo
+**La APK no se incluye en este repositorio como archivo binario de entrega.** Se conserva de manera separada para su distribución y verificación.
 
-**Proyecto MPAZ PRO 3.º — Desarrollo de Aplicaciones Móviles**
+## 13. Limitaciones conocidas
 
-- Emanuel Toledo.
-- Felipe Escobar.
-- Ervin Millanguir.
+La versión 1.0 está firmada y verificada criptográficamente, pero presenta las siguientes limitaciones:
 
-## 15. Estado final
+- La configuración actual del backend está dirigida al emulador Android.
+- Las funciones remotas requieren un servidor Spring Boot accesible desde el dispositivo.
+- El backend no está documentado como servicio público de producción.
+- La instalación de la APK release firmada todavía requiere validación en un dispositivo físico compatible.
+- No se documenta una función de recuperación de contraseñas.
+- La disponibilidad del contenido de Wikipedia depende de la conexión y del servicio externo.
 
-Versión académica funcional con interfaz desarrollada en Jetpack Compose, autenticación local, actividades interactivas, progresión de dificultad, correcciones educativas, modo estudio, recursos nativos y seguimiento persistente del aprendizaje.
+Por estas razones, la firma digital válida no debe interpretarse como una certificación de funcionamiento completo en cualquier dispositivo o red.
 
-La versión de entrega se considera preparada una vez aprobadas las pruebas finales, comprobada la compilación y registrado el commit definitivo dentro del plazo establecido.
+## 14. Gestión del proyecto y evidencias
+
+El proyecto fue desarrollado de forma colaborativa, utilizando GitHub para control de versiones y Jira para planificación y seguimiento.
+
+### Épicas principales
+
+| Épica | Descripción |
+|---|---|
+| EP-09 | Microservicios y persistencia remota |
+| EP-10 | Integración de Android con los microservicios |
+| EP-11 | Integración de API externa |
+| EP-12 | Pruebas automatizadas y cobertura |
+| EP-13 | APK firmado, evidencias y defensa |
+
+### Actividades de entrega
+
+| Ticket Jira | Trabajo |
+|---|---|
+| LT-72 | Pruebas instrumentadas de interfaz |
+| LT-77 | Correcciones finales de las pantallas e ícono |
+| LT-76 | Generación y verificación del APK firmado |
+| LT-75 | Actualización del README y recopilación de evidencias |
+
+### Documentación complementaria
+
+- `docs/LT72_pruebas_interfaz.md`: documentación de pruebas instrumentadas.
+- `docs/LT76_apk_release.md`: generación y verificación de la APK firmada.
+- Historial de commits y Pull Requests de GitHub.
+- Capturas y resultados adjuntos a las actividades correspondientes de Jira.
+
+Las evidencias incluyen pruebas de compilación, resultados de pruebas automatizadas, integración de ramas, firma digital y verificación de integridad de la APK.
+
+## 15. Equipo de desarrollo
+
+**Duoc UC — Grupo 6**
+
+- Emanuel Toledo
+- Felipe Escobar
+- Ervin Millanguir
+
+El proyecto se desarrolló mediante trabajo colaborativo, con distribución de actividades en Jira y registro de contribuciones a través de GitHub.
+
+## 16. Estado del proyecto
+
+MPAZ PRO 3.º dispone de una implementación Android con pantallas educativas, navegación, banco de ejercicios, seguimiento de progreso, metas, integración con Wikipedia y servicios backend.
+
+Las principales modificaciones visuales y funcionales fueron integradas al repositorio, y se generó una APK release v1.0 con firma digital válida.
+
+**Estado de entrega:** versión académica documentada, con pruebas automatizadas registradas y primera APK firmada.
+
+**Validaciones futuras:** instalación de la APK release en dispositivo físico y configuración definitiva del backend para uso independiente del entorno local.
+
+---
+
+**MPAZ PRO 3.º — Aprender, practicar y crecer cada día. 🦉**
