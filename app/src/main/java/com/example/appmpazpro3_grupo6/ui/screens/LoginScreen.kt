@@ -28,7 +28,6 @@ fun LoginScreen(
     onIngresarClick: (String, String) -> Unit = { _, _ -> },
     cuentaViewModel: CuentaViewModel = viewModel()
 ) {
-
     val procesando by cuentaViewModel.procesando.collectAsState()
     val mensajeError by cuentaViewModel.mensajeError.collectAsState()
 
@@ -41,12 +40,10 @@ fun LoginScreen(
             cuentaViewModel.limpiarError()
         },
         onIniciarSesion = { correo, contrasena ->
-
             cuentaViewModel.iniciarSesion(
                 correo = correo,
                 contrasena = contrasena,
                 onExito = { estudiante ->
-
                     onIngresarClick(
                         estudiante.nombre,
                         estudiante.curso
@@ -66,7 +63,6 @@ private fun FormularioLogin(
     onEditar: () -> Unit,
     onIniciarSesion: (String, String) -> Unit
 ) {
-
     var correo by rememberSaveable {
         mutableStateOf("")
     }
@@ -84,11 +80,9 @@ private fun FormularioLogin(
     }
 
     MPAZBackground {
-
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
-
             val alturaPantalla = maxHeight
 
             Column(
@@ -96,7 +90,6 @@ private fun FormularioLogin(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -108,13 +101,11 @@ private fun FormularioLogin(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-
                     Column(
                         modifier = Modifier
                             .widthIn(max = 480.dp)
                             .fillMaxWidth()
                     ) {
-
                         MPAZScreenHeader(
                             titulo = "Iniciar sesión",
                             subtitulo = "¡Qué bueno verte de nuevo!",
@@ -126,7 +117,6 @@ private fun FormularioLogin(
                         MPAZCard(
                             modifier = Modifier.fillMaxWidth()
                         ) {
-
                             Text(
                                 text = "¡Bienvenido!",
                                 fontSize = 23.sp,
@@ -174,7 +164,6 @@ private fun FormularioLogin(
                             Spacer(Modifier.height(24.dp))
 
                             if (mensajeError != null) {
-
                                 Text(
                                     text = mensajeError,
                                     fontSize = 14.sp,
@@ -185,16 +174,13 @@ private fun FormularioLogin(
 
                                 Spacer(Modifier.height(14.dp))
                             }
-                            if (procesando) {
 
+                            if (procesando) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement =
-                                        Arrangement.Center,
-                                    verticalAlignment =
-                                        Alignment.CenterVertically
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(22.dp),
                                         color = MPAZCoral,
@@ -219,9 +205,7 @@ private fun FormularioLogin(
                                     "Ingresar →"
                                 },
                                 onClick = {
-
                                     if (!procesando) {
-
                                         val resultado =
                                             ValidadorFormulario.validarLogin(
                                                 correo = correo,
@@ -229,12 +213,9 @@ private fun FormularioLogin(
                                             )
 
                                         errorCorreo = resultado.correo
-
-                                        errorContrasena =
-                                            resultado.contrasena
+                                        errorContrasena = resultado.contrasena
 
                                         if (resultado.esValido) {
-
                                             onIniciarSesion(
                                                 correo.trim(),
                                                 contrasena
@@ -250,16 +231,6 @@ private fun FormularioLogin(
                                 texto = "Crear cuenta",
                                 onClick = onCrearCuentaClick
                             )
-
-                            Spacer(Modifier.height(16.dp))
-
-                            Text(
-                                text = "Inicio de sesión con cuenta local",
-                                fontSize = 13.sp,
-                                color = MPAZTextoSecundario,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
                         }
                     }
                 }
@@ -269,16 +240,14 @@ private fun FormularioLogin(
 }
 
 @Preview(
-    name = "MPAZ - Login con cuenta local",
+    name = "MPAZ - Login",
     showBackground = true,
     widthDp = 360,
     heightDp = 800
 )
 @Composable
 fun PreviewLoginScreen() {
-
     AppMPAZPRO3_Grupo6Theme {
-
         FormularioLogin(
             procesando = false,
             mensajeError = null,

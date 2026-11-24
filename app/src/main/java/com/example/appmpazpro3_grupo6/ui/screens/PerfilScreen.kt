@@ -41,7 +41,6 @@ fun PerfilScreen(
     onCerrarSesionClick: () -> Unit = {},
     perfilImagenViewModel: PerfilImagenViewModel = viewModel()
 ) {
-
     val imagenUri by perfilImagenViewModel.imagenUri.collectAsState()
 
     var uriCamaraPendiente by rememberSaveable {
@@ -55,7 +54,6 @@ fun PerfilScreen(
     val galeriaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uriSeleccionada ->
-
         if (uriSeleccionada != null) {
             perfilImagenViewModel.actualizarDesdeGaleria(
                 uriSeleccionada
@@ -66,7 +64,6 @@ fun PerfilScreen(
     val camaraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { fotografiaTomada ->
-
         val uri = uriCamaraPendiente?.let {
             Uri.parse(it)
         }
@@ -93,33 +90,24 @@ fun PerfilScreen(
         rendimientoAsignaturas = rendimientoAsignaturas,
         mensajeErrorCuenta = mensajeErrorCuenta,
         imagenUri = imagenUri,
-
         onAbrirGaleria = {
             galeriaLauncher.launch("image/*")
         },
-
         onAbrirCamara = {
-
             try {
                 errorCamara = null
 
                 val uri = perfilImagenViewModel.crearUriCamara()
-
                 uriCamaraPendiente = uri.toString()
-
                 camaraLauncher.launch(uri)
-
             } catch (e: Exception) {
-
                 uriCamaraPendiente = null
                 perfilImagenViewModel.cancelarCamara()
-
                 errorCamara =
                     "No se pudo abrir la cámara. " +
                             "Revisa la configuración de FileProvider."
             }
         },
-
         errorCamara = errorCamara,
         onContinuarClick = onContinuarClick,
         onMisMetasClick = onMisMetasClick,
@@ -151,11 +139,9 @@ private fun ContenidoPerfil(
     onVolverClick: () -> Unit,
     onCerrarSesionClick: () -> Unit
 ) {
-
     val progresoSeguro = progreso.coerceIn(0f, 1f)
 
     MPAZBackground {
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -167,7 +153,6 @@ private fun ContenidoPerfil(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-
             MPAZScreenHeader(
                 titulo = "Mi perfil",
                 subtitulo = "¡Bienvenido a tu espacio!",
@@ -175,7 +160,6 @@ private fun ContenidoPerfil(
             )
 
             if (mensajeErrorCuenta != null) {
-
                 Text(
                     text = mensajeErrorCuenta,
                     modifier = Modifier
@@ -192,12 +176,10 @@ private fun ContenidoPerfil(
                     .widthIn(max = 480.dp)
                     .fillMaxWidth()
             ) {
-
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-
                     ImagenInteligente(
                         imagenUri = imagenUri,
                         modifier = Modifier.size(125.dp)
@@ -245,7 +227,6 @@ private fun ContenidoPerfil(
                     )
 
                     if (errorCamara != null) {
-
                         Spacer(Modifier.height(12.dp))
 
                         Text(
@@ -269,8 +250,16 @@ private fun ContenidoPerfil(
                 Spacer(Modifier.height(8.dp))
 
                 Text(
-                    text = "Aprender y mejorar cada día",
+                    text = "Mi objetivo es aprender algo nuevo cada día, " +
+                            "fortalecer mis conocimientos y superar mis propios desafíos. " +
+                            "Quiero mejorar en Lenguaje, Matemática, Ciencias Naturales " +
+                            "e Historia, practicando con entusiasmo, aprendiendo de mis " +
+                            "errores y celebrando cada logro. Con esfuerzo, curiosidad " +
+                            "y constancia puedo alcanzar mis metas y seguir creciendo " +
+                            "como estudiante.",
+                    modifier = Modifier.fillMaxWidth(),
                     fontSize = 15.sp,
+                    lineHeight = 22.sp,
                     color = MPAZTextoSecundario
                 )
             }
@@ -280,7 +269,6 @@ private fun ContenidoPerfil(
                     .widthIn(max = 480.dp)
                     .fillMaxWidth()
             ) {
-
                 Text(
                     text = "📊 Mi progreso de aprendizaje",
                     fontSize = 19.sp,
@@ -324,9 +312,7 @@ private fun ContenidoPerfil(
                     color = MPAZTexto
                 )
 
-                progresoAsignaturas.forEach {
-                        (nombreAsignatura, porcentaje) ->
-
+                progresoAsignaturas.forEach { (nombreAsignatura, porcentaje) ->
                     Spacer(Modifier.height(14.dp))
 
                     MPAZProgress(
@@ -341,7 +327,6 @@ private fun ContenidoPerfil(
                     .widthIn(max = 480.dp)
                     .fillMaxWidth()
             ) {
-
                 Text(
                     text = "🏆 Mis resultados",
                     fontSize = 19.sp,
@@ -364,7 +349,6 @@ private fun ContenidoPerfil(
                     rendimientoGeneral == null ||
                     ejerciciosEvaluados == 0
                 ) {
-
                     Text(
                         text = "Todavía no hay respuestas " +
                                 "calificadas guardadas.",
@@ -380,9 +364,7 @@ private fun ContenidoPerfil(
                         fontSize = 13.sp,
                         color = MPAZTextoSecundario
                     )
-
                 } else {
-
                     MPAZProgress(
                         progreso = rendimientoGeneral
                             .coerceIn(0, 100) / 100f,
@@ -410,9 +392,7 @@ private fun ContenidoPerfil(
                 }
 
                 Spacer(Modifier.height(22.dp))
-
                 HorizontalDivider()
-
                 Spacer(Modifier.height(18.dp))
 
                 Text(
@@ -422,13 +402,10 @@ private fun ContenidoPerfil(
                     color = MPAZTexto
                 )
 
-                rendimientoAsignaturas.forEach {
-                        (nombreAsignatura, porcentaje) ->
-
+                rendimientoAsignaturas.forEach { (nombreAsignatura, porcentaje) ->
                     Spacer(Modifier.height(16.dp))
 
                     if (porcentaje == null) {
-
                         Text(
                             text = nombreAsignatura,
                             fontSize = 15.sp,
@@ -443,12 +420,9 @@ private fun ContenidoPerfil(
                             fontSize = 13.sp,
                             color = MPAZTextoSecundario
                         )
-
                     } else {
-
                         MPAZProgress(
-                            progreso = porcentaje
-                                .coerceIn(0, 100) / 100f,
+                            progreso = porcentaje.coerceIn(0, 100) / 100f,
                             etiqueta = nombreAsignatura
                         )
                     }
@@ -503,33 +477,27 @@ private fun ContenidoPerfil(
 )
 @Composable
 fun PerfilScreenPreview() {
-
     AppMPAZPRO3_Grupo6Theme {
-
         ContenidoPerfil(
             nombre = "Estudiante de prueba",
             curso = "3° Básico",
             progreso = 0f,
             totalEjerciciosRespondidos = 0,
-
             progresoAsignaturas = linkedMapOf(
                 "Lenguaje y Comunicación" to 0,
                 "Matemática" to 0,
                 "Ciencias Naturales" to 0,
                 "Historia y Geografía" to 0
             ),
-
             rendimientoGeneral = null,
             aciertosGeneral = 0,
             ejerciciosEvaluados = 0,
-
             rendimientoAsignaturas = linkedMapOf(
                 "Lenguaje y Comunicación" to null,
                 "Matemática" to null,
                 "Ciencias Naturales" to null,
                 "Historia y Geografía" to null
             ),
-
             mensajeErrorCuenta = null,
             imagenUri = null,
             onAbrirGaleria = {},

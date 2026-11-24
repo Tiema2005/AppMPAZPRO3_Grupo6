@@ -38,14 +38,12 @@ fun RegistroScreen(
             cuentaViewModel.limpiarError()
         },
         onRegistrar = { nombre, correo, contrasena, curso ->
-
             cuentaViewModel.registrar(
                 nombre = nombre,
                 correo = correo,
                 contrasena = contrasena,
                 curso = curso,
                 onExito = { estudiante ->
-
                     onRegistroExitoso(
                         estudiante.nombre,
                         estudiante.curso
@@ -64,7 +62,6 @@ private fun FormularioRegistro(
     onEditar: () -> Unit,
     onRegistrar: (String, String, String, String) -> Unit
 ) {
-
     var nombre by rememberSaveable {
         mutableStateOf("")
     }
@@ -100,11 +97,9 @@ private fun FormularioRegistro(
     }
 
     MPAZBackground {
-
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
-
             val alturaDisponible = maxHeight
 
             Column(
@@ -122,7 +117,6 @@ private fun FormularioRegistro(
                     alignment = Alignment.CenterVertically
                 )
             ) {
-
                 MPAZScreenHeader(
                     titulo = "Crear cuenta",
                     subtitulo = "¡Comienza tu aventura de aprendizaje!",
@@ -134,7 +128,6 @@ private fun FormularioRegistro(
                         .widthIn(max = 480.dp)
                         .fillMaxWidth()
                 ) {
-
                     Text(
                         text = "Datos del estudiante",
                         fontSize = 23.sp,
@@ -219,7 +212,6 @@ private fun FormularioRegistro(
                     Spacer(Modifier.height(24.dp))
 
                     if (mensajeError != null) {
-
                         Text(
                             text = mensajeError,
                             fontSize = 14.sp,
@@ -232,13 +224,11 @@ private fun FormularioRegistro(
                     }
 
                     if (procesando) {
-
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-
                             CircularProgressIndicator(
                                 modifier = Modifier.size(22.dp),
                                 color = MPAZCoral,
@@ -263,27 +253,21 @@ private fun FormularioRegistro(
                             "Crear mi cuenta"
                         },
                         onClick = {
-
                             if (!procesando) {
-
                                 val resultado =
                                     ValidadorFormulario.validarRegistro(
                                         nombre = nombre,
                                         correo = correo,
                                         contrasena = contrasena,
-                                        confirmarContrasena =
-                                            confirmarContrasena
+                                        confirmarContrasena = confirmarContrasena
                                     )
 
                                 errorNombre = resultado.nombre
                                 errorCorreo = resultado.correo
-                                errorContrasena =
-                                    resultado.contrasena
-                                errorConfirmacion =
-                                    resultado.confirmacion
+                                errorContrasena = resultado.contrasena
+                                errorConfirmacion = resultado.confirmacion
 
                                 if (resultado.esValido) {
-
                                     onRegistrar(
                                         nombre.trim(),
                                         correo.trim(),
@@ -293,16 +277,6 @@ private fun FormularioRegistro(
                                 }
                             }
                         }
-                    )
-
-                    Spacer(Modifier.height(16.dp))
-
-                    Text(
-                        text = "Cuenta local en este dispositivo",
-                        fontSize = 13.sp,
-                        color = MPAZTextoSecundario,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
@@ -318,9 +292,7 @@ private fun FormularioRegistro(
 )
 @Composable
 fun PreviewRegistroScreen() {
-
     AppMPAZPRO3_Grupo6Theme {
-
         FormularioRegistro(
             procesando = false,
             mensajeError = null,

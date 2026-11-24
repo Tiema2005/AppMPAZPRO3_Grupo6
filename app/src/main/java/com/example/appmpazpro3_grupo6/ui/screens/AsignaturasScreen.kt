@@ -16,8 +16,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.appmpazpro3_grupo6.ui.components.MPAZBackground
-import com.example.appmpazpro3_grupo6.ui.components.MPAZScreenHeader
 import com.example.appmpazpro3_grupo6.ui.components.MPAZButton
+import com.example.appmpazpro3_grupo6.ui.components.MPAZScreenHeader
 import com.example.appmpazpro3_grupo6.ui.theme.*
 
 private data class AsignaturaVisual(
@@ -32,7 +32,6 @@ fun AsignaturasScreen(
     onVolverClick: () -> Unit = {},
     onAsignaturaClick: (String) -> Unit = {}
 ) {
-
     val asignaturas = listOf(
         AsignaturaVisual(
             titulo = "Lenguaje y Comunicación",
@@ -56,17 +55,14 @@ fun AsignaturasScreen(
             titulo = "Historia y Geografía",
             emoji = "🌎",
             fondo = MPAZAmarilloSuave,
-            nombreOriginal =
-                "🌎 Historia, Geografía y Ciencias Sociales"
+            nombreOriginal = "🌎 Historia, Geografía y Ciencias Sociales"
         )
     )
 
     MPAZBackground {
-
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
-
             val alturaPantalla = maxHeight
 
             Column(
@@ -74,7 +70,6 @@ fun AsignaturasScreen(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -86,42 +81,30 @@ fun AsignaturasScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-
                     Column(
                         modifier = Modifier
                             .widthIn(max = 600.dp)
                             .fillMaxWidth(),
-                        horizontalAlignment =
-                            Alignment.CenterHorizontally,
-                        verticalArrangement =
-                            Arrangement.spacedBy(20.dp)
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(20.dp)
                     ) {
-
                         MPAZScreenHeader(
                             titulo = "Mis asignaturas",
-                            subtitulo =
-                                "¡Elige qué quieres aprender hoy!",
-                            onVolverClick = onVolverClick
+                            subtitulo = "¡Elige qué quieres aprender hoy!"
                         )
 
                         Spacer(Modifier.height(4.dp))
 
                         Column(
                             modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement =
-                                Arrangement.spacedBy(12.dp)
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-
                             asignaturas.chunked(2).forEach { fila ->
-
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement =
-                                        Arrangement.spacedBy(12.dp)
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                                 ) {
-
                                     fila.forEach { asignatura ->
-
                                         TarjetaAsignaturaCentrada(
                                             titulo = asignatura.titulo,
                                             emoji = asignatura.emoji,
@@ -172,7 +155,6 @@ private fun TarjetaAsignaturaCentrada(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Surface(
         onClick = onClick,
         modifier = modifier,
@@ -180,21 +162,16 @@ private fun TarjetaAsignaturaCentrada(
         color = fondo,
         shadowElevation = 4.dp
     ) {
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp),
             contentAlignment = Alignment.Center
         ) {
-
             Column(
-                horizontalAlignment =
-                    Alignment.CenterHorizontally,
-                verticalArrangement =
-                    Arrangement.spacedBy(12.dp)
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-
                 Text(
                     text = emoji,
                     fontSize = 38.sp,
